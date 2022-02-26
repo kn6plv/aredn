@@ -190,22 +190,24 @@ local aliasfile = "/etc/config.mesh/aliases" .. fsuffix
 -- read the data from the config files
 if parms.button_reset or not parms.reload then
     local i = 0
-    for line in io.lines(portfile)
-    do
-        if not (line:match("^%s*#") or line:match("^%s*$")) then
-            local k, v = line:match("(%S+)%s+=%s+(%S+)")
-            if v then
-                parms[k] = v
-            else
-                local intf, type, out, ip, _in, enable = line:match("(.*):(.*):(.*):(.*):(.*):(.*)")
-                if intf then
-                    i = i + 1
-                    parms["port" .. i .. "_intf"] = intf
-                    parms["port" .. i .. "_type"] = type
-                    parms["port" .. i .. "_out"] = out
-                    parms["port" .. i .. "_ip"] = ip
-                    parms["port" .. i .. "_in"] = _in
-                    parms["port" .. i .. "_enable"] = enable
+    if nixio.fs.stat(portfile) then
+        for line in io.lines(portfile)
+        do
+            if not (line:match("^%s*#") or line:match("^%s*$")) then
+                local k, v = line:match("(%S+)%s+=%s+(%S+)")
+                if v then
+                    parms[k] = v
+                else
+                    local intf, type, out, ip, _in, enable = line:match("(.*):(.*):(.*):(.*):(.*):(.*)")
+                    if intf then
+                        i = i + 1
+                        parms["port" .. i .. "_intf"] = intf
+                        parms["port" .. i .. "_type"] = type
+                        parms["port" .. i .. "_out"] = out
+                        parms["port" .. i .. "_ip"] = ip
+                        parms["port" .. i .. "_in"] = _in
+                        parms["port" .. i .. "_enable"] = enable
+                    end
                 end
             end
         end
@@ -215,22 +217,24 @@ if parms.button_reset or not parms.reload then
     -- set dhcp reservations
     -- ip addresses are stored as offsets from the lan network address
     i = 0
-    for line in io.lines(dhcpfile)
-    do
-        if not (line:match("^%s*#") or line:match("^%s*$")) then
-            local a, b, x = line:match("(%S*)%s+(%S*)%s+(.*)")
-            if x then
-                local c, d = x:match("(%S*)%s+(%S*)")
-                if not c then
-                    c = x
-                    d = ""
+    if nixio.fs.stat(dhcpfile) then
+        for line in io.lines(dhcpfile)
+        do
+            if not (line:match("^%s*#") or line:match("^%s*$")) then
+                local a, b, x = line:match("(%S*)%s+(%S*)%s+(.*)")
+                if x then
+                    local c, d = x:match("(%S*)%s+(%S*)")
+                    if not c then
+                        c = x
+                        d = ""
+                    end
+                    i = i + 1
+                    local prefix = "dhcp" .. i .. "_"
+                    parms[prefix .. "mac"] = a
+                    parms[prefix .. "ip"] = decimal_to_ip(lannet_d + tonumber(b))
+                    parms[prefix .. "host"] = c
+                    parms[prefix .. "noprop"] = d
                 end
-                i = i + 1
-                local prefix = "dhcp" .. i .. "_"
-                parms[prefix .. "mac"] = a
-                parms[prefix .. "ip"] = decimal_to_ip(lannet_d + tonumber(b))
-                parms[prefix .. "host"] = c
-                parms[prefix .. "noprop"] = d
             end
         end
     end
@@ -238,24 +242,26 @@ if parms.button_reset or not parms.reload then
 
     -- services
     i = 0
-    for line in io.lines(servfile)
-    do
-        if not (line:match("^%s*#") or line:match("^%s*$")) then
-            local a, b, c, d, x = line:match("([^|]*)|([^|]*)|([^|]*)|([^|]*)|(.*)")
-            if x then
-                local e, f = x:match("(.*)|(.*)")
-                if not e then
-                    e = x
-                    f = ""
+    if nixio.fs.stat(servfile) then
+        for line in io.lines(servfile)
+        do
+            if not (line:match("^%s*#") or line:match("^%s*$")) then
+                local a, b, c, d, x = line:match("([^|]*)|([^|]*)|([^|]*)|([^|]*)|(.*)")
+                if x then
+                    local e, f = x:match("(.*)|(.*)")
+                    if not e then
+                        e = x
+                        f = ""
+                    end
+                    i = i + 1
+                    local prefix = "serv" .. i .. "_"
+                    parms[prefix .. "name"] = a
+                    parms[prefix .. "link"] = b
+                    parms[prefix .. "proto"] = c
+                    parms[prefix .. "host"] = d
+                    parms[prefix .. "port"] = e
+                    parms[prefix .. "suffix"] = f
                 end
-                i = i + 1
-                local prefix = "serv" .. i .. "_"
-                parms[prefix .. "name"] = a
-                parms[prefix .. "link"] = b
-                parms[prefix .. "proto"] = c
-                parms[prefix .. "host"] = d
-                parms[prefix .. "port"] = e
-                parms[prefix .. "suffix"] = f
             end
         end
     end
@@ -263,14 +269,16 @@ if parms.button_reset or not parms.reload then
 
     -- aliases
     i = 0
-    for line in io.lines(aliasfile)
-    do
-        if not (line:match("^%s*#") or line:match("^%s*$")) then
-            local a, b = line:match("(.*)%s+(.*)")
-            if b then
-                i = i + 1
-                parms["alias" .. i .. "_ip"] = a
-                parms["alias" .. i .. "_host"] = b
+    if nixio.fs.stat(aliasfile) then
+        for line in io.lines(aliasfile)
+        do
+            if not (line:match("^%s*#") or line:match("^%s*$")) then
+                local a, b = line:match("(.*)%s+(.*)")
+                if b then
+                    i = i + 1
+                    parms["alias" .. i .. "_ip"] = a
+                    parms["alias" .. i .. "_host"] = b
+                end
             end
         end
     end
@@ -445,15 +453,17 @@ do
         if val == "_add" then
             if host ~= "" then
                 local pattern = "%s" .. host .. "%s"
-                for line in io.lines("/var/run/hosts_olsr")
-                do
-                    if line:lower():match(pattern) then
-                        foundhost = true
-                        dhcperr(val .. [[ <font color='red'>Warning!</font> ']] .. host .. [[ is already in use!<br>
-                            Please choose another hostname.<br>
-                            Prefixing the hostname with your callsign will help prevent duplicates on the network.
-                        ]])
-                        break
+                if nixio.fs.stat("/var/run/hosts_olsr") then
+                    for line in io.lines("/var/run/hosts_olsr")
+                    do
+                        if line:lower():match(pattern) then
+                            foundhost = true
+                            dhcperr(val .. [[ <font color='red'>Warning!</font> ']] .. host .. [[ is already in use!<br>
+                                Please choose another hostname.<br>
+                                Prefixing the hostname with your callsign will help prevent duplicates on the network.
+                            ]])
+                            break
+                        end
                     end
                 end
             end
@@ -639,15 +649,17 @@ do
         if val == "_add" then
             if host ~= "" then
                 local pattern = "%s" .. host .. "%s"
-                for line in io.lines("/var/run/hosts_olsr")
-                do
-                    if line:lower():match(pattern) then
-                        foundhost = true
-                        aliaserr(val .. [[ <font color='red'>Warning!</font> ']] .. host .. [[ is already in use!<br>
-                            Please choose another hostname.<br>
-                            Prefixing the hostname with your callsign will help prevent duplicates on the network.
-                        ]])
-                        break
+                if nixio.fs.stat("/var/run/hosts_olsr") then
+                    for line in io.lines("/var/run/hosts_olsr")
+                    do
+                        if line:lower():match(pattern) then
+                            foundhost = true
+                            aliaserr(val .. [[ <font color='red'>Warning!</font> ']] .. host .. [[ is already in use!<br>
+                                Please choose another hostname.<br>
+                                Prefixing the hostname with your callsign will help prevent duplicates on the network.
+                            ]])
+                            break
+                        end
                     end
                 end
                 if not validate_hostname(host) then
@@ -953,18 +965,20 @@ function print_reservations()
     html.print("<tr><th colspan=4>Current DHCP Leases</th></tr>\n<tr>")
 
     local i = 0
-    for line in io.lines("/tmp/dhcp.leases")
-    do
-        i = i + 1
-        local _, mac, ip, host = line:match("(%S+)%s+(%S+)%s+(%S+)%s+(%S+)")
-        html.print("<tr><td height=5></td></tr>")
-        html.print("<tr><td align=center>" .. host .. "</td><td align=center><small>" .. ip .. "</small></td>")
-        html.print("<td align=center><small>" .. mac .. "</small></td><td></td><td><nobr>&nbsp;")
-        html.print("<input type=submit name=lease" .. i .. "_add  value=Add ")
-        html.print("title='Use these values as an address reservation'></nobr></td></tr>")
-        hide("<input type=hidden name=lease" .. i .. "_host value=" .. host .. ">")
-        hide("<input type=hidden name=lease" .. i .. "_ip   value=" .. ip .. ">")
-        hide("<input type=hidden name=lease" .. i .. "_mac  value=" .. mac .. ">")
+    if nixio.fs.stat("/tmp/dhcp.leases") then
+        for line in io.lines("/tmp/dhcp.leases")
+        do
+            i = i + 1
+            local _, mac, ip, host = line:match("(%S+)%s+(%S+)%s+(%S+)%s+(%S+)")
+            html.print("<tr><td height=5></td></tr>")
+            html.print("<tr><td align=center>" .. host .. "</td><td align=center><small>" .. ip .. "</small></td>")
+            html.print("<td align=center><small>" .. mac .. "</small></td><td></td><td><nobr>&nbsp;")
+            html.print("<input type=submit name=lease" .. i .. "_add  value=Add ")
+            html.print("title='Use these values as an address reservation'></nobr></td></tr>")
+            hide("<input type=hidden name=lease" .. i .. "_host value=" .. host .. ">")
+            hide("<input type=hidden name=lease" .. i .. "_ip   value=" .. ip .. ">")
+            hide("<input type=hidden name=lease" .. i .. "_mac  value=" .. mac .. ">")
+        end
     end
 
     if i == 0 then

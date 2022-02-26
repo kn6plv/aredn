@@ -53,10 +53,12 @@ local conn = ubus.connect()
 local fw_images = {}
 local fw_version = ""
 function firmware_list_gen()
-    for line in io.lines("/etc/mesh-release")
-    do
-        fw_version = line:chomp()
-        break
+    if nixio.fs.stat("/etc/mesh-release") then
+        for line in io.lines("/etc/mesh-release")
+        do
+            fw_version = line:chomp()
+            break
+        end
     end
     if nixio.fs.stat("/etc/web/firmware.list") then
         for line in io.lines("/etc/web/firmware.list")
@@ -532,10 +534,12 @@ function pkgout(msg)
 end
 
 local permpkg = {}
-for line in io.lines("/etc/permpkg")
-do
-    if not line:match("^#") then
-        permpkg[line] = true
+if nixio.fs.stat("/etc/permpkg") then
+    for line in io.lines("/etc/permpkg")
+    do
+        if not line:match("^#") then
+            permpkg[line] = true
+        end
     end
 end
 
@@ -629,9 +633,11 @@ local keyfile = "/etc/dropbear/authorized_keys"
 -- upload key
 if parms.button_ul_key and nixio.fs.stat("/tmp/web/upload/file") then
     local count = 0
-    for _ in io.lines(keyfile)
-    do
-        count = count + 1
+    if nixio.fs.stat(keyfile) then
+        for _ in io.lines(keyfile)
+        do
+            count = count + 1
+        end
     end
     os.execute("grep ^ssh- /tmp/web/upload/file >> " .. keyfile)
     local count = 0

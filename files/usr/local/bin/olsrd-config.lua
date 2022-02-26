@@ -95,22 +95,26 @@ end
 
 local dmz_mode = cursor:get("aredn", "@dmz[0]", "mode")
 if dmz_mode ~= "0" then
-    for line in io.lines("/etc/config.mesh/aliases.dmz")
-    do
-        local ip, host = line:match("(.*) (.*)")
-        if host then
-            hosts[#hosts + 1] = { ip = ip, host = host }
+    if nixio.fs.stat("/etc/config.mesh/aliases.dmz") then
+        for line in io.lines("/etc/config.mesh/aliases.dmz")
+        do
+            local ip, host = line:match("(.*) (.*)")
+            if host then
+                hosts[#hosts + 1] = { ip = ip, host = host }
+            end
         end
     end
-    for line in io.lines("/etc/ethers")
-    do
-        local noprop = line:match(".* .*( .*)")
-        if noprop ~= " #NOPROP" then
-            local ip = line:match("[0-9a-fA-F:]+%s+([%d%.]+)")
-            if ip then
-                local host = ip_to_hostname(ip)
-                if host then
-                    hosts[#hosts + 1] = { ip = ip, host = host }
+    if nixio.fs.stat("/etc/ethers") then
+        for line in io.lines("/etc/ethers")
+        do
+            local noprop = line:match(".* .*( .*)")
+            if noprop ~= " #NOPROP" then
+                local ip = line:match("[0-9a-fA-F:]+%s+([%d%.]+)")
+                if ip then
+                    local host = ip_to_hostname(ip)
+                    if host then
+                        hosts[#hosts + 1] = { ip = ip, host = host }
+                    end
                 end
             end
         end
@@ -124,10 +128,12 @@ if name then
 end
 
 -- load the services
-for line in io.lines("/etc/config/services")
-do
-    if line:match("^%w+://[%w%-%.]+:%d+(/[^|]*)?|[tu][cd]p|%w") then
-        services[#services + 1] = line
+if nixio.fs.stat("/etc/config/services") then
+    for line in io.lines("/etc/config/services")
+    do
+        if line:match("^%w+://[%w%-%.]+:%d+(/[^|]*)?|[tu][cd]p|%w") then
+            services[#services + 1] = line
+        end
     end
 end
 
