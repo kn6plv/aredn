@@ -130,9 +130,9 @@ function reboot()
         fromlan = validate_same_subnet(browser, lanip, lanmask)
         if fromlan then
             lanmask = ip_to_decimal(lanmask)
-            local cfgip = cursor_get("network", "lan", "ipaddr")
-            local cfgmask = ip_to_decimal(cursor_get("network", "lan", "netmask"))
-            if lanmask ~= cfgmask or decimal_to_ip(nixio.bit.band(ip_to_decimal(ip), lanmask)) ~= nixio.bit.band(ip_to_decimal(cfgip), cfgmask) then
+            local cfgip = cursor:get("network", "lan", "ipaddr")
+            local cfgmask = ip_to_decimal(cursor:get("network", "lan", "netmask"))
+            if lanmask ~= cfgmask or decimal_to_ip(nixio.bit.band(ip_to_decimal(lanip), lanmask)) ~= nixio.bit.band(ip_to_decimal(cfgip), cfgmask) then
                 subnet_change = true
             end
         end
