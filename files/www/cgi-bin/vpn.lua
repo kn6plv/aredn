@@ -148,11 +148,11 @@ function install_vtun()
         err("Insufficient free disk space")
         return
     end
-    if not os.execute("opkg update") then
+    if not os.execute("opkg update > /dev/null 2>&1") then
         err("Package update failed!")
         return
     end
-    if not os.execute("opkg install kmod-tun zlib liblzo vtun") then
+    if not os.execute("opkg install kmod-tun zlib liblzo vtun > /dev/null 2>&1") then
         err("Package installation failed!")
         return
     end
@@ -160,6 +160,7 @@ function install_vtun()
     cursor:set("aredn", "@tunnel[0]", "maxservers", "10")
     cursor:commit("aredn")
     write_all("/etc/config.mesh/aredn", read_all("/etc/config/aredn"))
+    io.open("/etc/config/network_tun", "w"):close()
     for tunnum = 50,69
     do
         cursor:set("network_tun", "tun" .. tunnum, "interface")
