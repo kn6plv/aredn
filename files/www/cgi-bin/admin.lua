@@ -50,8 +50,18 @@ local html = aredn.html
 local cursor = uci.cursor()
 local conn = ubus.connect()
 
+-- handle firmware updates
+local fw_install = false
+local patch_install = false
+local fw_output = {}
 local fw_images = {}
+local fw_md5 = {}
 local fw_version = ""
+
+function fwout(msg)
+    fw_output[#fw_output + 1] = msg
+end
+
 function firmware_list_gen()
     if nixio.fs.stat("/etc/mesh-release") then
         for line in io.lines("/etc/mesh-release")
@@ -60,10 +70,10 @@ function firmware_list_gen()
             break
         end
     end
-    if nixio.fs.stat("/etc/web/firmware.list") then
-        for line in io.lines("/etc/web/firmware.list")
+    if nixio.fs.stat("/tmp/web/firmware.list") then
+        for line in io.lines("/tmp/web/firmware.list")
         do
-            local md5, fw, tag = line:match("")
+            local md5, fw, tag = line:match("^(%S+) (%S+) (.*)")
             if tag and tag ~= "none" and (tag == "all" or fw_version:match(tag)) then
                 fw_images[#fw_images + 1] = fw
                 fw_md5[fw] = md5
@@ -236,17 +246,6 @@ nixio.fs.mkdir("/tmp/web/admin")
 -- set the wget command options
 local wget = "wget -U 'node: " .. node .. "' "
 
--- handle firmware updates
-local fw_install = false
-local patch_install = false
-local fw_output = {}
-local fw_images = {}
-local fw_md5 = {}
-
-function fwout(msg)
-    fw_output[#fw_output + 1] = msg
-end
-
 local serverpaths = {}
 local uciserverpath = cursor:get("aredn", "@downloads[0]", "firmwarepath")
 if not uciserverpath then
@@ -353,7 +352,7 @@ if parms.button_ul_fw and nixio.fs.stat("/tmp/web/upload/file") then
             fwout("firmware file is not valid")
             fw_install = false
             nixio.fs.remove(tmpdir .. "/firmware")
-            if os.execute("/usr/local/bin/uploadctlservices restore") ~= 0 then
+            if os.execute("/usr/local/bin/uploadctlservices restore > /dev/null 2>&1") ~= 0 then
                 fwout("Failed to restart all services, please reboot this node.")
             end
         end
@@ -363,17 +362,17 @@ if parms.button_ul_fw and nixio.fs.stat("/tmp/web/upload/file") then
         fwout("Firmware CANNOT be updated")
         fwout("the uploaded file is not recognized")
         nixio.fs.remove(tmpdir .. "/firmware")
-        if os.execute("/usr/local/bin/uploadctlservices restore") ~= 0 then
+        if os.execute("/usr/local/bin/uploadctlservices restore > /dev/null 2>&1") ~= 0 then
             fwout("Failed to restart all services, please reboot this node.")
         end
     end
 end
 
 -- download fw
-if parms.button_dw_fw and parms.dl_fw ~= "default" then
+if parms.button_dl_fw and parms.dl_fw ~= "default" then
     if get_default_gw() ~= "none" or uciserverpath:match("%.local%.mesh") then
         nixio.fs.remove(tmpdir .. "/firmware")
-        os.execute("/usr/local/bin/uploadctlservices update")
+        os.execute("/usr/local/bin/uploadctlservices update > /dev/null 2>&1")
         local ok = false
         for _, serverpath in ipairs(serverpaths)
         do
@@ -383,7 +382,7 @@ if parms.button_dw_fw and parms.dl_fw ~= "default" then
             end
         end
 
-        if parms.dl_fw:match("/sysupgrade%.bin$") then -- full firmware
+        if parms.dl_fw:match("sysupgrade%.bin$") then -- full firmware
             fw_install = true
             if not ok then
                 fwout("Downloading firmware image...")
@@ -392,12 +391,12 @@ if parms.button_dw_fw and parms.dl_fw ~= "default" then
             nixio.fs.remove(tmpdir .. "/wget.err")
             -- check md5sum
             local fw = parms.dl_fw
-            if os.execute("echo '" .. fw_md5[fw] .. "  firmware' | md5sum -cs") ~= 0 then
+            if os.execute("echo '" .. fw_md5[fw] .. "  " .. tmpdir .. "/firmware' | md5sum -cs") ~= 0 then
                 fwout("Firmware CANNOT be updated")
                 fwout("firmware file is not valid")
                 fw_install = false
                 nixio.fs.remove(tmpdir .. "/firmware")
-                if os.execute("/usr/local/bin/uploadctlservices restore") ~= 0 then
+                if os.execute("/usr/local/bin/uploadctlservices restore > /dev/null 2>&1") ~= 0 then
                     fwout("Failed to restart all services, please reboot this node.")
                 end
             end
@@ -415,7 +414,7 @@ if parms.button_dw_fw and parms.dl_fw ~= "default" then
                 fwout("patch file is not valid")
                 patch_install = false
                 nixio.fs.remove(tmpdir .. "/firmware")
-                if os.execute("/usr/local/bin/uploadctlservices restore") ~= 0 then
+                if os.execute("/usr/local/bin/uploadctlservices restore > /dev/null 2>&1") ~= 0 then
                     fwout("Failed to restart all services, please reboot this node.")
                 end
             end
@@ -423,7 +422,7 @@ if parms.button_dw_fw and parms.dl_fw ~= "default" then
             fwout("Firmware CANNOT be updated")
             fwout("the downloaded file is not recognized")
             nixio.fs.remove(tmpdir .. "/firmware")
-            if os.execute("/usr/local/bin/uploadctlservices restore") ~= 0 then
+            if os.execute("/usr/local/bin/uploadctlservices restore > /dev/null 2>&1") ~= 0 then
                 fwout("Failed to restart all services, please reboot this node.")
             end
         end
@@ -460,7 +459,7 @@ if fw_install and nixio.fs.stat(tmpdir .. "/firmware") then
                 fout:close()
                 fin:close()
                 aredn.info.set_nvram("nodeupgraded", "1")
-                if os.execute("tar -czf /tmp/arednsysupgradebackup.tgz -T /tmp/sysupgradefilelist") ~= 0 then
+                if os.execute("tar -czf /tmp/arednsysupgradebackup.tgz -T /tmp/sysupgradefilelist > /dev/null 2>&1") ~= 0 then
                     html.print([[
                         <center><h2>ERROR: Could not backup filesystem.</h2>
                         <h3>An error occured trying to backup the file system. Node will now reboot.
@@ -549,7 +548,7 @@ if parms.button_ul_pkg and nixio.fs.stat("/tmp/web/upload/file") then
     pkgout(capture("opkg -force-overwrite install /tmp/web/upload/newpkg.ipk 2>&"))
     os.execute("rm -rf /tmp/opkg-*")
     nixio.fs.remove("/tmp/web/upload/newpkg.ipk")
-    if os.execute("/usr/local/bin/uploadctlservices restore") ~= 0 then
+    if os.execute("/usr/local/bin/uploadctlservices restore > /dev/null 2>&1") ~= 0 then
         pkgout("Failed to restart all services, please reboot this node.")
     end
 end
@@ -558,9 +557,9 @@ end
 local meshpkgs = capture("grep -q \".local.mesh\" /etc/opkg/distfeeds.conf"):chomp()
 if parms.button_dl_pkg and parms.dl_pkg ~= "default" then
     if get_default_gw() ~= "none" or meshpkgs ~= "" then
-        os.execute("/usr/local/bin/uploadctlservices opkginstall")
+        os.execute("/usr/local/bin/uploadctlservices opkginstall > /dev/null 2>&1")
         pkgout(capture("opkg -force-overwrite install " .. parms.dl_pkg .. " 2>&1"))
-        if os.execute("/usr/local/bin/uploadctlservices restore") ~= 0 then
+        if os.execute("/usr/local/bin/uploadctlservices restore > /dev/null 2>&1") ~= 0 then
             pkgout("Failed to restart all services, please reboot this node.")
         end
     else
@@ -652,7 +651,7 @@ if parms.button_ul_key and nixio.fs.stat("/tmp/web/upload/file") then
         keyout("Key installed.")
     end
     nixio.fs.remove("/tmp/web/upload/file")
-    if os.execute("/usr/local/bin/uploadctlservices restore") ~= 0 then
+    if os.execute("/usr/local/bin/uploadctlservices restore > /dev/null 2>&1") ~= 0 then
         keyout("Failed to restart all services, please reboot this node.")
     end
 end
