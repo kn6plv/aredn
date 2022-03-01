@@ -148,13 +148,16 @@ function install_vtun()
         err("Insufficient free disk space")
         return
     end
-    if not os.execute("opkg update > /dev/null 2>&1") then
+    if os.execute("opkg update > /dev/null 2>&1") ~= 0 then
         err("Package update failed!")
         return
     end
-    if not os.execute("opkg install kmod-tun zlib liblzo vtun > /dev/null 2>&1") then
+    if os.execute("opkg install kmod-tun zlib liblzo vtun > /dev/null 2>&1") ~= 0 then
         err("Package installation failed!")
         return
+    end
+    if not cursor:get("aredn", "@tunnel[0]") then
+        cursor:add("aredn", "tunnel")
     end
     cursor:set("aredn", "@tunnel[0]", "maxclients", "10")
     cursor:set("aredn", "@tunnel[0]", "maxservers", "10")
@@ -174,6 +177,7 @@ function install_vtun()
 
     io.open("/etc/config/vtun", "w"):close()
     cursor:add("vtun", "options")
+    cursor:add("vtun", "network")
     cursor:commit("vtun")
 
     http_header()
@@ -411,7 +415,7 @@ do
     local client_x = "client_" .. i
 
     local net = parms[clientx .. "_netip"]
-    local vtun_node_name = parms[clientx .. "_name"]:sub(1,23) .. "-" .. net:gsub("%,", "-")
+    local vtun_node_name = (parms[clientx .. "_name"]:sub(1,23) .. "-" .. net:gsub("%.", "-")):upper()
     local base = ip_to_decimal(net)
     local clientip = decimal_to_ip(base + 1)
     local serverip = decimal_to_ip(base + 2)
@@ -576,7 +580,7 @@ if config == "mesh" then
         if val == "_add" then
             html.print("<td rowspan='2' class='tun_client_center_item'><input type=submit name=client_add value=Add title='Add this client'></td>")
         else
-            html.print("<td rowspan='2' class='tun_client_center_item tun_client_mailto'><a href='mailto:?subject=AREDN%20Tunnel%20Connection&body=Your%20connection%20details:%0D%0AName:%20" .. name .. "%0D%0APassword:%20$" .. passwd .. "%0D%0ANetwork:%20" .. fullnet .. "%0D%0AServer%20address:%20" .. dns .. "'><img class='tun_client_mailto_img' src='/email.png' title='Email details' /></a></td>")
+            html.print("<td rowspan='2' class='tun_client_center_item tun_client_mailto'><a href='mailto:?subject=AREDN%20Tunnel%20Connection&body=Your%20connection%20details:%0D%0AName:%20" .. name .. "%0D%0APassword:%20" .. passwd .. "%0D%0ANetwork:%20" .. fullnet .. "%0D%0AServer%20address:%20" .. dns .. "'><img class='tun_client_mailto_img' src='/email.png' title='Email details' /></a></td>")
         end
         html.print("</tr><tr class='tun_client_list1 tun_client_row tun_loading_css_comment'><td colspan='2' align='right'>Contact Info/Comment (Optional): <input type=text maxlength='50' size=40 name=client" .. val .. "_contact value='" .. contact .."'")
         if val ~= "" and val ~= "_add" then

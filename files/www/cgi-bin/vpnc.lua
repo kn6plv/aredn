@@ -133,13 +133,16 @@ function install_vtun()
         err("Insufficient free disk space")
         return
     end
-    if not os.execute("opkg update > /dev/null 2>&1") then
+    if os.execute("opkg update > /dev/null 2>&1") ~= 0 then
         err("Package update failed!")
         return
     end
-    if not os.execute("opkg install kmod-tun zlib liblzo vtun > /dev/null 2>&1") then
+    if os.execute("opkg install kmod-tun zlib liblzo vtun > /dev/null 2>&1") ~= 0 then
         err("Package installation failed!")
         return
+    end
+    if not cursor:get("aredn", "@tunnel[0]") then
+        cursor:add("aredn", "tunnel")
     end
     cursor:set("aredn", "@tunnel[0]", "maxclients", "10")
     cursor:set("aredn", "@tunnel[0]", "maxservers", "10")
@@ -159,6 +162,7 @@ function install_vtun()
 
     io.open("/etc/config/vtun", "w"):close()
     cursor:add("vtun", "options")
+    cursor:add("vtun", "network")
     cursor:commit("vtun")
 
     http_header()
@@ -386,7 +390,7 @@ do
     local conn_x = "server_" .. i
 
     local net = parms[connx_ .. "netip"]
-    local vtun_node_name = (node .. "-" .. net):upper()
+    local vtun_node_name = (node .. "-" .. net:gsub("%.", "-")):upper()
     local base = ip_to_decimal(net)
     local clientip = decimal_to_ip(base + 2)
     local serverip = decimal_to_ip(base + 1)
