@@ -612,7 +612,7 @@ if nixio.fs.stat("/etc/opkg.list.gz") then
         do
             local pkg, ver = line:match("(.+)%s(.+)")
             if ver and not (pkgver[pkg] and pkgver[pkg] == ver) then
-                dl_pkgs[#pkgs + 1] = pkg
+                dl_pkgs[#dl_pkgs + 1] = pkg
                 dlpkgver[pkg] = ver
             end
         end
