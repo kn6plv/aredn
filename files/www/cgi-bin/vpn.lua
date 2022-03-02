@@ -437,8 +437,13 @@ do
         enabled_count = enabled_count + 1
     end
 end
-if enabled_count > 100 then
-    err("Number of clients enabled (" .. enabled_count .. " exceeds maxclients (100); only the first 100 will activate.")
+
+local maxclients = cursor:get("aredn", "@tunnel[0]", "maxclients")
+if not maxclients then
+    maxclients = 10
+end
+if enabled_count > maxclients then
+    err("Number of clients enabled (" .. enabled_count .. " exceeds maxclients (" .. maxclients .. "); only the first 100 will activate.")
 end
 
 -- save configuration (commit)

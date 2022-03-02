@@ -413,8 +413,12 @@ do
         enabled_count = enabled_count + 1
     end
 end
-if enabled_count > 10 then
-    err("Number of servers enabled (" .. enabled_count .. " exceeds maxservers (10); only the first 10 will activate.")
+local maxservers = cursor:get("aredn", "@tunnel[0]", "maxservers")
+if not maxservers then
+    maxservers = 10
+end
+if enabled_count > maxservers then
+    err("Number of servers enabled (" .. enabled_count .. " exceeds maxservers (" .. maxservers .. "); only the first 10 will activate.")
 end
 
 -- save the connections the uci vtun file
