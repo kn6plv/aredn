@@ -61,7 +61,7 @@ local dtdmac = mac_to_ip(aredn.hardware.get_interface_mac(aredn.hardware.get_ifa
 local cfg = {}
 local defaultcfg = {}
 
-local tmp = io.open("/tmp/.mesh_setup", "r")
+local tmp = io.open("/tmp/.mesh_setup", "w")
 if not tmp then
     print "Failed to create temp file"
     os.exit(-1)
@@ -70,7 +70,7 @@ end
 for line in io.lines("/etc/config.mesh/_setup")
 do
     if not (line:match("^%s*#") or line:match("^%s*$")) then
-        local k, v = line:match("^([^%s]*)%s*=%s*(.*)%s*$")
+        local k, v = line:match("^(%S+)%s*=%s*(.*)%s*$")
         cfg[k] = v
     end
 end
@@ -79,7 +79,7 @@ for line in io.lines("/etc/config.mesh/_setup.default")
 do
     if not (line:match("^%s*#") or line:match("^%s*$")) then
         line = line:gsub("<NODE>", node):gsub("<MAC2>", mac2):gsub("<DTDMAC>", dtdmac)
-        local k, v = line:match("^([^%s]*)%s*=%s*(.*)%s*$")
+        local k, v = line:match("^(%S+)%s*=%s*(.*)%s*$")
         defaultcfg[k] = v
     end
 end
@@ -96,7 +96,7 @@ do
     keys[#keys + 1] = k
 end
 table.sort(keys)
-for i, key in ipairs(keys)
+for _, key in ipairs(keys)
 do
     local v = cfg[key]
     if v then
@@ -107,7 +107,7 @@ do
 end
 
 -- specific settings for variables that are not in the default config but are added by the system
-for i, key in ipairs({ 'dmz_dhcp_end', 'dmz_dhcp_limit', 'dmz_dhcp_start', 'dmz_lan_ip', 'dmz_lan_mask', 'wifi_rxant', 'wifi_txant', 'wan_gw', 'wan_ip', 'wan_mask' })
+for _, key in ipairs({ 'dmz_dhcp_end', 'dmz_dhcp_limit', 'dmz_dhcp_start', 'dmz_lan_ip', 'dmz_lan_mask', 'wifi_rxant', 'wifi_txant', 'wan_gw', 'wan_ip', 'wan_mask' })
 do
     local v = cfg[key]
     if v then
