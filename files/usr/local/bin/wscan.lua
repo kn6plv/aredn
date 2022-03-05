@@ -191,7 +191,7 @@ do
                     freq = 0,
                     key = ""
                 }
-                scanned[m] = scan
+                scanned[#scanned + 1] = scan
                 if line:match("joined") then
                     scan.mode = "My Ad-Hoc Network"
                 end
@@ -225,26 +225,18 @@ do
         do
             local m = line:match("^Station ([%da-fA-F:]+) %(on " .. iface .. "%)")
             if m then
-                scan = scanned[m]
-                if not scan then
-                    scan = {
-                        mac = m,
-                        mode = "Connected Ad-Hoc Station",
-                        ssid = myssid,
-                        signal = 0,
-                        freq = myfreq,
-                        key = ""
-                    }
-                    scanned[m] = scan
-                else
-                    scan.mode = "Connected Ad-Hoc Station"
-                    scan.ssid = myssid
-                    scan.key = ""
-                    scan.freq = myfreq
-                end
+                scan = {
+                    mac = m,
+                    mode = "Connected Ad-Hoc Station",
+                    ssid = myssid,
+                    signal = 0,
+                    freq = myfreq,
+                    key = ""
+                }
+                scanned[#scanned + 1] = scan
             end
             m = line:match("signal avg:%s+([%d-]+)")
-            if m then
+            if m and scan then
                 scan.signal = tonumber(m)
             end
         end
@@ -253,7 +245,7 @@ do
     -- scan end
 
     -- update running averages
-    for _, scan in pairs(scanned)
+    for _, scan in ipairs(scanned)
     do
         local v = avgs[scan.mac]
         if not v then
@@ -291,7 +283,7 @@ do
             end
         end
     else
-        for _, scan in pairs(scanned)
+        for _, scan in ipairs(scanned)
         do
             if scan.signal ~= 0 and (not openap or scan.key == "") then
                 local chan = freq_to_chan(scan.freq)
