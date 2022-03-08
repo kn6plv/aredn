@@ -2,7 +2,7 @@
 
 # Alphabetical except where noted below
 # log needs to start before cron (and maybe others) to be detected for logging.
-serviceslist="log cron dropbear snmpd vtund vtundsrv xinetd"
+serviceslist="log cron dropbear manager snmpd vtund vtundsrv xinetd"
 
 start_upgrade_mode() {
 
@@ -28,7 +28,7 @@ start_upgrade_mode() {
     /usr/local/bin/linkled upgrade
 
     # Purge the /tmp/ filesystem of unneeded files.
-    rm -Rf /tmp/node.history /tmp/olsrd.log /tmp/olsrd.watchdog /tmp/snrlog/ /tmp/snr.dat /tmp/web/firmware.list /tmp/.uci
+    rm -Rf /tmp/node.history /tmp/olsrd.log /tmp/olsrd.watchdog /tmp/snrlog/ /tmp/snr.dat /tmp/web/firmware.list /tmp/.uci /tmp/manager.log
 
 }
 
