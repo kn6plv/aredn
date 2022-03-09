@@ -87,7 +87,6 @@ feeds-update: stamp-clean-feeds-updated .stamp-feeds-updated
 	cd $(OPENWRT_DIR); ./scripts/feeds install libpam
 	cd $(OPENWRT_DIR); ./scripts/feeds install libnetsnmp
 	cd $(OPENWRT_DIR); ./scripts/feeds install -p arednpackages olsrd
-	cd $(OPENWRT_DIR); ./scripts/feeds install perl
 	cd $(OPENWRT_DIR); ./scripts/feeds install -p arednpackages vtun
 	cd $(OPENWRT_DIR); ./scripts/feeds install -a -p arednpackages
 	cd $(OPENWRT_DIR); ./scripts/feeds install snmpd
