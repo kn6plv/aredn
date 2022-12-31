@@ -37,6 +37,7 @@
 
 require("aredn.http")
 require("aredn.hardware")
+require("aredn.utils")
 local html = require("aredn.html")
 local aredn_info = require("aredn.info")
 
@@ -231,7 +232,7 @@ do
         elseif f < 2484 then
             chan[#chan + 1] = (f - 2407) / 5
         elseif f < 5000 then
-        elseif chan < 5380 then
+        elseif f < 5380 then
             chan[#chan + 1] = (f - 5000) / 5
         elseif f < 5500 then
             chan[#chan + 1] = f - 2000
@@ -241,26 +242,28 @@ do
     end
     table.sort(chan)
     chan = table.concat(chan, " ")
-    -- ip lookup then host lookup
-    local ip = arpcache[scan.mac]
     if scan.joined then
         hostname = node
-    elseif ip then
-        hostname = ip
-        local f = io.popen("nslookup " .. ip)
-        if f then
-            for line in f:lines()
-            do
-                local m = line:match("name = (.*)%.local%.mesh")
-                if m then
-                    hostname = m
-                    break
-                end
-            end
-            f:close()
-        end
     else
-        hostname = "-"
+        -- ip lookup then host lookup
+        local ip = arpcache[scan.mac]
+        if ip then
+            hostname = ip
+            local f = io.popen("nslookup " .. ip)
+            if f then
+                for line in f:lines()
+                do
+                    local m = line:match("name = (.*)%.local%.mesh")
+                    if m then
+                        hostname = m:gsub("^mid[0-9]*%.",""):gsub("^dtdlink%.",""):gsub("%.local%.mesh$","")
+                        break
+                    end
+                end
+                f:close()
+            end
+        else
+            hostname = "-"
+        end
     end
     if scan.ssid:match("^AREDN-") then
         html.print("<tr class=\"wscan-row-node\">")
