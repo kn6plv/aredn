@@ -264,7 +264,6 @@ function lqm()
     local rflinks = {}
     local hidden_nodes = {}
     local last_coverage = -1
-    local latlon_refresh = 0
     while true
     do
         now = nixio.sysinfo().uptime
@@ -275,6 +274,7 @@ function lqm()
         local lon = cursor:get("aredn", "@location[0]", "lon")
         lat = tonumber(lat)
         lon = tonumber(lon)
+        local latlons = nil
 
         local arps = {}
         arptable(
@@ -531,21 +531,6 @@ function lqm()
             end
         end
 
-        -- Get known lat/lon mappings
-        local latlons = {}
-        if lat and lon and now > latlon_refresh and nixio.fs.stat("/var/run/latlon.info") then
-            latlon_refresh = now + refresh_timeout
-            for line in io.lines("/var/run/latlon.info")
-            do
-                local nip, nlat, nlon, nhost = line:match("^Node%('([%d%.]+)',([%d%.%-]+),([%d%.%-]+),%d,'[%d%.]+','(.+)'%);")
-                if nip then
-                    local info = { lat = nlat, lon = nlon }
-                    latlons[nip] = info
-                    latlons[nhost:lower()] = info
-                end
-            end
-        end
-
         -- Update link tracking state
         for _, track in pairs(tracker)
         do
@@ -642,17 +627,31 @@ function lqm()
                         end
                     end
                 end
-            end
 
-            -- Update the distance to the node
-            local info = latlons[track.hostname or track.ip or "-"]
-            if info then
-                local nlat = tonumber(info.lat)
-                local nlon = tonumber(info.lon)
-                if nlat and nlon then
-                    track.lat = nlat
-                    track.lon = nlon
-                    track.distance = calc_distance(lat, lon, track.lat, track.lon)
+                -- Update the distance using latlon.info
+                if not latlons then
+                    latlons = {}
+                    if lat and lon and nixio.fs.stat("/var/run/latlon.info") then
+                        for line in io.lines("/var/run/latlon.info")
+                        do
+                            local nip, nlat, nlon, nhost = line:match("^Node%('([%d%.]+)',([%d%.%-]+),([%d%.%-]+),%d,'[%d%.]+','(.+)'%);")
+                            if nip then
+                                local info = { lat = nlat, lon = nlon }
+                                latlons[nip] = info
+                                latlons[canonical_hostname(nhost)] = info
+                            end
+                        end
+                    end
+                end
+                info = latlons[track.hostname or track.ip or "-"]
+                if info then
+                    local nlat = tonumber(info.lat)
+                    local nlon = tonumber(info.lon)
+                    if nlat and nlon then
+                        track.lat = nlat
+                        track.lon = nlon
+                        track.distance = calc_distance(lat, lon, track.lat, track.lon)
+                    end
                 end
             end
 
