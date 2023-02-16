@@ -533,7 +533,7 @@ function lqm()
 
         -- Get known lat/lon mappings
         local latlons = {}
-        if now > latlon_refresh then
+        if lat and lon and now > latlon_refresh and nixio.fs.stat("/var/run/latlon.info") then
             latlon_refresh = now + refresh_timeout
             for line in io.lines("/var/run/latlon.info")
             do
