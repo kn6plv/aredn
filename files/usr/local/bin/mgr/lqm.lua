@@ -264,6 +264,7 @@ function lqm()
     local rflinks = {}
     local hidden_nodes = {}
     local last_coverage = -1
+    local latlon_refresh = 0
     while true
     do
         now = nixio.sysinfo().uptime
@@ -451,7 +452,6 @@ function lqm()
                             dtd = false,
                             signal = false,
                             distance = false,
-                            pair = false,
                             quality = false
                         },
                         blocked = false,
@@ -528,6 +528,21 @@ function lqm()
         do
             if track.type == "RF" then
                 rfcount = rfcount + 1
+            end
+        end
+
+        -- Get known lat/lon mappings
+        local latlons = {}
+        if now > latlon_refresh then
+            latlon_refresh = now + refresh_timeout
+            for line in io.lines("/var/run/latlon.info")
+            do
+                local nip, nlat, nlon, nhost = line:match("^Node%('([%d%.]+)',([%d%.%-]+),([%d%.%-]+),%d,'[%d%.]+','(.+)'%);")
+                if nip then
+                    local info = { lat = nlat, lon = nlon }
+                    latlons[nip] = info
+                    latlons[nhost:lower()] = info
+                end
             end
         end
 
@@ -626,6 +641,18 @@ function lqm()
                             end
                         end
                     end
+                end
+            end
+
+            -- Update the distance to the node
+            local info = latlons[track.hostname or track.ip or "-"]
+            if info then
+                local nlat = tonumber(info.lat)
+                local nlon = tonumber(info.lon)
+                if nlat and nlon then
+                    track.lat = nlat
+                    track.lon = nlon
+                    track.distance = calc_distance(lat, lon, track.lat, track.lon)
                 end
             end
 

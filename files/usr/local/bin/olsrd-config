@@ -276,6 +276,13 @@ print([[    PlParam "sighup-pid-file" "/var/run/dnsmasq/dnsmasq.pid"]])
 print([[    PlParam "interval" "30"]])
 print([[    PlParam "timeout" "300"]])
 print([[    PlParam "name-change-script" "/usr/local/bin/olsrd-namechange"]])
+local lat = tonumber(cursor:get("aredn", "location", "lat"))
+local lon = tonumber(cursor:get("aredn", "location", "lon"))
+if lat and lon then
+    print([[    PlParam "lat" "]] .. lat .. [["]])
+    print([[    PlParam "lon" "]] .. lon .. [["]])
+end
+print([[    PlParam "latlon-file" "/var/run/latlon.info"]])
 for _, name in ipairs(names)
 do
     print([[    PlParam "name" "]] .. name .. [["]])
