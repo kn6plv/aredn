@@ -36,6 +36,7 @@ config rule
 	option class 'cs2'
 
 config rule
-	option name 'ICMP'
-	option proto 'icmp'
+	option name 'OLSR'
+	option proto 'udp'
+	option dest_port '698'
 	option class 'cs5'
