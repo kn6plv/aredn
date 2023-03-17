@@ -1,0 +1,15 @@
+#!/bin/sh
+
+has_zone() {
+	fw4 -q network "$INTERFACE" >/dev/null && return 0
+	eval $(ubus call "network.interface.$INTERFACE" status | jsonfilter -e 'ZONE=@.data.zone')
+	fw4 -q zone "$ZONE" >/dev/null
+}
+
+[ "$ACTION" = ifup ] || exit 0
+
+/etc/init.d/dscpclassify enabled || exit 0
+
+has_zone || exit 0
+
+/etc/init.d/dscpclassify reload

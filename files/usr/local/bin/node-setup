@@ -735,6 +735,33 @@ else
 end
 c:commit("dhcp")
 
+-- generate the sqm config file
+local f = io.open("/etc/config/sqm", "w")
+if f then
+    local ifaces = {}
+    -- Wireless interfaces
+    for devname in nixio.fs.dir(ieee80211)
+    do
+        ifaces["wlan" .. devname:match("^phy(%d+)$")] = true
+    end
+    -- Wired interfaces
+    for _, net in ipairs({ "lan", "wan", "dtdlink" })
+    do
+        for _, port in ipairs(aredn.hardware.get_board_network_ifname(net):split(" "))
+        do
+            ifaces[port:gsub("%..*$", "")] = true
+        end
+    end
+    -- Create a queue per interface
+    for iface, _ in pairs(ifaces)
+    do
+        f:write("config queue '" .. iface .. "'\n")
+        f:write("\toption enabled '1'\n")
+        f:write("\toption interface '" .. iface .. "'\n\n")
+    end
+    f:close()
+end
+
 -- generate the wireless config file
 local config = ""
 local ifacenum = 0
