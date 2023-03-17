@@ -582,14 +582,14 @@ create_threaded_service_rule() {
 		return 1
 	}
 
-	post_include "add rule ip dscpclassify established_connection meter ts_detect { ip daddr . ip saddr and 255.255.255.0 . th sport . meta l4proto timeout 5s limit rate over $((threaded_service_min_connections - 1))/minute } add @threaded_services { ip daddr . ip saddr and 255.255.255.0 . th sport . meta l4proto timeout 30s }"
+	post_include "add rule ip dscpclassify established_connection meter ts_detect { ip daddr . ip saddr . th sport . meta l4proto timeout 5s limit rate over $((threaded_service_min_connections - 1))/minute } add @threaded_services { ip daddr . ip saddr . th sport . meta l4proto timeout 30s }"
 
 	post_include "add rule ip dscpclassify threaded_service ct original bytes < $threaded_service_min_bytes return"
-	post_include "add rule ip dscpclassify threaded_service update @threaded_services { ip saddr . ip daddr and 255.255.255.0 . th dport . meta l4proto timeout 5m }"
+	post_include "add rule ip dscpclassify threaded_service update @threaded_services { ip saddr . ip daddr . th dport . meta l4proto timeout 5m }"
 	post_include "add rule ip dscpclassify threaded_service goto ct_set_$class_high_throughput"
 
 	post_include "add rule ip dscpclassify threaded_service_reply ct reply bytes < $threaded_service_min_bytes return"
-	post_include "add rule ip dscpclassify threaded_service_reply update @threaded_services { ip daddr . ip saddr and 255.255.255.0 . th sport . meta l4proto timeout 5m }"
+	post_include "add rule ip dscpclassify threaded_service_reply update @threaded_services { ip daddr . ip saddr . th sport . meta l4proto timeout 5m }"
 	post_include "add rule ip dscpclassify threaded_service_reply goto ct_set_$class_high_throughput"
 }
 

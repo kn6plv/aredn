@@ -77,7 +77,7 @@ table ip dscpclassify {
         ip saddr . th sport . meta l4proto @threaded_clients goto threaded_client
 
         ## Assess threaded service connections for classification
-        ip saddr . ip daddr and 255.255.255.0 . th dport . meta l4proto @threaded_services goto threaded_service
+        ip saddr . ip daddr . th dport . meta l4proto @threaded_services goto threaded_service
 
         ## Dynamic rules are added here by the init script
     }
@@ -90,7 +90,7 @@ table ip dscpclassify {
         ip daddr . th dport . meta l4proto @threaded_clients goto threaded_client_reply
 
         ## Assess threaded service connections for classification
-        ip daddr . ip saddr and 255.255.255.0 . th sport . meta l4proto @threaded_services goto threaded_service_reply
+        ip daddr . ip saddr . th sport . meta l4proto @threaded_services goto threaded_service_reply
 
         ## Dynamic rules are added here by the init script
     }
