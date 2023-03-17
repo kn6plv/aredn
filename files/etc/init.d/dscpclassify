@@ -531,12 +531,7 @@ create_user_rule() {
 }
 
 create_client_hints_rule() {
-	local client_hints
-
-	config_get_bool client_hints global client_hints 1
-	[ "$client_hints" = 1 ] || return 0
-
-	post_include "insert rule ip dscpclassify static_classify ip dscp != { cs0, cs6, cs7 } iifname != \$wan ip dscp vmap @dscp_ct"
+	post_include "insert rule ip dscpclassify static_classify ip dscp != { cs0, cs7 } ip dscp vmap @dscp_ct"
 }
 
 create_threaded_client_rule() {
@@ -603,6 +598,15 @@ create_dscp_mark_rule() {
 	post_include "add rule ip dscpclassify postrouting ct mark and \$ct_dscp vmap @ct_dscp"
 }
 
+create_emcomm_rule() {
+	local emcomm
+
+	config_get_bool emcomm global emcomm 0
+	[ "$emcomm" = 0 ] && {
+		post_include "add rule ip dscpclassify postrouting oifname \$lan ct mark and \$ct_dscp > \$ef jump ct_set_ef comment \"Deprioritize non-emcomm traffic\""
+	}
+}
+
 create_pre_include() {
 	pre_include "define lan = { $(mklist "$lan" ", ") }"
 	pre_include "define wan = { $(mklist "$wan" ", ") }"
@@ -616,8 +620,6 @@ create_pre_include() {
 }
 
 create_post_include() {
-	create_client_hints_rule || return 1
-
 	config_foreach create_user_set set   # depreciating in favour of 'ipset' section name for consistency with fw4
 	config_foreach create_user_set ipset # section name consistent with fw4
 	config_foreach_reverse create_user_rule rule
@@ -625,6 +627,8 @@ create_post_include() {
 	create_threaded_client_rule || return 1
 	create_threaded_service_rule || return 1
 
+	create_client_hints_rule || return 1
+	create_emcomm_rule || return 1
 	create_dscp_mark_rule || return 1
 }
 
