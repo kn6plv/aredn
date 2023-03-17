@@ -1,8 +1,8 @@
 # You need to jiggle these parameters. Note limits are tuned towards a <10Mbit uplink <60Mbup down
 
 [ -z "$SCRIPT" ] && SCRIPT="layer_cake_ct.qos"
-[ -z "$UPLINK" ] && UPLINK=102400
-[ -z "$DOWNLINK" ] && DOWNLINK=102400
+[ -z "$UPLINK" ] && UPLINK=-1
+[ -z "$DOWNLINK" ] && DOWNLINK=-1
 [ -z "$IFACE" ] && IFACE=eth0
 [ -z "$QDISC" ] && QDISC=cake
 [ -z "$LLAM" ] && LLAM="default"
@@ -25,8 +25,8 @@
 [ -z "$ZERO_DSCP_INGRESS" ] && ZERO_DSCP_INGRESS="${ZERO_DSCP:-${SQUASH_DSCP:-1}}"
 [ -z "$IGNORE_DSCP_INGRESS" ] && IGNORE_DSCP_INGRESS="${IGNORE_DSCP:-${SQUASH_INGRESS:-1}}"
 
-[ -z "$IQDISC_OPTS" ] && IQDISC_OPTS="nat dual-dsthost ingress diffserv4"
-[ -z "$EQDISC_OPTS" ] && EQDISC_OPTS="nat dual-srchost ack-filter diffserv4"
+[ -z "$IQDISC_OPTS" ] && IQDISC_OPTS="triple-isolate ingress diffserv4"
+[ -z "$EQDISC_OPTS" ] && EQDISC_OPTS="triple-isolate egress ack-filter diffserv4"
 
 # handling of specific important binaries
 [ -z "$TC" ] && TC=tc_wrapper
