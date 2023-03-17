@@ -604,6 +604,7 @@ create_emcomm_rule() {
 	config_get_bool emcomm global emcomm 0
 	[ "$emcomm" = 0 ] && {
 		post_include "add rule ip dscpclassify postrouting oifname \$lan ct mark and \$ct_dscp > \$ef jump ct_set_ef comment \"Deprioritize non-emcomm traffic\""
+		post_include "add rule ip dscpclassify output ct mark and \$ct_dscp > \$ef jump ct_set_ef comment \"Deprioritize non-emcomm traffic\""
 	}
 }
 

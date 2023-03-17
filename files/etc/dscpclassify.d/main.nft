@@ -46,6 +46,12 @@ table ip dscpclassify {
         ct mark and $ct_dyn == $ct_dyn jump dynamic_classify
     }
 
+    ## Classify connections from router
+    chain output {
+        type filter hook output priority 2; policy accept
+        meta iifname "lo" return
+    }
+
     ## Classify and DSCP mark connections from/forwarded via the router
     chain postrouting {
         type filter hook postrouting priority 2; policy accept
