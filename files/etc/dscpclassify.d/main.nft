@@ -50,6 +50,7 @@ table ip dscpclassify {
     chain output {
         type filter hook output priority 2; policy accept
         meta iifname "lo" return
+        meta l4proto { tcp, udp } th dport 5201 goto ct_set_cs0 comment "iperf3 best effort"
     }
 
     ## Classify and DSCP mark connections from/forwarded via the router
