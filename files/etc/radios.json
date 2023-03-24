@@ -444,6 +444,15 @@
       "maxpower"        : "22",
       "pwroffset"       : "4"
     },
+    "0xe4f2": {
+      "name"            : "Ubiquiti NanoBeam 2AC (2WA)",
+      "comment"         : "",
+      "supported"       : "1",
+      "maxpower"        : "24",
+      "pwroffset"       : "3",
+      "usechains"       : true,
+      "rfband"          : "2400"
+    },
     "0xe4f5": {
       "name"            : "Ubiquiti NanoBeam AC (XC)",
       "maxpower"        : "23",
