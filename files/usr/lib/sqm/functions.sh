@@ -414,7 +414,7 @@ verify_qdisc() {
         ingress) root_string="" ;;
         #cannot instantiate tbf without args
         tbf)
-    	    IFB_MTU=$( get_mtu $ifb )
+	    IFB_MTU=$( get_mtu $ifb )
 	    IFB_MTU=$(( ${IFB_MTU} + 14 )) # TBF's warning is confused, it says MTU but it checks MTU + 14
 	    args="limit 1 burst ${IFB_MTU} rate 1kbps"
 	    ;;
@@ -587,7 +587,7 @@ get_htb_quantum() {
     fi
 
     if [ -n "${HTB_MTU}" -a "${DURATION_US}" -gt "0" ] ; then
-    	QUANTUM=$( get_burst ${HTB_MTU} ${BANDWIDTH} ${DURATION_US} )
+	QUANTUM=$( get_burst ${HTB_MTU} ${BANDWIDTH} ${DURATION_US} )
     fi
 
     if [ -z "$QUANTUM" ]; then
@@ -669,7 +669,7 @@ get_htb_burst() {
     fi
 
     if [ -n "${HTB_MTU}" -a "${DURATION_US}" -gt "0" ] ; then
-    	BURST=$( get_burst ${HTB_MTU} ${BANDWIDTH} ${DURATION_US} )
+	BURST=$( get_burst ${HTB_MTU} ${BANDWIDTH} ${DURATION_US} )
     fi
 
     if [ -z "$BURST" ]; then

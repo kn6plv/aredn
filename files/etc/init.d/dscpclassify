@@ -652,7 +652,7 @@ get_zones() {
 		dev="$(fw_zone_dev "$i")" && lan="${lan:+$lan }$dev"
 	done
 	[ -n "$lan" ] || return 1
-	
+
 	config_get wan global wan_device
 	config_get wan_zones global wan_zone "wan"
 
