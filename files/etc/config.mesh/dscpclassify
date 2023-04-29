@@ -3,7 +3,6 @@ config global 'global'
 	option class_high_throughput 'af13'
 	option threaded_client_min_bytes '10000'
 	option threaded_service_min_bytes '1000000'
-	option emcomm '0'
 	list wan_zone "lan"
 	list wan_zone "wan"
 	list wan_zone "wifi"
@@ -14,20 +13,20 @@ config rule
 	list proto 'tcp'
 	list proto 'udp'
 	option dest_port '53'
-	option class 'cs5'
+	option class 'cs6'
 
 config rule
 	option name 'BOOTP/DHCP'
 	option proto 'udp'
 	list dest_port '67'
 	list dest_port '68'
-	option class 'cs5'
+	option class 'cs6'
 
 config rule
 	option name 'NTP'
 	option proto 'udp'
 	option dest_port '123'
-	option class 'cs5'
+	option class 'cs6'
 
 config rule
 	option name 'SSH'
