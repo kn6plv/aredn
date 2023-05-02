@@ -50,10 +50,13 @@ local dtd_distance = 50 -- distance (meters) after which nodes connected with Dt
 local connect_timeout = 5 -- timeout (seconds) when fetching information from other nodes
 local speed_time = 10 --
 local speed_limit = 1000 -- close connection if it's too slow (< 1kB/s for 10 seconds)
+local tc_min_bandwidth = 1 -- 1Mbps
+local tc_scale_bandwidth = 0.7 -- Estimate actual bandwidth to be 70% of reported
 
 local NFT = "/usr/sbin/nft"
 local IW = "/usr/sbin/iw"
 local ARPING = "/usr/sbin/arping"
+local TC = "/sbin/tc"
 
 local now = 0
 
@@ -264,6 +267,10 @@ function lqm()
     local rflinks = {}
     local hidden_nodes = {}
     local last_coverage = -1
+    local tc = {
+        rx = 0,
+        tx = 0
+    }
     while true
     do
         now = nixio.sysinfo().uptime
@@ -875,7 +882,12 @@ function lqm()
 
         -- Set the RTS/CTS state depending on whether everyone can see everyone
         -- Build a list of all the nodes our neighbors can see
+        -- Also, calculate the max/min tx/rx wireless bitrates
         local theres = {}
+        local rates = {
+            rx = { max = 0, min = 0x7fffffff },
+            tx = { max = 0, min = 0x7fffffff }
+        }
         for mac, rfneighbor in pairs(rflinks)
         do
             local track = tracker[mac]
@@ -883,6 +895,20 @@ function lqm()
                 for nip, ninfo in pairs(rfneighbor)
                 do
                     theres[nip] = ninfo
+                end
+                if track.device == wlan then
+                    if track.rx_bitrate > rates.rx.max then
+                        rates.rx.max = track.rx_bitrate
+                    end
+                    if track.rx_bitrate < rates.rx.min then
+                        rates.rx.min = track.rx_bitrate
+                    end
+                    if track.tx_bitrate > rates.tx.max then
+                        rates.tx.max = track.tx_bitrate
+                    end
+                    if track.tx_bitrate < rates.tx.min then
+                        rates.tx.min = track.tx_bitrate
+                    end
                 end
             end
         end
@@ -911,6 +937,19 @@ function lqm()
             end
         end
         hidden_nodes = hidden
+
+        -- Update the queue bandwidths
+        -- Use a scaled average min/max of the radio's active stations
+        rates.rx.min = math.max(tc_min_bandwidth, tc_scale_bandwidth * (rates.rx.min + rates.rx.max) / 2)
+        if tc.rx ~= rates.rx.min then
+            tc.rx = rates.rx.min
+            os.execute(TC .. " qdisc change root dev ifb4" .. wlan .. " cake bandwidth " .. math.floor(tc.rx * 1024) .. "Kbit 2> /dev/null")
+        end
+        rates.tx.min = math.max(tc_min_bandwidth, tc_scale_bandwidth * (rates.tx.min + rates.tx.max) / 2)
+        if tc.tx ~= rates.tx.min then
+            tc.tx = rates.tx.min
+            os.execute(TC .. " qdisc change root dev " .. wlan .. " cake bandwidth " .. math.floor(tc.tx * 1024) .. "Kbit 2> /dev/null")
+        end
 
         -- Save this for the UI
         f = io.open("/tmp/lqm.info", "w")

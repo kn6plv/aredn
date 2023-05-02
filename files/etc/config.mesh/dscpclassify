@@ -3,10 +3,10 @@ config global 'global'
 	option class_high_throughput 'af13'
 	option threaded_client_min_bytes '10000'
 	option threaded_service_min_bytes '1000000'
-	list wan_zone "lan"
-	list wan_zone "wan"
+	list lan_zone "lan"
+	list lan_zone "wan"
 	list wan_zone "wifi"
-	list wan_zone "dtdlink"
+	list lan_zone "dtdlink"
 
 config rule
 	option name 'DNS'
@@ -33,3 +33,10 @@ config rule
 	option proto 'tcp'
 	option dest_port '22'
 	option class 'cs2'
+
+config rule
+	option name 'IPERF3'
+	list proto 'tcp'
+	list proto 'udp'
+	option dest_port '5201'
+	option class 'le'

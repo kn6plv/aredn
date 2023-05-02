@@ -5,11 +5,11 @@
 [ -z "$DOWNLINK" ] && DOWNLINK=-1
 [ -z "$IFACE" ] && IFACE=eth0
 [ -z "$QDISC" ] && QDISC=cake
-[ -z "$LLAM" ] && LLAM="default"
-[ -z "$LINKLAYER" ] && LINKLAYER="none"
+[ -z "$LLAM" ] && LLAM="cake"
+[ -z "$LINKLAYER" ] && LINKLAYER="ethernet"
 [ -z "$OVERHEAD" ] && OVERHEAD=0
 [ -z "$STAB_MTU" ] && STAB_MTU=2047
-[ -z "$STAB_MPU" ] && STAB_MPU=0
+[ -z "$STAB_MPU" ] && STAB_MPU=18
 [ -z "$STAB_TSIZE" ] && STAB_TSIZE=512
 [ -z "$AUTOFLOW" ] && AUTOFLOW=0
 [ -z "$LIMIT" ] && LIMIT=1001	# sane global default for *LIMIT for fq_codel on a small memory device
@@ -18,15 +18,15 @@
 [ -z "$ITARGET" ] && ITARGET="auto"
 [ -z "$ETARGET" ] && ETARGET="auto"
 [ -z "$IECN" ] && IECN="ECN"
-[ -z "$EECN" ] && EECN="ECN"
+[ -z "$EECN" ] && EECN="NOECN"
 # These two used to be called something else; preserve backwards compatibility
 [ -z "$SQUASH_DSCP" ] && SQUASH_DSCP="0"
 [ -z "$SQUASH_INGRESS" ] && SQUASH_INGRESS="0"
-[ -z "$ZERO_DSCP_INGRESS" ] && ZERO_DSCP_INGRESS="${ZERO_DSCP:-${SQUASH_DSCP:-1}}"
-[ -z "$IGNORE_DSCP_INGRESS" ] && IGNORE_DSCP_INGRESS="${IGNORE_DSCP:-${SQUASH_INGRESS:-1}}"
+[ -z "$ZERO_DSCP_INGRESS" ] && ZERO_DSCP_INGRESS="0"
+[ -z "$IGNORE_DSCP_INGRESS" ] && IGNORE_DSCP_INGRESS="0"
 
-[ -z "$IQDISC_OPTS" ] && IQDISC_OPTS="triple-isolate ingress diffserv4"
-[ -z "$EQDISC_OPTS" ] && EQDISC_OPTS="triple-isolate egress ack-filter diffserv4"
+[ -z "$IQDISC_OPTS" ] && IQDISC_OPTS="triple-isolate ingress ack-filter rtt 80ms mpu 84"
+[ -z "$EQDISC_OPTS" ] && EQDISC_OPTS="triple-isolate ack-filter rtt 80ms mpu 84"
 
 # handling of specific important binaries
 [ -z "$TC" ] && TC=tc_wrapper
@@ -56,8 +56,8 @@ fi
 [ -z "$IPT_MASK" ] && IPT_MASK="0xff" # to disable: set mask to 0xffffffff
 #sm: we need the functions above before trying to set the ingress IFB device
 #sm: *_CAKE_OPTS should contain the diffserv keyword for cake
-[ -z "$INGRESS_CAKE_OPTS" ] && INGRESS_CAKE_OPTS="diffserv3"
-[ -z "$EGRESS_CAKE_OPTS" ] && EGRESS_CAKE_OPTS="diffserv3"
+[ -z "$INGRESS_CAKE_OPTS" ] && INGRESS_CAKE_OPTS="diffserv4"
+[ -z "$EGRESS_CAKE_OPTS" ] && EGRESS_CAKE_OPTS="diffserv4"
 
 [ -z "$CUR_DIRECTION" ] && CUR_DIRECTION="NONE"
 

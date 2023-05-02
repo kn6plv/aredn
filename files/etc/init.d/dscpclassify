@@ -530,10 +530,6 @@ create_user_rule() {
 	return 0
 }
 
-create_client_hints_rule() {
-	post_include "insert rule ip dscpclassify static_classify iifname != \$lan ip dscp != { cs0, cs7 } ip dscp vmap @dscp_ct"
-}
-
 create_threaded_client_rule() {
 	local class_bulk threaded_client_min_bytes threaded_client_min_connections
 
@@ -618,7 +614,6 @@ create_post_include() {
 	create_threaded_client_rule || return 1
 	create_threaded_service_rule || return 1
 
-	create_client_hints_rule || return 1
 	create_dscp_mark_rule || return 1
 }
 

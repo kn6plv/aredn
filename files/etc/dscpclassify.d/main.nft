@@ -50,7 +50,6 @@ table ip dscpclassify {
     chain output {
         type filter hook output priority 2; policy accept
         meta iifname "lo" return
-        meta l4proto { tcp, udp } th dport 5201 goto ct_set_cs0 comment "iperf3 best effort"
     }
 
     ## Classify and DSCP mark connections from/forwarded via the router
@@ -66,8 +65,11 @@ table ip dscpclassify {
     chain static_classify {
         ## User defined rules in '/etc/config/dscpclassify' are inserted here by the init script
 
-        ## Non TCP/UDP unclassified connections are Best Effort (CS0)
-        meta l4proto != { tcp, udp } goto ct_set_cs0
+        ## Non TCP/UDP/ICMP unclassified connections are Best Effort (CS0)
+        meta l4proto != { tcp, udp, icmp } goto ct_set_cs0
+
+        ## Inherit any incoming dscp classes
+        ip dscp != { cs0, cs7 } ip dscp vmap @dscp_ct
 
         ## Set the dynamic conntrack bit on unclassified connections
         ct mark set ct mark and $ct_unused or $ct_dyn

@@ -736,28 +736,22 @@ end
 c:commit("dhcp")
 
 -- generate the sqm config file
+-- include the mesh wifi and an xlinks
 local f = io.open("/etc/config/sqm", "w")
 if f then
-    local ifaces = {}
-    -- Wireless interfaces
-    for devname in nixio.fs.dir(ieee80211)
-    do
-        ifaces["wlan" .. devname:match("^phy(%d+)$")] = true
-    end
-    -- Wired interfaces
-    for _, net in ipairs({ "lan", "wan", "dtdlink" })
-    do
-        for _, port in ipairs(aredn.hardware.get_board_network_ifname(net):split(" "))
-        do
-            ifaces[port:gsub("%..*$", "")] = true
-        end
-    end
-    -- Create a queue per interface
-    for iface, _ in pairs(ifaces)
-    do
-        f:write("config queue '" .. iface .. "'\n")
+    if cfg.wifi_intf:match("^wlan") then
+        f:write("config queue '" .. cfg.wifi_intf .. "'\n")
         f:write("\toption enabled '1'\n")
-        f:write("\toption interface '" .. iface .. "'\n\n")
+        f:write("\toption interface '" .. cfg.wifi_intf .. "'\n\n")
+    end
+    if nixio.fs.stat("/etc/config.mesh/xlink") then
+        uci.cursor("/etc/config.mesh"):foreach("xlink", "interface",
+            function(section)
+                f:write("config queue '" .. section[".name"] .. "'\n")
+                f:write("\toption enabled '1'\n")
+                f:write("\toption interface '" .. section.ifname .. "'\n\n")
+            end
+        )
     end
     f:close()
 end
