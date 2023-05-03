@@ -873,63 +873,66 @@ function lqm()
                 distance = config.max_distance
             end
         end
-        -- Update the wifi distance
-        local coverage = math.min(255, math.floor((distance * 2 * 0.0033) / 3))
-        if radiomode == "adhoc" and coverage ~= last_coverage then
-            os.execute(IW .. " " .. phy .. " set coverage " .. coverage .. " > /dev/null 2>&1")
-            last_coverage = coverage
-        end
 
-        -- Set the RTS/CTS state depending on whether everyone can see everyone
-        -- Build a list of all the nodes our neighbors can see
-        -- Also, calculate the max/min tx/rx wireless bitrates
-        local theres = {}
-        local rates = {
-            rx = { max = 0, min = 0x7fffffff },
-            tx = { max = 0, min = 0x7fffffff }
-        }
-        for mac, rfneighbor in pairs(rflinks)
-        do
-            local track = tracker[mac]
-            if track and not track.blocked and track.routable then
-                for nip, ninfo in pairs(rfneighbor)
-                do
-                    theres[nip] = ninfo
-                end
-                if track.device == wlan then
-                    if track.rx_bitrate > rates.rx.max then
-                        rates.rx.max = track.rx_bitrate
-                    end
-                    if track.rx_bitrate < rates.rx.min then
-                        rates.rx.min = track.rx_bitrate
-                    end
-                    if track.tx_bitrate > rates.tx.max then
-                        rates.tx.max = track.tx_bitrate
-                    end
-                    if track.tx_bitrate < rates.tx.min then
-                        rates.tx.min = track.tx_bitrate
-                    end
-                end
-            end
-        end
-        -- Remove all the nodes we can see from this set
-        for _, track in pairs(tracker)
-        do
-            if track.ip then
-                theres[track.ip] = nil
-            end
-        end
-        -- Including ourself
-        theres[myip] = nil
-
-        -- If there are any nodes left, then our neighbors can see hidden nodes we cant. Enable RTS/CTS
-        local hidden = {}
-        for _, ninfo in pairs(theres)
-        do
-            hidden[#hidden + 1] = ninfo
-        end
-
+        -- Adjust various wifi settings but only in mesh mode
         if radiomode == "adhoc" then
+
+            -- Update the wifi distance
+            local coverage = math.min(255, math.floor((distance * 2 * 0.0033) / 3))
+            if coverage ~= last_coverage then
+                os.execute(IW .. " " .. phy .. " set coverage " .. coverage .. " > /dev/null 2>&1")
+                last_coverage = coverage
+            end
+
+            -- Set the RTS/CTS state depending on whether everyone can see everyone
+            -- Build a list of all the nodes our neighbors can see
+            -- Also, calculate the max/min tx/rx wireless bitrates
+            local theres = {}
+            local rates = {
+                rx = { max = 0, min = 0x7fffffff },
+                tx = { max = 0, min = 0x7fffffff }
+            }
+            for mac, rfneighbor in pairs(rflinks)
+            do
+                local track = tracker[mac]
+                if track and not track.blocked and track.routable then
+                    for nip, ninfo in pairs(rfneighbor)
+                    do
+                        theres[nip] = ninfo
+                    end
+                    if track.device == wlan then
+                        if track.rx_bitrate > rates.rx.max then
+                            rates.rx.max = track.rx_bitrate
+                        end
+                        if track.rx_bitrate < rates.rx.min then
+                            rates.rx.min = track.rx_bitrate
+                        end
+                        if track.tx_bitrate > rates.tx.max then
+                            rates.tx.max = track.tx_bitrate
+                        end
+                        if track.tx_bitrate < rates.tx.min then
+                            rates.tx.min = track.tx_bitrate
+                        end
+                    end
+                end
+            end
+            -- Remove all the nodes we can see from this set
+            for _, track in pairs(tracker)
+            do
+                if track.ip then
+                    theres[track.ip] = nil
+                end
+            end
+            -- Including ourself
+            theres[myip] = nil
+
+            -- If there are any nodes left, then our neighbors can see hidden nodes we cant. Enable RTS/CTS
+            local hidden = {}
+            for _, ninfo in pairs(theres)
+            do
+                hidden[#hidden + 1] = ninfo
+            end
+
             if (#hidden == 0) ~= (#hidden_nodes == 0) and config.rts_threshold >= 0 and config.rts_threshold <= 2347 then
                 if #hidden > 0 then
                     os.execute(IW .. " " .. phy .. " set rts " .. config.rts_threshold .. " > /dev/null 2>&1")
@@ -950,6 +953,7 @@ function lqm()
                 tc.tx = rates.tx.min
                 os.execute(TC .. " qdisc change root dev " .. wlan .. " cake bandwidth " .. math.floor(tc.tx * 1024) .. "Kbit 2> /dev/null")
             end
+
         end
 
         -- Save this for the UI
