@@ -747,9 +747,12 @@ if f then
     if nixio.fs.stat("/etc/config.mesh/xlink") then
         uci.cursor("/etc/config.mesh"):foreach("xlink", "interface",
             function(section)
+                local bw = (section.bandwidth or 50) * 1000
                 f:write("config queue '" .. section[".name"] .. "'\n")
                 f:write("\toption enabled '1'\n")
-                f:write("\toption interface '" .. section.ifname .. "'\n\n")
+                f:write("\toption interface '" .. section.ifname .. "'\n")
+                f:write("\toption upload '" .. bw .. "'\n")
+                f:write("\toption download '" .. bw .. "'\n\n")
             end
         )
     end
