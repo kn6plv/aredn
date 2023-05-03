@@ -875,7 +875,7 @@ function lqm()
         end
         -- Update the wifi distance
         local coverage = math.min(255, math.floor((distance * 2 * 0.0033) / 3))
-        if coverage ~= last_coverage then
+        if radiomode == "adhoc" and coverage ~= last_coverage then
             os.execute(IW .. " " .. phy .. " set coverage " .. coverage .. " > /dev/null 2>&1")
             last_coverage = coverage
         end
@@ -928,27 +928,28 @@ function lqm()
         do
             hidden[#hidden + 1] = ninfo
         end
-        -- Don't adjust RTS on ath10k for the moment - appear to be some bug to be worked out here
-        if (#hidden == 0) ~= (#hidden_nodes == 0) and config.rts_threshold >= 0 and config.rts_threshold <= 2347 then
-            if #hidden > 0 then
-                os.execute(IW .. " " .. phy .. " set rts " .. config.rts_threshold .. " > /dev/null 2>&1")
-            else
-                os.execute(IW .. " " .. phy .. " set rts off > /dev/null 2>&1")
-            end
-        end
-        hidden_nodes = hidden
 
-        -- Update the queue bandwidths
-        -- Use a scaled average min/max of the radio's active stations
-        rates.rx.min = math.max(tc_min_bandwidth, tc_scale_bandwidth * (rates.rx.min + rates.rx.max) / 2)
-        if tc.rx ~= rates.rx.min then
-            tc.rx = rates.rx.min
-            os.execute(TC .. " qdisc change root dev ifb4" .. wlan .. " cake bandwidth " .. math.floor(tc.rx * 1024) .. "Kbit 2> /dev/null")
-        end
-        rates.tx.min = math.max(tc_min_bandwidth, tc_scale_bandwidth * (rates.tx.min + rates.tx.max) / 2)
-        if tc.tx ~= rates.tx.min then
-            tc.tx = rates.tx.min
-            os.execute(TC .. " qdisc change root dev " .. wlan .. " cake bandwidth " .. math.floor(tc.tx * 1024) .. "Kbit 2> /dev/null")
+        if radiomode == "adhoc" then
+            if (#hidden == 0) ~= (#hidden_nodes == 0) and config.rts_threshold >= 0 and config.rts_threshold <= 2347 then
+                if #hidden > 0 then
+                    os.execute(IW .. " " .. phy .. " set rts " .. config.rts_threshold .. " > /dev/null 2>&1")
+                else
+                    os.execute(IW .. " " .. phy .. " set rts off > /dev/null 2>&1")
+                end
+            end
+            hidden_nodes = hidden
+            -- Update the queue bandwidths
+            -- Use a scaled average min/max of the radio's active stations
+            rates.rx.min = math.max(tc_min_bandwidth, tc_scale_bandwidth * (rates.rx.min + rates.rx.max) / 2)
+            if tc.rx ~= rates.rx.min then
+                tc.rx = rates.rx.min
+                os.execute(TC .. " qdisc change root dev ifb4" .. wlan .. " cake bandwidth " .. math.floor(tc.rx * 1024) .. "Kbit 2> /dev/null")
+            end
+            rates.tx.min = math.max(tc_min_bandwidth, tc_scale_bandwidth * (rates.tx.min + rates.tx.max) / 2)
+            if tc.tx ~= rates.tx.min then
+                tc.tx = rates.tx.min
+                os.execute(TC .. " qdisc change root dev " .. wlan .. " cake bandwidth " .. math.floor(tc.tx * 1024) .. "Kbit 2> /dev/null")
+            end
         end
 
         -- Save this for the UI
