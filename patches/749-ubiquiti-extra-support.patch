@@ -120,22 +120,6 @@
    DEVICE_MODEL := PowerBeam M2
 --- /dev/null
 +++ b/target/linux/ath79/dts/ar9342_ubnt_powerbeam-5ac-400.dts
-@@ -70,6 +70,13 @@
- endef
- TARGET_DEVICES += ubnt_nanobeam-ac
- 
-+define Device/ubnt_nanobeam-2ac
-+  $(Device/ubnt-2wa)
-+  DEVICE_MODEL := NanoBeam 2AC
-+  DEVICE_PACKAGES += kmod-ath10k-ct-smallbuffers ath10k-firmware-qca988x-ct rssileds
-+endef
-+TARGET_DEVICES += ubnt_nanobeam-2ac
-+
- define Device/ubnt_nanobeam-ac-gen2
-   $(Device/ubnt-wa)
-   DEVICE_MODEL := NanoBeam AC
---- /dev/null
-+++ b/target/linux/ath79/dts/ar9342_ubnt_nanobeam-2ac.dts
 @@ -0,0 +1,38 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
@@ -144,8 +128,6 @@
 +/ {
 +	compatible = "ubnt,powerbeam-5ac-400", "ubnt,wa", "qca,ar9342";
 +	model = "Ubiquiti PowerBeam 5AC 400";
-+	compatible = "ubnt,nanobeam-2ac", "ubnt,wa", "qca,ar9342";
-+	model = "Ubiquiti NanoBeam 2AC (2WA)";
 +
 +	aliases {
 +		led-boot = &led_rssi3;
@@ -430,13 +412,3 @@
  	ubnt,powerbeam-5ac-gen2|\
  	ubnt,rocket-5ac-lite|\
  	ubnt,unifiac-pro|\
---- a/target/linux/ath79/generic/base-files/etc/hotplug.d/firmware/11-ath10k-caldata
-+++ b/target/linux/ath79/generic/base-files/etc/hotplug.d/firmware/11-ath10k-caldata
-@@ -42,6 +42,7 @@
- 	ubnt,lap-120|\
- 	ubnt,litebeam-ac-gen2|\
- 	ubnt,nanobeam-ac|\
-+	ubnt,nanobeam-2ac|\
- 	ubnt,nanobeam-ac-gen2|\
- 	ubnt,nanobeam-ac-xc|\
- 	ubnt,nanostation-ac|\
