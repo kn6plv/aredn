@@ -444,13 +444,6 @@
       "maxpower"        : "22",
       "pwroffset"       : "4"
     },
-    "0xe4f2": {
-      "name"            : "Ubiquiti NanoBeam 2AC (2WA)",
-      "maxpower.0"      : "23",
-      "pwroffset.0"     : "4",
-      "maxpower.1"      : "19",
-      "pwroffset.1"     : "0"
-    },
     "0xe4f3": {
       "name"            : "Ubiquiti NanoBeam 2AC 13",
       "maxpower.0"      : "23",
