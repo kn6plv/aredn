@@ -121,6 +121,22 @@ function model.getGridSquare()
 end
 
 -------------------------------------
+-- Returns Azimuth
+-------------------------------------
+function model.getAzimuth()
+	loc=aredn_uci.getUciConfType("aredn", "location")
+	return loc[1]['azimuth']
+end
+
+-------------------------------------
+-- Returns Elevation
+-------------------------------------
+function model.getElevation()
+	loc=aredn_uci.getUciConfType("aredn", "location")
+	return loc[1]['elevation']
+end
+
+-------------------------------------
 -- Returns AREDN Alert (if exists)
 -------------------------------------
 function model.getArednAlert()
