@@ -817,28 +817,7 @@ if parms.button_save and not (#port_err > 0 or #dhcp_err > 0 or #dmz_err > 0 or 
     if os.execute("/usr/local/bin/node-setup > /dev/null 2>&1") ~= 0 then
         err("problem with configuration")
     else
-        if nixio.fs.stat("/tmp/reboot-required/dnsmasq") then
-            if os.execute("/etc/init.d/dnsmasq restart > /dev/null 2>&1") == 0 then
-                os.remove("/tmp/reboot-required/dnsmasq")
-            else
-                err("problem with dnsmasq")
-            end
-        end
-        if nixio.fs.stat("/tmp/reboot-required/firewall") then
-            if os.execute("/etc/init.d/firewall restart > /dev/null 2>&1") == 0 then
-                os.remove("/tmp/reboot-required/firewall")
-            else
-                err("problem with port setup")
-            end
-        end
-        if nixio.fs.stat("/tmp/reboot-required/olsrd") then
-            if os.execute("/etc/init.d/olsrd restart > /dev/null 2>&1") == 0 then
-                os.remove("/tmp/reboot-required/olsrd")
-            else
-                err("problem with olsr setup")
-            end
-        end
-        os.remove("/tmp/reboot-required")
+        os.execute("/usr/local/bin/restart-services.sh dnsmasq firewall olsrd > /dev/null 2>&1")
     end
 end
 

@@ -828,6 +828,9 @@ if parms.button_save then
                 f:read("*a")
                 f:close()
             end
+            if nixio.fs.stat("/tmp/reboot-required") and not nixio.fs.stat("/tmp/reboot-required/reboot") and not nixio.fs.stat("/tmp/unconfigured") then
+                os.execute("/usr/local/bin/restart-services.sh > /dev/null 2>&1")
+            end 
         end
         if nixio.fs.stat("/tmp/unconfigured") and #errors == 0 then
             reboot()
