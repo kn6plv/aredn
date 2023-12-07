@@ -89,8 +89,7 @@ local settings = {
         type = "boolean",
         desc = "Enable <b>Link Quality Management</b><br><br><small>aredn.@lqm[0].enable</small>",
         default = "1",
-        postcallback = "lqm_defaults()",
-        needreboot = true
+        postcallback = "lqm_defaults()"
     },
     {
         category = "Link Quality Settings",
@@ -145,9 +144,7 @@ local settings = {
         key = "aredn.@lqm[0].mtu",
         type = "string",
         desc = "<b>Maximum packet size</b> in bytes sent over WiFi (256 to 1500)<br><br><small>aredn.@lqm[0].mtu</small>",
-        default = "1500",
-        needreboot = true,
-        nodesetup = true
+        default = "1500"
     },
     {
         category = "Link Quality Settings",
@@ -170,27 +167,21 @@ local settings = {
         key = "aredn.@wan[0].olsrd_gw",
         type = "boolean",
         desc = "<b>Allow other MESH nodes to use my WAN</b> - not recommended and OFF by default<br><br><small>aredn.@wan[0].olsrd_gw</small>",
-        default = "0",
-        needreboot = true,
-        nodesetup = true
+        default = "0"
     },
     {
         category = "WAN Settings",
         key = "aredn.@wan[0].lan_dhcp_route",
         type = "boolean",
         desc = "<b>Allow my LAN devices to access my WAN</b> - ON by default<br><br><small>aredn.@wan[0].lan_dhcp_route</small>",
-        default = "1",
-        needreboot = true,
-        nodesetup = true
+        default = "1"
     },
     {
         category = "WAN Settings",
         key = "aredn.@wan[0].lan_dhcp_defaultroute",
         type = "boolean",
         desc = "<b>Provide default route to LAN devices</b> even when WAN access is disabled<br><br><small>aredn.@wan[0].lan_dhcp_defaultroute</small>",
-        default = "0",
-        needreboot = true,
-        nodesetup = true
+        default = "0"
     },
     {
         category = "WAN Settings",
@@ -200,33 +191,28 @@ local settings = {
         default = "",
         condition = "supportsVLANChange()",
         current = "currentWANVLAN()",
-        postcallback = "changeWANVLAN()",
-        needreboot = true,
-        nodesetup = true
+        postcallback = "changeWANVLAN()"
     },
     {
         category = "WAN Settings",
         key = "aredn.@wan[0].web_access",
         type = "boolean",
         desc = "<b>Enable web access</b> to the node from the WAN interface<br><br><small>aredn.@wan[0].web_access</small>",
-        default = "1",
-        needreboot = true
+        default = "1"
     },
     {
         category = "WAN Settings",
         key = "aredn.@wan[0].ssh_access",
         type = "boolean",
         desc = "<b>Enable SSH access</b> to the node from the WAN interface<br><br><small>aredn.@wan[0].ssh_access</small>",
-        default = "1",
-        needreboot = true
+        default = "1"
     },
     {
         category = "WAN Settings",
         key = "aredn.@wan[0].telnet_access",
         type = "boolean",
         desc = "<b>Enable TELNET access</b> to the node from the WAN interface<br><br><small>aredn.@wan[0].telnet_access</small>",
-        default = "1",
-        needreboot = true
+        default = "1"
     },
     {
         category = "Power Options",
@@ -252,8 +238,7 @@ local settings = {
         type = "string",
         desc = "<b>Tunnel Maxclients</b> specifies the maximum number of tunnel clients this node can serve; must be an integer in the range [0,100].<br><br><small>aredn.@tunnel[0].maxclients</small>",
         default = "10",
-        precallback = "restrictTunnelLimitToValidRange()",
-        nodesetup = true
+        precallback = "restrictTunnelLimitToValidRange()"
     },
     {
         category = "Tunnel Options",
@@ -261,8 +246,7 @@ local settings = {
         type = "string",
         desc = "<b>Tunnel Maxservers</b> specifies the maximum number of tunnel servers to which this node can connect; must be an integer in the range [0,100].<br><br><small>aredn.@tunnel[0].maxservers</small>",
         default = "10",
-        precallback = "restrictTunnelLimitToValidRange()",
-        nodesetup = true
+        precallback = "restrictTunnelLimitToValidRange()"
     },
     {
         category = "Tunnel Options",
@@ -270,7 +254,6 @@ local settings = {
         type = "string",
         desc = "<b>Tunnel Weight</b> specifies the cost of using a tunnel. The higher the number, the less likely a tunnel is used.<br><br><small>aredn.@tunnel[0].weight</small>",
         default = "1",
-        needreboot= true,
         condition = "not isSupernode()"
     },
     {
@@ -278,8 +261,7 @@ local settings = {
         key = "aredn.@tunnel[0].wanonly",
         type = "boolean",
         desc = "<b>WAN-Only Tunnel</b> prevents tunnel traffic from being routed over the Mesh network itself<br><br><small>aredn.@tunnel[0].wanonly</small>",
-        default = "1",
-        needreboot= true
+        default = "1"
     },
     {
         category = "Memory Settings",
@@ -322,9 +304,7 @@ local settings = {
         key = "aredn.@remotelog[0].url",
         type = "string",
         desc = "<b>Remote logging URL</b> for the remote syslog machine. Must be formatted as <i>protocol://ipaddress:port</i><br><br><small>aredn.@remotelog[0].url</small>",
-        default = "",
-        needreboot = true,
-        nodesetup = true,
+        default = ""
         precallback = "validate_rsyslog()"
     },
     {
@@ -455,8 +435,7 @@ local settings = {
         key = "aredn.@alerts[0].pollrate",
         type = "string",
         desc = "<b>Alert Message Pollrate</b> - how many hours to wait between polling for new AREDN Alerts<br><br><small>aredn.@alerts[0].pollrate</small>",
-        default = "1",
-        needreboot = true
+        default = "1"
     },
     {
         category = "AREDN Alert Settings",
@@ -490,16 +469,6 @@ end
 
 function cursor_get(a, b, c)
     return cursor:get(a, b, c)
-end
-
-local cursora = uci.cursor()
-
-function cursora_set(a, b, c, d)
-    if not cursora:get(a, b) and b:match("@(.+)%[0%]") then
-        cursora:add(a, b:match("@(.+)%[0%]"))
-    end
-    cursora:set(a, b, c, d)
-    cursora:commit(a)
 end
 
 function reboot()
@@ -769,16 +738,11 @@ do
         end
         local a, b, c = setting.key:match("(.+)%.(.+)%.(.*)")
         cursor_set(a, b, c, newval)
-        if not (setting.nodesetup or setting.needreboot) then
-            cursora_set(a, b, c, newval)
-        end
         msg("Changed " .. key)
         if setting.postcallback then
             loadstring(setting.postcallback)()
         end
-        if setting.nodesetup or setting.needreboot then
-            os.execute("/usr/local/bin/node-setup")
-        end
+        os.execute("/usr/local/bin/node-setup")
         break
     end
 end
