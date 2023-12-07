@@ -37,7 +37,11 @@ include /etc/aredn_include/static_routes
 include /etc/config.mesh/xlink
 
 ### Tunnels devices
+<<<<<<< HEAD
 <tun_devices_config>
+=======
+include /etc/config.mesh/network_tun
+>>>>>>> main
 
 ### Wireguard
 <wireguard_network_config>

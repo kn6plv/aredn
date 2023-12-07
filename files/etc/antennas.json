@@ -14,7 +14,7 @@
             "model": "NB-OD9",
             "description": "airMAX NanoBridge OD9 Offset Dish, 11 dBi",
             "gain": 11,
-            "beamwidth": "Unknown"
+            "beamwidth": 10
         },
         {
             "model": "Generic-Omni",
@@ -90,7 +90,7 @@
         },
         {
             "model": "TL-ANT2424MD",
-            "description": "TP-Link 24 dBi 6&deg; Sector",
+            "description": "TP-Link 24 dBi 6&deg; Dish",
             "gain": 24,
             "beamwidth": 6
         },
@@ -342,7 +342,7 @@
         },
         {
             "model": "TL-ANT5830MD",
-            "description": "TP-Link 30 dBi 6&deg; Sector",
+            "description": "TP-Link 30 dBi 6&deg; Dish",
             "gain": 30,
             "beamwidth": 6
         },
