@@ -304,7 +304,7 @@ local settings = {
         key = "aredn.@remotelog[0].url",
         type = "string",
         desc = "<b>Remote logging URL</b> for the remote syslog machine. Must be formatted as <i>protocol://ipaddress:port</i><br><br><small>aredn.@remotelog[0].url</small>",
-        default = ""
+        default = "",
         precallback = "validate_rsyslog()"
     },
     {
@@ -742,7 +742,8 @@ do
         if setting.postcallback then
             loadstring(setting.postcallback)()
         end
-        os.execute("/usr/local/bin/node-setup")
+        os.execute("/usr/local/bin/node-setup > /dev/null 2>&1")
+        os.execute("/usr/local/bin/restart-services.sh > /dev/null 2>&1")
         break
     end
 end
