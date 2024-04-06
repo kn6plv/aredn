@@ -5,6 +5,7 @@ config uhttpd main
 	option home '/www'
 	option rfc1918_filter '1'
 	option cgi_prefix '/cgi-bin'
+	list ucode_prefix '/a=/app/root.uc'
 	option script_timeout '240'
 	option network_timeout '30'
 	option http_keepalive '0'
