@@ -249,7 +249,7 @@ hr + .section-title,
 }
 #general .firmware-status.needupdate::after
 {
-    content: "Need update";
+    content: "Update available";
 }
 #general .firmware-status.custom
 {
@@ -283,6 +283,7 @@ hr + .section-title,
 #location img
 {
     width: 300px;
+    height: 150px;
     margin-bottom: 10px;
     border-radius: 20px;
     border: 1px solid transparent;

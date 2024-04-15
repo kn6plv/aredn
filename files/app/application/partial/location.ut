@@ -1,11 +1,15 @@
 {%
+    import * as fs from "fs";
     const lat = uci.get("aredn", "@location[0]", "lat");
     const lon = uci.get("aredn", "@location[0]", "lon");
     const url = lat && lon ? sprintf("https://worldmap.bayareamesh.us/#13/%1$f/%2$f", lat, lon) : null;
+    const map = fs.access(`${config.application}/resource/img/map.jpg`);
 %}
 <div class="node-location">
-    {% if (url) { %}
-        <div class="location-image"><a target="_blank" href="{{ url }}"><img src="/a/img/map.png"></a></div>
+    {% if (url && map) { %}
+        <div class="location-image"><a target="_blank" href="{{ url }}"><img src="/a/img/map.jpg"></a></div>
+    {% }
+    if (lat && lon) { %}
         <div class="t">{{ lat }}, {{ lon }}</div>
     {% } else { %}
         <div class="t">Unknown</div>

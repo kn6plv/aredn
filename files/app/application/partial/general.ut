@@ -3,7 +3,7 @@
     import * as fs from "fs";
     import * as hardware from "hardware";
     const id = hardware.getBoard().model?.id;
-    const url = fs.access(`${config.application}/img/radio/${id}.png`) ? `/a/img/radio/${id}.png` : null;
+    const url = fs.access(`${config.application}/resource/img/radio/${id}.png`) ? `/a/img/radio/${id}.png` : null;
 %}
 {% if (url) { %}
 <div class="radio-image"><img src="{{ url }}"></div>

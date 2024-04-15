@@ -7,9 +7,27 @@ import * as ubus from "ubus";
 
 const pageCache = {};
 
+if (!config.debug) {
+    function cp(path) {
+        const dir = fs.opendir(config.application + path);
+        for (;;) {
+            const entry = dir.read();
+            if (!entry) {
+                break;
+            }
+            const tpath = config.application + path + entry;
+            pageCache[tpath] = loadfile(tpath, { raw_mode: false });
+        }
+    }
+    cp("/main/");
+    cp("/partial/");
+}
+
 global._R = function(path)
 {
-    return render(config.application + "/partial/" + path + ".ut");
+    const tpath = config.application + "/partial/" + path + ".ut";
+    const fn = pageCache[tpath] || loadfile(tpath, { raw_mode: false });
+    return render(fn);
 };
 
 const uciMethods =
@@ -46,15 +64,10 @@ const ubusMethods =
 
 global.handle_request = function(env)
 {
-    const path = config.application + (env.PATH_INFO || "root");
-    const tpath = path + ".ut";
-    const gzpath = path + ".gz";
+    const tpath = `${config.application}/main/${env.PATH_INFO || "status"}.ut`;
     if (fs.access(tpath)) {
         const response = { statusCode: 200, headers: { "Content-Type": "text/html" } };
         const fn = pageCache[tpath] || loadfile(tpath, { raw_mode: false });
-        if (!config.debug) {
-            pageCache[tpath] = fn;
-        }
         const res = render(call, fn, null, {
             config: config,
             request: { env: env, headers: env.headers },
@@ -91,35 +104,41 @@ global.handle_request = function(env)
             }
             fs.unlink(datafile);
         }
+        return;
     }
-    else if (fs.access(gzpath)) {
+
+    const rpath = `${config.application}/resource/${env.PATH_INFO || "unknown"}`;
+    const gzrpath = `${rpath}.gz`;
+    if (fs.access(gzrpath)) {
         uhttpd.send("Status: 200 OK\r\nContent-Encoding: gzip\r\n");
-        if (substr(path, -3) === ".js") {
+        if (substr(rpath, -3) === ".js") {
             uhttpd.send("Content-Type: application/javascript\r\n");
         }
-        else if (substr(path, -4) === ".png") {
-            uhttpd.send("Content-Type: image/png\r\n");
-        }
-        else if (substr(path, -4) === ".css") {
+        else if (substr(rpath, -4) === ".css") {
             uhttpd.send("Content-Type: text/css\r\n");
         }
-        uhttpd.send("\r\n", fs.readfile(gzpath));
+        uhttpd.send("\r\n", fs.readfile(gzrpath));
+        return;
     }
-    else if (fs.access(path)) {
+
+    if (fs.access(rpath)) {
         uhttpd.send("Status: 200 OK\r\n");
-        if (substr(path, -3) === ".js") {
+        if (substr(rpath, -3) === ".js") {
             uhttpd.send("Content-Type: application/javascript\r\n");
         }
-        else if (substr(path, -4) === ".png") {
+        else if (substr(rpath, -4) === ".png") {
             uhttpd.send("Content-Type: image/png\r\n");
         }
-        else if (substr(path, -4) === ".css") {
+        else if (substr(rpath, -4) === ".jpg") {
+            uhttpd.send("Content-Type: image/jpeg\r\n");
+        }
+        else if (substr(rpath, -4) === ".css") {
             uhttpd.send("Content-Type: text/css\r\n");
         }
-        uhttpd.send("\r\n", fs.readfile(path));
+        uhttpd.send("\r\n", fs.readfile(rpath));
+        return;
     }
-    else {
-        uhttpd.send("Status: 404 Not Found\r\n\r\n");
-    }
+
+    uhttpd.send("Status: 404 Not Found\r\n\r\n");
 };
 %}

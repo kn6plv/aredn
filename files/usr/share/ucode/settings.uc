@@ -44,7 +44,7 @@ export function getDescription()
 
 export function getFirmwareVersion()
 {
-    return fs.readfile("/etc/mesh-release");
+    return trim(fs.readfile("/etc/mesh-release"));
 };
 
 export function getTxPower()
