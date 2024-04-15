@@ -1,3 +1,4 @@
 export default {
-    application: "/app/application"
+    application: "/app/application",
+    debug: true
 };

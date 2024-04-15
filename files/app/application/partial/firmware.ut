@@ -1,0 +1,18 @@
+{%
+    import * as settings from "settings";
+    const firmware = settings.getFirmwareVersion();
+    let message = "uptodate";
+    if (match(firmware, "^\d+\.\d+\.\d+\.\d+$")) {
+        // release
+    }
+    else if (match(firmware, "^\d\d\d\d\d\d\d\d-")) {
+        // nightly
+    }
+    else {
+        message = "custom";
+    }
+%}
+<div class="firmware">
+    <div class="t">{{ firmware }}<div class="firmware-status {{ message }}"></div></div>
+    <div class="s">firmware version</div>
+</div>

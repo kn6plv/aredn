@@ -1,0 +1,30 @@
+:root
+{
+    --font-family:  sans-serif;
+    --body-bg-color: #f8f8f8;
+    --nav-bg-color: #f0f0f0;
+    --select-bg-color: #f0f0f0;
+    --title-fg-color: #202020;
+    --subtitle-fg-color: #a0a0a0;
+    --hr-color: #e0e0e0;
+    --firmware-status-fg-color: #f0f0f0;
+    --firmware-status-bg-color-positive: #005500;
+    --firmware-status-bg-color-negative: #900000;
+    --firmware-status-bg-color-other: #494cd6;
+    --section-title-fg-color: #808080;
+    --section-link-fg-color: #0078a8;
+    --heading-fg-color: #808080;
+    --conn-fg-color-excellent: #005500;
+    --conn-fg-color-good: #005500;
+    --conn-fg-color-okay: #005500;
+    --conn-fg-color-poor: #005500;
+    --conn-fg-color-bad: #900000;
+    --conn-fg-color-idle: #c0c0c0;
+    --service-fg-color: #404040;
+    --service-fg-color-status: #f0f0f0;
+    --service-bg-color-status-active: #005500;
+    --service-bg-color-status-inactive: #808080;
+    --service-bg-color-status-disabled: #900000;
+    --icon-filter: invert(75%) sepia(0%) saturate(1338%) hue-rotate(137deg) brightness(86%) contrast(87%);
+    --icon-filter-select: invert(30%) sepia(27%) saturate(4907%) hue-rotate(173deg) brightness(95%) contrast(102%);
+}

@@ -1,0 +1,52 @@
+<!DOCTYPE>
+<html>
+<head>
+    <link href="/a/css/aredn.css" rel="stylesheet">
+    <link href="/a/css/base.css" rel="stylesheet">
+    <script src="/a/js/htmx.min.js"></script>
+</head>
+<body>
+    <div id="all">
+        <div id="nav">
+            {{ _R("nav") }}
+        </div>
+        <div id="panel">
+            <div id="select">
+                {{ _R("selection") }}
+            </div>
+            <div id="main">
+                <div id="c1">
+                    <div id="general">
+                        {{ _R("general") }}
+                    </div>
+                    <div id="location">
+                        <hr>
+                        {{ _R("location") }}
+                    </div>
+                </div>
+                <div id="c2">
+                    <div id="services">
+                        {{ _R("services" )}}
+                    </div>
+                    <div id="local-and-neighbor-devices">
+                        {{ _R("local-and-neighbor-devices") }}
+                    </div>
+                </div>
+                <div id="c3">
+                    <div id="c3r1">
+                        <div id="radio-and-antenna">
+                            {{ _R("radio-and-antenna") }}
+                        </div>
+                    </div>
+                    <div id="dhcp">
+                        {{ _R("dhcp") }}
+                    </div>
+                    <div id="tunnels">
+                        {{ _R("tunnels") }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

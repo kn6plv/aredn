@@ -1,0 +1,6 @@
+{% import * as settings from "settings"; %}
+<div class="icon-logo"></div>
+<div class="nav-node-name">{{ settings.getName() || "NOCALL" }} </div>
+<div class="nav-status">status</div>
+<div style="flex:1"></div>
+<div title="Log in" class="icon login"></div>

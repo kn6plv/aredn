@@ -1,0 +1,37 @@
+{%
+    import * as fs from "fs";
+    const d = split(fs.readfile("/proc/uptime"), " ");
+    const up = int(d[0]);
+    let uptime = sprintf("%d:%02d", int(up / 3600) % 24, int(up / 60) % 60);
+    if (up >= 172800) {
+        uptime = int(up / 86400) + " days, " + uptime;
+    }
+    else if (up > 86400) {
+        uptime = "1 day, " + update;
+    }
+    const ld = split(fs.readfile("/proc/loadavg"), " ");
+    const ram = int(match(fs.readfile("/proc/meminfo"), /MemFree: +(\d+) kB/)[1]);
+    const f = fs.popen("exec /bin/df /");
+    let flash = "-";
+    if (f) {
+        flash = split(f.read("all"), /\s+/)[10];
+        f.close();
+    }
+%}
+<div class="health">
+    <div class="t">{{ uptime }}</div>
+    <div class="s">uptime</div>
+    <div class="t">{{ ld[0] }}, {{ ld[1] }}, {{ ld[2] }}</div>
+    <div class="s">load</div>
+    <div class="cols">
+        <div>
+            <div class="t">{{ flash }} KB</div>
+            <div class="s">free flash</div>
+        </div>
+        <div>
+            <div class="t">{{ ram }} KB</div>
+            <div class="s">free ram</div>
+        </div>
+        <div></div>
+    </div>
+</div>

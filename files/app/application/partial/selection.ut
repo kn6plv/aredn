@@ -1,0 +1,15 @@
+{%
+    import * as fs from "fs";
+    const ip = (match(fs.readfile("/tmp/dnsmasq.d/supernode.conf"), /^#([0-9.]+)/) || [])[1];
+%}
+<div>
+    <a title="Node status" href="status"><div class="icon status"></div></a>
+    <a title="See what is on the mesh" href="mesh"><div class="icon mesh"></div></a>
+    {% if (ip) { %}
+    <a title="See what is on the whole AREDN mesh" href="http://{{ ip }}/cgi-bin/mesh"><div class="icon cloud"></div></a>
+    {% } %}
+</div>
+<div style="flex:1"></div>
+<div>
+    <div title="Node tools" class="icon tools"></div>
+</div>

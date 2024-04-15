@@ -1,0 +1,40 @@
+{%
+    import * as fs from "fs";
+
+    const rl = uci.get("aredn", "@remotelog[0]", "url") ? "active" : "disabled";
+    const sn = uci.get("aredn", "@supernode[0]", "enable") === "1" ? "active" : "disabled";
+    const cm = uci.get("aredn", "@supernode[0]", "support") === "0" ? "disabled" : "active";
+    const wd = uci.get("aredn", "@watchdog[0]", "enable") ? "active" : "disabled";
+    const ip = uci.get("aredn", "@iperf[0]", "enable") === "0" ? "disabled" : "active";
+    const s = fs.stat("/tmp/metrics-ran");
+    const mt = s && time() - s.mtime < 3600000 ? "active" : "inactive";
+    const ws = "active";
+    const ww = "active";
+    const wt = "active";
+    const ws = uci.get("aredn", "@wan[0]", "ssh_access") === "0" ? "disabled" : "active";
+    const ww = uci.get("aredn", "@wan[0]", "web_access") === "0" ? "disabled" : "active";
+    const wt = uci.get("aredn", "@wan[0]", "telnet_access") === "0" ? "disabled" : "active";
+
+%}
+<div class="section-title">Internal Services</div>
+<div class="section">
+    <div class="cols">
+        <div>
+            <div class="service"><div class="status {{ cm }}"></div>Cloud Mesh</div>
+            <div class="service"><div class="status {{ wd }}"></div>Watchdog</div>
+            <div class="service"><div class="status {{ ip }}"></div>IPerf3 Server</div>
+            <div class="service"><div class="status {{ ws }}"></div>WAN ssh</div>
+            <div class="service"><div class="status {{ ww }}"></div>WAN web</div>
+        </div>
+        <div>
+            <div class="service"><div class="status {{ mt }}"></div>Metrics</div>
+            <div class="service"><div class="status {{ rl }}"></div>Remote Logging</div>
+            <div class="service"><div class="status {{ sn }}"></div>Supernode</div>
+            <div class="service"><div class="status {{ wt }}"></div>WAN telnet</div>
+        </div>
+    </div>
+</div>
+<div class="section-title">Local Services</div>
+<div class="section">
+None
+</div>
