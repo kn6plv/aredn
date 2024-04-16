@@ -12,3 +12,17 @@ export function hasInternet()
     }
     return false;
 };
+
+export function getIPAddressFromHostname(hostname)
+{
+    const p = fs.popen(`exec /usr/bin/nslookup ${hostname}`);
+    if (p) {
+        const d = p.read("all");
+        p.close();
+        const i = match(d, /Address: ([0-9.]+)/);
+        if (i) {
+            return i[1];
+        }
+    }
+    return null;
+};

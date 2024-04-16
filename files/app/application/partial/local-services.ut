@@ -1,0 +1,63 @@
+{%
+    import * as fs from "fs";
+    import * as network from "network";
+    const localhosts = {};
+    try {
+        const trackers = json(fs.readfile("/tmp/lqm.info")).trackers;
+        for (t in trackers) {
+            const tracker = trackers[t];
+            if (tracker.ip) {
+                localhosts[tracker.ip] = true;
+                if (tracker.hostname) {
+                    const ip = network.getIPAddressFromHostname(tracker.hostname);
+                    if (ip) {
+                        localhosts[ip] = true;
+                    }
+                }
+            }
+            
+        }
+    }
+    catch (_) {
+    }
+    const services = [];
+    const f = fs.open("/var/run/services_olsr");
+    if (f) {
+        for (;;) {
+            const l = f.read("line");
+            if (!length(l)) {
+                break;
+            }
+            const v = match(l, /^([^|]+)\|(tcp|udp)\|(.+)\s+#([0-9.]+).*$/);
+            // v[1] == url, v[3] == name, v[4] == ip address
+            if (v && localhosts[v[4]]) {
+                if (index(v[1], "http") === 0) {
+                    push(services, `<div class="service"><a href="${v[1]}">${v[3]}</a></div>`);
+                }
+                else {
+                    push(services, `<div class="service">${v[3]}</div>`);
+                }
+            }
+        }
+        f.close();
+    }
+%}
+<div class="section-title">Local Services</div>
+<div class="section">
+{%
+    if (length(services) === 0) {
+        print("None");
+    }
+    else {
+        print("<div class='local-services cols'><div>");
+        for (let i = 0; i < length(services); i += 2) {
+            print(services[i]);
+        }
+        print("</div><div>");
+        for (let i = 1; i < length(services); i += 2) {
+            print(services[i]);
+        }
+        print("</div></div>");
+    }
+%}
+</div>

@@ -27,7 +27,8 @@
                 </div>
                 <div id="c2">
                     <div id="services">
-                        {{ _R("services" )}}
+                        {{ _R("internal-services" )}}
+                        {{ _R("local-services") }}
                     </div>
                     <div id="local-and-neighbor-devices">
                         <hr>

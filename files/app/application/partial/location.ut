@@ -1,13 +1,15 @@
 {%
     import * as fs from "fs";
+    const minimap = "https://worldmap.bayareamesh.us/?simple=1#12/{lat}/{lon}";
+    const map = "https://worldmap.bayareamesh.us/#13/{lat}/{lon}";
     const lat = uci.get("aredn", "@location[0]", "lat");
     const lon = uci.get("aredn", "@location[0]", "lon");
-    const url = lat && lon ? sprintf("https://worldmap.bayareamesh.us/#13/%1$f/%2$f", lat, lon) : null;
-    const map = fs.access(`${config.application}/resource/img/map.jpg`);
+    const minimapurl = lat && lon && map ? replace(replace(minimap, "{lat}", lat), "{lon}", lon) : null;
+    const mapurl = lat && lon && map ? replace(replace(map, "{lat}", lat), "{lon}", lon) : null;
 %}
 <div class="node-location">
-    {% if (url && map) { %}
-        <div class="location-image"><a target="_blank" href="{{ url }}"><div style="background: url(/a/img/map.jpg)"></div></a></div>
+    {% if (mapurl && minimapurl) { %}
+        <a target="_blank" href="{{ mapurl }}"><div class="location-image"><iframe src="{{ minimapurl }}"></iframe></div></a>
     {% }
     if (lat && lon) { %}
         <div class="t">{{ lat }}, {{ lon }}</div>

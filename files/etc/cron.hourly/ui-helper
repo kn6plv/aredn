@@ -38,7 +38,6 @@ require("uci")
 
 local update_hour = 13 -- Run at ~1pm UTC
 local current_releases = "/etc/current_releases"
-local current_map = "/app/application/resource/img/map.jpg"
 
 local cursor = uci.cursor()
 
@@ -80,28 +79,6 @@ if  do_version_update then
         if f then
             f:write(release_version .. " " .. nightly_version)
             f:close()
-        end
-    end
-end
-
--- Update map
-f = io.open(current_map)
-if f then
-    f:close()
-else
-    local lat = cursor:get("aredn", "@location[0]", "lat")
-    local lon = cursor:get("aredn", "@location[0]", "lon")
-    if lat and lon then
-        local map_api = "6a171e15aab849288969d0b3dad21105"
-        local map_url = "https://maps.geoapify.com/v1/staticmap?apiKey=" .. map_api .. "&style=maptiler-3d&format=jpeg&width=300&height=150&zoom=12&center=lonlat%3A" .. lon .. "%2C" .. lat
-        local m = io.popen("/usr/bin/curl -o - '" .. map_url .. "' 2> /dev/null")
-        if m then
-            f = io.open(current_map, "w")
-            if f then
-                f:write(m:read("*a"))
-                f:close()
-            end
-            m:close()
         end
     end
 end

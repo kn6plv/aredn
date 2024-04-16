@@ -285,17 +285,16 @@ hr + .section-title,
     color: var(--subtitle-fg-color);
     font-size: 10px;
 }
-#location a div
+#location .location-image
 {
+    pointer-events: none;
     width: 300px;
     height: 150px;
     margin-bottom: 10px;
-    border-radius: 20px;
-    border: 1px solid transparent;
 }
-#location a div:hover
+#location .location-image iframe
 {
-    border-color: var(--section-link-fg-color);
+    border: 1px solid var(--hr-color);
 }
 
 /* -- end location layout -- */
