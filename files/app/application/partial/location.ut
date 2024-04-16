@@ -7,7 +7,7 @@
 %}
 <div class="node-location">
     {% if (url && map) { %}
-        <div class="location-image"><a target="_blank" href="{{ url }}"><img src="/a/img/map.jpg"></a></div>
+        <div class="location-image"><a target="_blank" href="{{ url }}"><div style="background: url(/a/img/map.jpg)"></div></a></div>
     {% }
     if (lat && lon) { %}
         <div class="t">{{ lat }}, {{ lon }}</div>

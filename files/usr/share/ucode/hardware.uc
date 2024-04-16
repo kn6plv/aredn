@@ -317,3 +317,27 @@ export function getWifiInfo(wifiIface)
         frequencyRange: range
     };
 };
+
+export function getTxPowerOffset(wifiIface)
+{
+    const radio = getRadioIntf(wifiIface);
+    if (radio && radio.pwroffset) {
+        return radio.pwroffset;
+    }
+    const f = fs.popen("/usr/bin/iwinfo " + wifiIface + " info");
+    if (f) {
+        for (;;) {
+            const line = f.read("line");
+            if (!line) {
+                break;
+            }
+            const pwroff = match(line, /TX power offset: (\d+)/);
+            if (pwroff) {
+                f.close();
+                return int(pwroff[1]);
+            }
+        }
+        f.close();
+    }
+    return 0;
+};

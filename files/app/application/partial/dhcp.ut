@@ -1,5 +1,51 @@
+{%
+    import * as settings from "settings";
+    import * as fs from "fs";
+    const dhcp = settings.getDHCP();
+    let da = 0;
+    let dr = 0;
+    if (settings.enabled) {
+        const f = fs.open(dhcp.leases);
+        if (f) {
+            while (length(f.read("line"))) {
+                da++;
+            }
+            f.close();
+        }
+        const g = fs.open(dhcp.reservations);
+        if (g) {
+            while (length(g.read("line"))) {
+                dr++;
+            }
+            g.close();
+        }
+    }
+%}
 <div class="section-title">DHCP</div>
-<div>A</div>
-<div>B</div>
-<div>C</div>
-<div>D</div>
+<div class="section">
+    <div class="t">{{ dhcp.enabled ? "Active" : "Disabled" }}</div>
+    <div class="s">status</div>
+    {% if (dhcp.enabled) { %}
+    <div class="cols">
+        <div>
+            <div class="t">{{ dhcp.gateway }} <span class="ts">/ {{ dhcp.cidr }}</span></div>
+            <div class="s">gateway</div>
+        </div>
+        <div style="flex:2">
+            <div class="t">{{ dhcp.start }} - {{ dhcp.end }}</div>
+            <div class="s">range</div>
+        </div>
+    </div>
+    <div class="cols">
+        <div>
+            <div class="t">{{ dr }}</div>
+            <div class="s">reserved leases</div>
+        </div>
+        <div>
+            <div class="t">{{ da }}</div>
+            <div class="s">active leases</div>
+        </div>
+        <div></div>
+    </div>
+    {% } %}
+</div>

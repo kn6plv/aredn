@@ -2,6 +2,7 @@
 {
     --font-family:  sans-serif;
     --body-bg-color: #f8f8f8;
+    --logo-fg-color: #606060;
     --nav-bg-color: #f0f0f0;
     --select-bg-color: #f0f0f0;
     --title-fg-color: #202020;
@@ -13,6 +14,7 @@
     --firmware-status-bg-color-other: #494cd6;
     --section-title-fg-color: #808080;
     --section-link-fg-color: #0078a8;
+    --section-subtitle-fg-color: #909090;
     --heading-fg-color: #808080;
     --conn-fg-color-excellent: #005500;
     --conn-fg-color-good: #005500;

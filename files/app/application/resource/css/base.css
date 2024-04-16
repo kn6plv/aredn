@@ -56,6 +56,11 @@ hr + .section-title,
 {
     color: var(--section-link-fg-color);
 }
+.section-subtitle
+{
+    color: var(--section-subtitle-fg-color);
+    font-size: 12px;
+}
 
 .heading
 {
@@ -67,6 +72,7 @@ hr + .section-title,
 .cols
 {
     display: flex;
+    flex-wrap: wrap;
 }
 .cols > div
 {
@@ -80,7 +86,7 @@ hr + .section-title,
 #all
 {
     display: flex;
-    width: 100%;
+    min-width: 100%;
     min-height: 100%;
     flex-direction: column;
     background-color: var(--body-bg-color);
@@ -115,7 +121,6 @@ hr + .section-title,
     flex-direction: column;
     min-width: 330px;
     width: 330px;
-    border-right: 1px solid var(--hr-color);
 }
 #general
 {
@@ -130,7 +135,7 @@ hr + .section-title,
 {
     display: flex;
     flex-direction: column;
-    flex: 1;
+    flex: 5;
     padding: 0 20px;
     min-width: 420px;
 }
@@ -146,7 +151,7 @@ hr + .section-title,
 {
     display: flex;
     flex-direction: column;
-    flex: 1;
+    flex: 4;
     padding-left: 10px;
 }
 #c3r1
@@ -280,7 +285,7 @@ hr + .section-title,
     color: var(--subtitle-fg-color);
     font-size: 10px;
 }
-#location img
+#location a div
 {
     width: 300px;
     height: 150px;
@@ -288,7 +293,7 @@ hr + .section-title,
     border-radius: 20px;
     border: 1px solid transparent;
 }
-#location img:hover
+#location a div:hover
 {
     border-color: var(--section-link-fg-color);
 }
@@ -386,10 +391,17 @@ hr + .section-title,
 
 .icon-logo
 {
-    width: 48px;
-    height: 48px;
-    margin: 8px;
-    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" /></svg>') center center no-repeat;
+    display: table-cell;
+    width: 64px;
+    height: 64px;
+    background: url(/a/img/aredn-logo.png) center center no-repeat;
+    filter: contrast(50%);
+    text-align: center;
+    vertical-align: bottom;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--logo-fg-color);
 }
 .icon
 {
@@ -398,7 +410,8 @@ hr + .section-title,
     margin: 16px;
     filter: var( --icon-filter);
 }
-.icon:hover
+.icon:hover,
+.icon.select
 {
     filter: var(--icon-filter-select);
 }

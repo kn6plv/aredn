@@ -17,8 +17,11 @@
         flash = split(f.read("all"), /\s+/)[10];
         f.close();
     }
+    const tm = localtime();
 %}
 <div class="health">
+    <div class="t">{{ tm.hour === 0 ? "12" : tm.hour > 12 ? tm.hour - 12 : tm.hour }}:{{ sprintf("%02d", tm.min) }} {{ tm.hour >= 12 ? "pm" : "am" }}</div>
+    <div class="s">time</div>
     <div class="t">{{ uptime }}</div>
     <div class="s">uptime</div>
     <div class="t">{{ ld[0] }}, {{ ld[1] }}, {{ ld[2] }}</div>

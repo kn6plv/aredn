@@ -4,6 +4,7 @@
     <link href="/a/css/aredn.css" rel="stylesheet">
     <link href="/a/css/base.css" rel="stylesheet">
     <script src="/a/js/htmx.min.js"></script>
+    <meta name="format-detection" content="telephone=no">
 </head>
 <body>
     <div id="all">
@@ -29,6 +30,7 @@
                         {{ _R("services" )}}
                     </div>
                     <div id="local-and-neighbor-devices">
+                        <hr>
                         {{ _R("local-and-neighbor-devices") }}
                     </div>
                 </div>
@@ -39,9 +41,11 @@
                         </div>
                     </div>
                     <div id="dhcp">
+                        <hr>
                         {{ _R("dhcp") }}
                     </div>
                     <div id="tunnels">
+                        <hr>
                         {{ _R("tunnels") }}
                     </div>
                 </div>

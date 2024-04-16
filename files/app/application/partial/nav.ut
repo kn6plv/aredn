@@ -1,5 +1,5 @@
 {% import * as settings from "settings"; %}
-<div class="icon-logo"></div>
+<a href="http://arednmesh.org" style="text-decoration:none"><div class="icon-logo">AREDN</div></a>
 <div class="nav-node-name">{{ settings.getName() || "NOCALL" }} </div>
 <div class="nav-status">status</div>
 <div style="flex:1"></div>
