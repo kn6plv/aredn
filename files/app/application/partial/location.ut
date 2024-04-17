@@ -9,7 +9,7 @@
 %}
 <div class="node-location">
     {% if (mapurl && minimapurl) { %}
-        <a target="_blank" href="{{ mapurl }}"><div class="location-image"><iframe src="{{ minimapurl }}"></iframe></div></a>
+        <a target="_blank" href="{{ mapurl }}"><div class="location-image"><iframe loading="eager" src="{{ minimapurl }}"></iframe></div></a>
     {% }
     if (lat && lon) { %}
         <div class="t">{{ lat }}, {{ lon }}</div>

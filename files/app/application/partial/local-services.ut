@@ -1,24 +1,22 @@
 {%
     import * as fs from "fs";
     import * as network from "network";
+    import * as lqm from "lqm";
+
     const localhosts = {};
-    try {
-        const trackers = json(fs.readfile("/tmp/lqm.info")).trackers;
-        for (t in trackers) {
-            const tracker = trackers[t];
-            if (tracker.ip) {
-                localhosts[tracker.ip] = true;
-                if (tracker.hostname) {
-                    const ip = network.getIPAddressFromHostname(tracker.hostname);
-                    if (ip) {
-                        localhosts[ip] = true;
-                    }
+    const trackers = lqm.getTrackers();
+    for (t in trackers) {
+        const tracker = trackers[t];
+        if (tracker.ip) {
+            localhosts[tracker.ip] = true;
+            if (tracker.hostname) {
+                const ip = network.getIPAddressFromHostname(tracker.hostname);
+                if (ip) {
+                    localhosts[ip] = true;
                 }
             }
-            
         }
-    }
-    catch (_) {
+        
     }
     const services = [];
     const f = fs.open("/var/run/services_olsr");

@@ -1,13 +1,8 @@
 {%
     import * as fs from "fs";
     import * as olsr from "olsr";
+    import * as lqm from "lqm";
 
-    let lqm = { trackers: {} };
-    try {
-        lqm = json(fs.readfile("/tmp/lqm.info"));
-    }
-    catch (_) {
-    }
     let links = {};
     const o = olsr.getLinks();
     for (let i = 0; i < length(o); i++) {
@@ -56,7 +51,7 @@
         </div>
     </div>
     {%
-        const trackers = lqm.trackers;
+        const trackers = lqm.getTrackers();
         let count = 0;
         for (mac in trackers) {
             const tracker = trackers[mac];

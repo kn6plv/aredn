@@ -136,7 +136,7 @@ hr + .section-title,
     display: flex;
     flex-direction: column;
     flex: 5;
-    padding: 0 20px;
+    padding: 20px 20px 0 20px;
     min-width: 420px;
 }
 #services
@@ -152,7 +152,7 @@ hr + .section-title,
     display: flex;
     flex-direction: column;
     flex: 4;
-    padding-left: 10px;
+    padding: 20px 0 0 10px;
 }
 #c3r1
 {
