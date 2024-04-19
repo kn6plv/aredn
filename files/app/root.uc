@@ -1,9 +1,14 @@
 {%
-import config from "./config.uc";
+import * as config from "./config.uc";
 import * as fs from "fs";
 import * as math from "math";
 import * as uci from "uci";
 import * as ubus from "ubus";
+import * as settings from "settings";
+import * as hardware from "hardware";
+import * as lqm from "lqm";
+import * as network from "network";
+import * as olsr from "olsr";
 
 const pageCache = {};
 
@@ -15,19 +20,36 @@ if (!config.debug) {
             if (!entry) {
                 break;
             }
-            const tpath = config.application + path + entry;
-            pageCache[tpath] = loadfile(tpath, { raw_mode: false });
+            if (match(entry, /\.ut$/)) {
+                const tpath = config.application + path + entry;
+                pageCache[tpath] = loadfile(tpath, { raw_mode: false });
+            }
         }
     }
     cp("/main/");
     cp("/partial/");
+    cp("/main/status/e/");
 }
 
-global._R = function(path)
+global._R = function(path, arg)
 {
     const tpath = config.application + "/partial/" + path + ".ut";
     const fn = pageCache[tpath] || loadfile(tpath, { raw_mode: false });
-    return render(fn);
+    let old = inner;
+    let r = "";
+    try {
+        inner = arg;
+        r = render(fn);
+    }
+    catch (_) {
+    }
+    inner = old;
+    return r;
+};
+
+global._H = function(str)
+{
+    return includeHelp ? str : "";
 };
 
 const uciMethods =
@@ -48,6 +70,88 @@ const uciMethods =
             cursor = uci.cursor();
         }
         cursor.set(a, b, c, d);
+    },
+
+    foreach: function(a, b, fn)
+    {
+        if (!cursor)
+        {
+            cursor = uci.cursor();
+        }
+        cursor.foreach(a, b, fn);
+    }
+};
+
+const auth = {
+    authenticated: false,
+    key: null,
+    age: 315360000, // 10 years
+    //age: 120, // 2 minutes
+
+    initKey: function()
+    {
+        if (!this.key) {
+            const f = fs.open("/etc/shadow");
+            if (f) {
+                for (;;) {
+                    const l = f.read("line");
+                    if (!length(l)) {
+                        break;
+                    }
+                    if (index(l, "root:") === 0) {
+                        this.key = trim(l);
+                        break;
+                    }
+                }
+                f.close();
+            }
+        }
+    },
+
+    runAuthentication: function(env)
+    {
+        const cookieheader = env.headers?.cookie;
+        if (cookieheader) {
+            const ca = split(cookieheader, ";");
+            for (let i = 0; i < length(ca); i++) {
+                if (index(ca[i], "authV1=") === 0) {
+                    this.initKey();
+                    if (this.key == b64dec(substr(ca[i], 7))) {
+                        this.authenticated = true;
+                    }
+                    else {
+                        this.authenticated = false;
+                    }
+                    break;
+                }
+            }
+        }
+    },
+
+    authenticate: function(password)
+    {
+        if (!this.authenticated) {
+            this.initKey();
+            const s = split(this.key, /[:$]/); // s[3] = salt, s[4] = hashed
+            const f = fs.popen(`exec /usr/bin/mkpasswd -S '${s[3]}' '${password}'`);
+            if (f) {
+                const pwd = rtrim(f.read("all"));
+                f.close();
+                if (index(this.key, `root:${pwd}:`) === 0) {
+                    response.headers["Set-Cookie"] = `authV1=${b64enc(this.key)}; Path=/; Domain=${request.headers.host}; Max-Age=${this.age}`;
+                    this.authenticated = true;
+                }
+            }
+        }
+        return this.authenticated;
+    },
+
+    deauthenticate: function()
+    {
+        if (this.authenticated) {
+            response.headers["Set-Cookie"] = `authV1=; Path=/; Domain=${request.headers.host}; Max-Age=0;`;
+            this.authenticated = false;
+        }
     }
 };
 
@@ -66,6 +170,11 @@ global.handle_request = function(env)
 {
     const tpath = `${config.application}/main/${env.PATH_INFO || "status"}.ut`;
     if (fs.access(tpath)) {
+        auth.runAuthentication(env);
+        if (index(env.PATH_INFO, "/e/") !== -1 && !auth.authenticated) {
+            uhttpd.send("Status: 401 Unauthorized\r\n\r\n");
+            return;
+        }
         const response = { statusCode: 200, headers: { "Content-Type": "text/html" } };
         const fn = pageCache[tpath] || loadfile(tpath, { raw_mode: false });
         const res = render(call, fn, null, {
@@ -73,11 +182,19 @@ global.handle_request = function(env)
             request: { env: env, headers: env.headers },
             response: response,
             uci: uciMethods,
-            ubus: ubusMethods
+            ubus: ubusMethods,
+            auth: auth,
+            includeHelp: (env.headers || {})["include-help"] === "1",
+            fs: fs,
+            settings: settings,
+            hardware: hardware,
+            lqm: lqm,
+            network: network,
+            olsr: olsr
         });
         if (config.debug) {
             uhttpd.send(
-                sprintf("Status: %d OK\r\n", response.statusCode),
+                `Status: ${response.statusCode} OK\r\n`,
                 join("", map(keys(response.headers), k => k + ": " + response.headers[k] + "\r\n")),
                 "\r\n",
                 res
@@ -90,7 +207,7 @@ global.handle_request = function(env)
                 const z = fs.popen("exec /bin/gzip -c " + datafile);
                 try {
                     uhttpd.send(
-                        sprintf("Status: %d OK\r\nContent-Encoding: gzip\r\n", response.statusCode),
+                        `Status: ${response.statusCode} OK\r\nContent-Encoding: gzip\r\n`,
                         join("", map(keys(response.headers), k => k + ": " + response.headers[k] + "\r\n")),
                         "\r\n",
                         z.read("all")

@@ -1,6 +1,4 @@
 {%
-    import * as settings from "settings";
-    import * as fs from "fs";
     const firmware = settings.getFirmwareVersion();
     let releases = split(fs.readfile("/etc/current_releases"), " ");
     let message = "uptodate";
@@ -24,7 +22,9 @@
         message = "custom";
     }
 %}
-<div class="firmware">
-    <div class="t">{{ firmware }}<div class="firmware-status {{ message }}"></div></div>
-    <div class="s">firmware version</div>
+<div class="ctrl">
+    <div class="firmware">
+        <div class="t">{{ firmware }}<div class="firmware-status {{ message }}"></div></div>
+        <div class="s">firmware version</div>
+    </div>
 </div>

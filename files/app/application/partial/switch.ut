@@ -1,0 +1,3 @@
+<label class="switch {{ inner.style || "" }}">
+  <input tabindex=-1 name="{{ inner.name || "unknown" }}" type="checkbox" {{ inner.checked ? "checked" : "" }} hx-post="{{ request.env.REQUEST_URI }}" >
+</label>

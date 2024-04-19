@@ -1,0 +1,5 @@
+<div>
+    <div class="t">{{ inner }}</div>
+    <div class="s">configuration</div>
+    <hr/>
+</div>

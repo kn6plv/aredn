@@ -29,4 +29,14 @@
     --service-bg-color-status-disabled: #900000;
     --icon-filter: invert(75%) sepia(0%) saturate(1338%) hue-rotate(137deg) brightness(86%) contrast(87%);
     --icon-filter-select: invert(30%) sepia(27%) saturate(4907%) hue-rotate(173deg) brightness(95%) contrast(102%);
+    --login-fg-color: #404040;
+    --login-bg-color: #d0d0d0;
+    --login-border-color: #808080;
+    --login-backdrop-color: rgba(255,255,255,0.7);
+    --ctrl-border-color: #d0d0d0;
+    --ctrl-modal-backdrop-color: rgba(255,255,255,0.7);
+    --ctrl-modal-bg-color: #f0f0f0;
+    --ctrl-modal-border-color: #202020;
+    --ctrl-modal-fg-title-color: #404040;
+    --ctrl-modal-fg-subtitle-color: #c0c0c0;
 }

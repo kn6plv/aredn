@@ -1,8 +1,4 @@
 {%
-    import * as fs from "fs";
-    import * as olsr from "olsr";
-    import * as lqm from "lqm";
-
     let links = {};
     const o = olsr.getLinks();
     for (let i = 0; i < length(o); i++) {
@@ -42,20 +38,50 @@
         return bitrate ? int(bitrate * 10 + 0.5) / 10 : "-";
     }
 %}
-<div class="section-title">Local Devices</div>
-<div class="section" style="line-height:18px;margin-top:-16px">
-    <div class="cols">
-        <div class="heading" style="flex:0.75"></div>
-        <div class="heading ts cols stats">
-            <div>lq</div><div>nlq</div><div>snr</div><div>rsnr</div><div>quality</div><div>tx&nbsp;mbps</div><div>miles</div>
+<div class="noctrl">
+    <div class="section-title">Local Devices</div>
+    <div class="section" style="line-height:18px;margin-top:-16px">
+        <div class="cols">
+            <div class="heading" style="flex:0.75"></div>
+            <div class="heading ts cols stats">
+                <div>lq</div><div>nlq</div><div>snr</div><div>rsnr</div><div>quality</div><div>tx&nbsp;mbps</div><div>miles</div>
+            </div>
         </div>
+        {%
+            const trackers = lqm.getTrackers();
+            let count = 0;
+            for (mac in trackers) {
+                const tracker = trackers[mac];
+                if (tracker.type === "DtD" && tracker.distance < 50 && (tracker.hostname || tracker.ip)) {
+                    count++;
+                    const status = calcColor(tracker);
+                    print("<div class='cols " + status + "'>");
+                    const link = links[tracker.ip] || {};
+                    const lq = link.lossMultiplier ? (int(100 * link.linkQuality * 65536 / link.lossMultiplier) + "%"): "-";
+                    const nlq = link.lossMultiplier ? (int(100 * link.neighborLinkQuality * 65536 / link.lossMultiplier) + "%") : "-";
+                    if (tracker.hostname) {
+                        print("<div style='flex:0.75'><a title='link status: " + status + "' href='http://" + tracker.hostname + ".local.mesh'>" + tracker.hostname + "</a></div>");
+                    }
+                    else {
+                        print("<div style='flex:0.75'><a title='link status: " + status + "' href='http://" + tracker.ip + "'>" + tracker.ip + "</a></div>");
+                    }
+                    print("<div class='ts cols stats'>");
+                    print("<div>" + lq + "</div><div>" + nlq + "</div><div></div><div></div><div>" + tracker.quality + "%</div><div></div><div></div>");
+                    print("</div></div>");
+                }
+            }
+            if (count === 0) {
+                print("<div>None</div>");
+            }
+        %}
     </div>
+    <div class="section-title">Neighborhood Devices</div>
+    <div class="section" style="line-height:18px">
     {%
-        const trackers = lqm.getTrackers();
-        let count = 0;
+        count = 0;
         for (mac in trackers) {
             const tracker = trackers[mac];
-            if (tracker.type === "DtD" && tracker.distance < 50 && (tracker.hostname || tracker.ip)) {
+            if ((tracker.type !== "DtD" || tracker.distance >= 50) && (tracker.hostname || tracker.ip)) {
                 count++;
                 const status = calcColor(tracker);
                 print("<div class='cols " + status + "'>");
@@ -69,7 +95,7 @@
                     print("<div style='flex:0.75'><a title='link status: " + status + "' href='http://" + tracker.ip + "'>" + tracker.ip + "</a></div>");
                 }
                 print("<div class='ts cols stats'>");
-                print("<div>" + lq + "</div><div>" + nlq + "</div><div></div><div></div><div>" + tracker.quality + "%</div><div></div><div></div>");
+                print("<div>"+ lq + "</div><div>" + nlq + "</div><div>" + (tracker.snr || "-") + "</div><div>" + (tracker.snr || "-") + "</div><div>" + tracker.quality + "%</div><div>" + calcBitrate(tracker.tx_bitrate) + "</div><div>" + calcDistance(tracker.distance) + "</div>");
                 print("</div></div>");
             }
         }
@@ -77,33 +103,5 @@
             print("<div>None</div>");
         }
     %}
-</div>
-<div class="section-title">Neighborhood Devices</div>
-<div class="section" style="line-height:18px">
-{%
-    count = 0;
-    for (mac in trackers) {
-        const tracker = trackers[mac];
-        if ((tracker.type !== "DtD" || tracker.distance >= 50) && (tracker.hostname || tracker.ip)) {
-            count++;
-            const status = calcColor(tracker);
-            print("<div class='cols " + status + "'>");
-            const link = links[tracker.ip] || {};
-            const lq = link.lossMultiplier ? (int(100 * link.linkQuality * 65536 / link.lossMultiplier) + "%"): "-";
-            const nlq = link.lossMultiplier ? (int(100 * link.neighborLinkQuality * 65536 / link.lossMultiplier) + "%") : "-";
-            if (tracker.hostname) {
-                print("<div style='flex:0.75'><a title='link status: " + status + "' href='http://" + tracker.hostname + ".local.mesh'>" + tracker.hostname + "</a></div>");
-            }
-            else {
-                print("<div style='flex:0.75'><a title='link status: " + status + "' href='http://" + tracker.ip + "'>" + tracker.ip + "</a></div>");
-            }
-            print("<div class='ts cols stats'>");
-            print("<div>"+ lq + "</div><div>" + nlq + "</div><div>" + (tracker.snr || "-") + "</div><div>" + (tracker.snr || "-") + "</div><div>" + tracker.quality + "%</div><div>" + calcBitrate(tracker.tx_bitrate) + "</div><div>" + calcDistance(tracker.distance) + "</div>");
-            print("</div></div>");
-        }
-    }
-    if (count === 0) {
-        print("<div>None</div>");
-    }
-%}
+    </div>
 </div>

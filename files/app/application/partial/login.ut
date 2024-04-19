@@ -1,0 +1,53 @@
+{% if (!auth.authenticated) { %}
+<dialog id="login">
+    Password <input type="password"><button>OK</button>
+</dialog>
+<div id="login-icon" title="Log in" class="icon login"></div>
+<script>
+    const loginDialog = document.getElementById('login');
+    document.getElementById("login-icon").addEventListener("click", function()
+    {
+        loginDialog.showModal();
+    });
+    loginDialog.addEventListener("close", function()
+    {
+        loginDialog.querySelector("input").value = "";
+    });
+    function doAuth() {
+        fetch(`${location.origin}/a/authenticate`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ version: 1, password: document.querySelector("#login input").value })
+        }).then(function(response) {
+            if (response.status === 200) {
+                response.json().then(function(json) {
+                    if (json.authenticated) {
+                        location.reload();
+                    }
+                });
+            }
+        });
+        loginDialog.close();
+    }
+    loginDialog.querySelector('button').addEventListener("click", doAuth);
+    loginDialog.querySelector('input').addEventListener("change", doAuth);
+</script>
+{% } else { %}
+<div id="logout-icon" title="Log out" class="icon login authenticated"></div>
+<script>
+    document.getElementById("logout-icon").addEventListener("click", function()
+    {
+        fetch(`${location.origin}/a/authenticate`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ version: 1, logout: true })
+        }).then(function(response) {
+            location.reload();
+        });
+    });
+</script>
+{% } %}

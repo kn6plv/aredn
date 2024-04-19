@@ -1,5 +1,4 @@
 {%
-    import * as fs from "fs";
     const d = split(fs.readfile("/proc/uptime"), " ");
     const up = int(d[0]);
     let uptime = sprintf("%d:%02d", int(up / 3600) % 24, int(up / 60) % 60);
@@ -19,22 +18,24 @@
     }
     const tm = localtime();
 %}
-<div class="health">
-    <div class="t">{{ tm.hour === 0 ? "12" : tm.hour > 12 ? tm.hour - 12 : tm.hour }}:{{ sprintf("%02d", tm.min) }} {{ tm.hour >= 12 ? "pm" : "am" }}</div>
-    <div class="s">time</div>
-    <div class="t">{{ uptime }}</div>
-    <div class="s">uptime</div>
-    <div class="t">{{ ld[0] }}, {{ ld[1] }}, {{ ld[2] }}</div>
-    <div class="s">load</div>
-    <div class="cols">
-        <div>
-            <div class="t">{{ flash }} KB</div>
-            <div class="s">free flash</div>
+<div class="ctrl">
+    <div class="health">
+        <div class="t">{{ tm.hour === 0 ? "12" : tm.hour > 12 ? tm.hour - 12 : tm.hour }}:{{ sprintf("%02d", tm.min) }} {{ tm.hour >= 12 ? "pm" : "am" }}</div>
+        <div class="s">time</div>
+        <div class="t">{{ uptime }}</div>
+        <div class="s">uptime</div>
+        <div class="t">{{ ld[0] }}, {{ ld[1] }}, {{ ld[2] }}</div>
+        <div class="s">load</div>
+        <div class="cols">
+            <div>
+                <div class="t">{{ flash }} KB</div>
+                <div class="s">free flash</div>
+            </div>
+            <div>
+                <div class="t">{{ ram }} KB</div>
+                <div class="s">free ram</div>
+            </div>
+            <div></div>
         </div>
-        <div>
-            <div class="t">{{ ram }} KB</div>
-            <div class="s">free ram</div>
-        </div>
-        <div></div>
     </div>
 </div>

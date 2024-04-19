@@ -1,0 +1,15 @@
+{%
+    if (request.env.REQUEST_METHOD === "POST") {
+        return;
+    }
+%}
+<dialog>
+    {{ _R("dialog-header", "Internal Services") }}
+    <div>
+        {{ _H("This is some help") }}
+        <div>
+            Cloud Mesh {{ _R("switch", { checked: uci.get("aredn", "@supernode[0]", "support") !== "0" }) }}
+        </div>
+    </div>
+    {{ _R("dialog-footer") }}
+</dialog>

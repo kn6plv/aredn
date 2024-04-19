@@ -1,4 +1,2 @@
-export default {
-    application: "/app/application",
-    debug: true
-};
+export const application = "/app/application";
+export const debug = true;

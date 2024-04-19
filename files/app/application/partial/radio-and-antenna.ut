@@ -1,6 +1,4 @@
 {%
-    import * as hardware from "hardware";
-    import * as settings from "settings";
     function convertUnit(meters)
     {
         const meters_to_miles = 0.000621371;
@@ -8,72 +6,76 @@
     }
     const wifiIface = "wlan0";
 %}
-<div class="section-title">Radio</div>
-<div class="section">
-    <div class="t">{{ hardware.getRadio().name }}</div>
-    <div class="s">model</div>
-    {% if (hardware.getRadioCount() > 0) { %}
-    {% const wifi = hardware.getWifiInfo(wifiIface); %}
-    <div class="cols">
-        <div>
-            <div class="t">{{ wifi.channel }}</div>
-            <div class="s">channel</div>
+<div class="ctrl">
+    <div class="section-title">Radio</div>
+    <div class="section">
+        <div class="t">{{ hardware.getRadio().name }}</div>
+        <div class="s">model</div>
+        {% if (hardware.getRadioCount() > 0) { %}
+        {% const wifi = hardware.getWifiInfo(wifiIface); %}
+        <div class="cols">
+            <div>
+                <div class="t">{{ wifi.channel }}</div>
+                <div class="s">channel</div>
+            </div>
+            <div style="flex:2">
+                <div class="t">{{ wifi.frequencyRange }}</div>
+                <div class="s">frequencies</div>
+            </div>
         </div>
-        <div style="flex:2">
-            <div class="t">{{ wifi.frequencyRange }}</div>
-            <div class="s">frequencies</div>
+        <div class="cols">
+            <div>
+                <div class="t">{{ settings.getTxPower() + hardware.getTxPowerOffset(wifiIface)}} dBm</div>
+                <div class="s">tx power</div>
+            </div>
+            <div>
+                <div class="t">{{ convertUnit(uci.get("aredn", "@lqm[0]", "max_distance")) }}</div>
+                <div class="s">maximum distance</div>
+            </div>
+            <div>
+                <div class="t">{{ uci.get("aredn", "@lqm[0]", "min_snr") }}</div>
+                <div class="s">minimum snr</div>
+            </div>
         </div>
+        {% } %}
     </div>
-    <div class="cols">
-        <div>
-            <div class="t">{{ settings.getTxPower() + hardware.getTxPowerOffset(wifiIface)}} dBm</div>
-            <div class="s">tx power</div>
-        </div>
-        <div>
-            <div class="t">{{ convertUnit(uci.get("aredn", "@lqm[0]", "max_distance")) }}</div>
-            <div class="s">maximum distance</div>
-        </div>
-        <div>
-            <div class="t">{{ uci.get("aredn", "@lqm[0]", "min_snr") }}</div>
-            <div class="s">minimum snr</div>
-        </div>
-    </div>
-    {% } %}
 </div>
 {% if (hardware.getRadioCount() > 0) { %}
-<div class="section-title">Antenna</div>
-<div class="section">
-    {% const wifiIface = "wlan0"; %}
-    <div class="t">{{ (hardware.getCurrentAntenna(wifiIface) || { description: "-"}).description }}</div>
-    <div class="s">antenna</div>
-    {% if (hardware.getCurrentAntennaAux(wifiIface)) { %}
-    <div class="t">{{ (hardware.getCurrentAntennaAux(wifiIface) || { description: "-"}).description }}</div>
-    <div class="s">aux antenna</div>
-    {% } %}
-    <div class="cols">
-        <div>
-            {% if (uci.get("aredn", "@location[0]", "azimuth")) { %}
-            <div class="t">{{ uci.get("aredn", "@location[0]", "azimuth") }}&deg;</div>
-            {% } else { %}
-            <div class="t">-</div>
-            {% } %}
-            <div class="s">azimuth</div>
-        </div>
-        <div>
-            {% if (uci.get("aredn", "@location[0]", "height")) { %}
-            <div class="t">{{ uci.get("aredn", "@location[0]", "height") }}m</div>
-            {% } else { %}
-            <div class="t">-</div>
-            {% } %}
-            <div class="s">height</div>
-        </div>
-        <div>
-            {% if (uci.get("aredn", "@location[0]", "elevatin")) { %}
-            <div class="t">{{ uci.get("aredn", "@location[0]", "elevation") }}&deg;</div>
-            {% } else { %}
-            <div class="t">-</div>
-            {% } %}
-            <div class="s">elevation</div>
+<div class="ctrl">
+    <div class="section-title">Antenna</div>
+    <div class="section">
+        {% const wifiIface = "wlan0"; %}
+        <div class="t">{{ (hardware.getCurrentAntenna(wifiIface) || { description: "-"}).description }}</div>
+        <div class="s">antenna</div>
+        {% if (hardware.getCurrentAntennaAux(wifiIface)) { %}
+        <div class="t">{{ (hardware.getCurrentAntennaAux(wifiIface) || { description: "-"}).description }}</div>
+        <div class="s">aux antenna</div>
+        {% } %}
+        <div class="cols">
+            <div>
+                {% if (uci.get("aredn", "@location[0]", "azimuth")) { %}
+                <div class="t">{{ uci.get("aredn", "@location[0]", "azimuth") }}&deg;</div>
+                {% } else { %}
+                <div class="t">-</div>
+                {% } %}
+                <div class="s">azimuth</div>
+            </div>
+            <div>
+                {% if (uci.get("aredn", "@location[0]", "height")) { %}
+                <div class="t">{{ uci.get("aredn", "@location[0]", "height") }}m</div>
+                {% } else { %}
+                <div class="t">-</div>
+                {% } %}
+                <div class="s">height</div>
+            </div>
+            <div>
+                {% if (uci.get("aredn", "@location[0]", "elevatin")) { %}
+                <div class="t">{{ uci.get("aredn", "@location[0]", "elevation") }}&deg;</div>
+                {% } else { %}
+                <div class="t">-</div>
+                {% } %}
+                <div class="s">elevation</div>
+            </div>
         </div>
     </div>
 </div>

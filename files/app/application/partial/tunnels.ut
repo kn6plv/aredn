@@ -1,20 +1,18 @@
 {%
-    import * as u from "uci";
-    import * as fs from "fs";
-    const cursor = u.cursor();
+
     let wc = 0;
     let ws = 0;
     let lc = 0;
     let ls = 0;
-    cursor.foreach("wireguard", "client", function()
+    uci.foreach("wireguard", "client", function()
     {
         ws++;
     });
-    cursor.foreach("vtun", "client", function()
+    uci.foreach("vtun", "client", function()
     {
         ls++;
     });
-    cursor.foreach("vtun", "server", function(s)
+    uci.foreach("vtun", "server", function(s)
     {
         if (index(s, ":") !== -1) {
             wc++;
@@ -63,44 +61,46 @@
         w.close();
     }
 %}
-<div class="section-title">Tunnels</div>
-<div class="section">
-    <div class="section-subtitle">Wireguard</div>
-    <div class="cols">
-        <div>
-            <div class="t">{{ wac }}</div>
-            <div class="s">active clients</div>
+<div class="ctrl">
+    <div class="section-title">Tunnels</div>
+    <div class="section">
+        <div class="section-subtitle">Wireguard</div>
+        <div class="cols">
+            <div>
+                <div class="t">{{ wac }}</div>
+                <div class="s">active clients</div>
+            </div>
+            <div>
+                <div class="t">{{ wc }}</div>
+                <div class="s">allocated clients</div>
+            </div>
+            <div>
+                <div class="t">{{ was }}</div>
+                <div class="s">active servers</div>
+            </div>
+            <div>
+                <div class="t">{{ ws }}</div>
+                <div class="s">allocated servers</div>
+            </div>
         </div>
-        <div>
-            <div class="t">{{ wc }}</div>
-            <div class="s">allocated clients</div>
-        </div>
-        <div>
-            <div class="t">{{ was }}</div>
-            <div class="s">active servers</div>
-        </div>
-        <div>
-            <div class="t">{{ ws }}</div>
-            <div class="s">allocated servers</div>
-        </div>
-    </div>
-    <div class="section-subtitle">Legacy</div>
-    <div class="cols">
-        <div>
-            <div class="t">{{ lac }}</div>
-            <div class="s">active clients</div>
-        </div>
-        <div>
-            <div class="t">{{ lc }}</div>
-            <div class="s">allocated clients</div>
-        </div>
-        <div>
-            <div class="t">{{ las }}</div>
-            <div class="s">active servers</div>
-        </div>
-        <div>
-            <div class="t">{{ ls }}</div>
-            <div class="s">allocated servers</div>
+        <div class="section-subtitle">Legacy</div>
+        <div class="cols">
+            <div>
+                <div class="t">{{ lac }}</div>
+                <div class="s">active clients</div>
+            </div>
+            <div>
+                <div class="t">{{ lc }}</div>
+                <div class="s">allocated clients</div>
+            </div>
+            <div>
+                <div class="t">{{ las }}</div>
+                <div class="s">active servers</div>
+            </div>
+            <div>
+                <div class="t">{{ ls }}</div>
+                <div class="s">allocated servers</div>
+            </div>
         </div>
     </div>
 </div>

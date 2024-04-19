@@ -1,6 +1,4 @@
 {%
-    import * as fs from "fs";
-
     const rl = uci.get("aredn", "@remotelog[0]", "url") ? "active" : "disabled";
     const sn = uci.get("aredn", "@supernode[0]", "enable") === "1" ? "active" : "disabled";
     const cm = uci.get("aredn", "@supernode[0]", "support") === "0" ? "disabled" : "active";
@@ -16,21 +14,23 @@
     const wt = uci.get("aredn", "@wan[0]", "telnet_access") === "0" ? "disabled" : "active";
 
 %}
-<div class="section-title">Internal Services</div>
-<div class="section">
-    <div class="cols">
-        <div>
-            <div class="service"><div class="status {{ cm }}"></div>Cloud Mesh</div>
-            <div class="service"><div class="status {{ wd }}"></div>Watchdog</div>
-            <div class="service"><div class="status {{ ip }}"></div>IPerf3 Server</div>
-            <div class="service"><div class="status {{ ws }}"></div>WAN ssh</div>
-            <div class="service"><div class="status {{ ww }}"></div>WAN web</div>
-        </div>
-        <div>
-            <div class="service"><div class="status {{ mt }}"></div>Metrics</div>
-            <div class="service"><div class="status {{ rl }}"></div>Remote Logging</div>
-            <div class="service"><div class="status {{ sn }}"></div>Supernode</div>
-            <div class="service"><div class="status {{ wt }}"></div>WAN telnet</div>
+<div class="ctrl" hx-get="status/e/internal-services" hx-target="#ctrl-modal">
+    <div class="section-title">Internal Services</div>
+    <div class="section">
+        <div class="cols">
+            <div>
+                <div class="service"><div class="status {{ cm }}"></div>Cloud Mesh</div>
+                <div class="service"><div class="status {{ wd }}"></div>Watchdog</div>
+                <div class="service"><div class="status {{ ip }}"></div>IPerf3 Server</div>
+                <div class="service"><div class="status {{ ws }}"></div>WAN ssh</div>
+                <div class="service"><div class="status {{ ww }}"></div>WAN web</div>
+            </div>
+            <div>
+                <div class="service"><div class="status {{ mt }}"></div>Metrics</div>
+                <div class="service"><div class="status {{ rl }}"></div>Remote Logging</div>
+                <div class="service"><div class="status {{ sn }}"></div>Supernode</div>
+                <div class="service"><div class="status {{ wt }}"></div>WAN telnet</div>
+            </div>
         </div>
     </div>
 </div>

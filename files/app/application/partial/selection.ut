@@ -1,5 +1,4 @@
 {%
-    import * as fs from "fs";
     const ip = (match(fs.readfile("/tmp/dnsmasq.d/supernode.conf"), /^#([0-9.]+)/) || [])[1];
     const status = request.env.PATH_INFO === "/status" ? "select" : "";
     const mesh = request.env.PATH_INFO === "/mesh" ? "select" : "";

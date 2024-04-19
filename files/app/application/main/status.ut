@@ -3,10 +3,13 @@
 <head>
     <link href="/a/css/aredn.css" rel="stylesheet">
     <link href="/a/css/base.css" rel="stylesheet">
+    {% if (auth.authenticated) { %}
     <script src="/a/js/htmx.min.js"></script>
+    {% } %}
     <meta name="format-detection" content="telephone=no">
 </head>
-<body>
+<body class="{{ auth.authenticated ? "authenticated" : "" }}">
+    {{ _R("ctrls") }}
     <div id="all">
         <div id="nav">
             {{ _R("nav") }}

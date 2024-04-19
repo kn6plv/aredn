@@ -1,8 +1,4 @@
 {%
-    import * as fs from "fs";
-    import * as network from "network";
-    import * as lqm from "lqm";
-
     const localhosts = {};
     const trackers = lqm.getTrackers();
     for (t in trackers) {
@@ -40,22 +36,24 @@
         f.close();
     }
 %}
-<div class="section-title">Local Services</div>
-<div class="section">
-{%
-    if (length(services) === 0) {
-        print("None");
-    }
-    else {
-        print("<div class='local-services cols'><div>");
-        for (let i = 0; i < length(services); i += 2) {
-            print(services[i]);
+<div class="ctrl">
+    <div class="section-title">Local Services</div>
+    <div class="section">
+    {%
+        if (length(services) === 0) {
+            print("None");
         }
-        print("</div><div>");
-        for (let i = 1; i < length(services); i += 2) {
-            print(services[i]);
+        else {
+            print("<div class='local-services cols'><div>");
+            for (let i = 0; i < length(services); i += 2) {
+                print(services[i]);
+            }
+            print("</div><div>");
+            for (let i = 1; i < length(services); i += 2) {
+                print(services[i]);
+            }
+            print("</div></div>");
         }
-        print("</div></div>");
-    }
-%}
+    %}
+    </div>
 </div>

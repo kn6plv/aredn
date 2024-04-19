@@ -1,16 +1,15 @@
 {%
-    import * as settings from "settings";
-    import * as fs from "fs";
-    import * as hardware from "hardware";
     const id = hardware.getBoard().model?.id;
     const url = fs.access(`${config.application}/resource/img/radio/${id}.png`) ? `/a/img/radio/${id}.png` : null;
 %}
 {% if (url) { %}
 <div class="radio-image"><img src="{{ url }}"></div>
 {% } %}
-<div class="node-description">
-    <div class="t">{{ settings.getDescription() || "-" }}</div>
-    <div class="s">description</div>
+<div class="ctrl">
+    <div class="node-description">
+        <div class="t">{{ settings.getDescription() || "-" }}</div>
+        <div class="s">description</div>
+    </div>
 </div>
 {{ _R("health") }}
 {{ _R("firmware") }}
