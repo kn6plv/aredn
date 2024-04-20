@@ -8,12 +8,12 @@
             if (!length(l)) {
                 break;
             }
-            if (index(l, "10.") === 0 && !match(l, /\smid\d+\./)) {
-                devices++;
-                if (match(l, /^10\..+\sdtdlink\./)) {
-                    nodes++;
-                }
-            }
+            if (substr(l, 0, 3) == "10." && index(l, "\tmid") === -1) {                                                       
+                devices++;                                                                                                    
+                if (index(l, "\tdtdlink.") !== -1) {                                                                          
+                    nodes++;                                                                                                  
+                }                                                                                                             
+            }  
         }
         f.close();
     }
