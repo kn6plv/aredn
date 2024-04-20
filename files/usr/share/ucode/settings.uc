@@ -1,8 +1,11 @@
 import * as fs from "fs";
 import * as uci from "uci";
+import * as math from "math";
 
 let cursor;
 let setup;
+
+const currentConfig = "/tmp/config.current";
 
 function initCursor()
 {
@@ -83,4 +86,96 @@ export function getDHCP()
             break;
     }
     return r;
+};
+
+export function prepareChanges()
+{
+    fs.mkdir(currentConfig);
+    if (!fs.access(`${currentConfig}/_setup`)) {
+        const d = fs.opendir("/etc/config.mesh");
+        if (d) {
+            for (;;) {
+                const entry = d.read();
+                if (!entry) {
+                    break;
+                }
+                fs.writefile(`${currentConfig}/${entry}`, fs.readfile(`/etc/config.mesh/${entry}`));
+            }
+            d.close();
+        }
+    }
+};
+
+export function commitChanges()
+{
+    if (fs.access(`${currentConfig}/_setup`)) {
+        const d = fs.opendir(currentConfig);
+        if (d) {
+            for (;;) {
+                const entry = d.read();
+                if (!entry) {
+                    break;
+                }
+                fs.unlink(`${currentConfig}/${entry}`);
+            }
+            d.close();
+            fs.rmdir(currentConfig);
+        }
+    }
+};
+
+export function revertChanges()
+{
+    if (fs.access(`${currentConfig}/_setup`)) {
+        const d = fs.opendir(currentConfig);
+        if (d) {
+            for (;;) {
+                const entry = d.read();
+                if (!entry) {
+                    break;
+                }
+                const from = `${currentConfig}/${entry}`;
+                fs.writefile(`/etc/config.mesh/${entry}`, fs.readfile(from));
+                fs.unlink(from);
+            }
+            d.close();
+            fs.rmdir(currentConfig);
+        }
+    }
+};
+
+export function countChanges()
+{
+    let count = 0;
+    if (fs.access(`${currentConfig}/_setup`)) {
+        const d = fs.opendir(currentConfig);
+        if (d) {
+            for (;;) {
+                const entry = d.read();
+                if (!entry) {
+                    break;
+                }
+                const from = `${currentConfig}/${entry}`;
+                const to = `/etc/config.mesh/${entry}`;
+                const p = fs.popen(`exec /usr/bin/diff -BbdiU0 ${from} ${to}`);
+                if (p) {
+                    for (;;) {
+                        const l = rtrim(p.read("line"));
+                        if (!l) {
+                            break;
+                        }
+                        if (index(l, "@@") === 0) {
+                            const v = match(l, /^@@ [+-]\d+,?(\d*) [+-]\d+,?(\d*) @@$/);
+                            if (v) {
+                                count += max(math.abs(int(v[1] === "" ? 1 : v[1])), math.abs(int(v[2] === "" ? 1 : v[2])));
+                            }
+                        }
+                    }
+                    p.close();
+                }
+            }
+            d.close();
+        }
+    }
+    return count;
 };

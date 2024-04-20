@@ -39,4 +39,8 @@
     --ctrl-modal-border-color: #202020;
     --ctrl-modal-fg-title-color: #404040;
     --ctrl-modal-fg-subtitle-color: #c0c0c0;
+    --ctrl-modal-fg-option-color: #404040;
+    --ctrl-modal-fg-message-color: #808080;
+    --ctrl-modal-fg-help-color: #808080;
+    --ctrl-modal-fg-help-border-color: #808080;
 }

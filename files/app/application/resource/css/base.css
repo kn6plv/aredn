@@ -172,6 +172,10 @@ body.authenticated .ctrl:hover
 {
     flex: 4;
 }
+#mesh-summary
+{
+    flex: 0;
+}
 #c3
 {
     display: flex;
@@ -220,6 +224,21 @@ body.authenticated .ctrl:hover
     font-size: 12px;
     padding: 8px 0 0 8px;
     margin: auto 0;
+}
+
+#changes
+{
+    font-size: 16px;
+    padding-top: 22px;
+    color: var(--title-fg-color);
+    text-align: center;
+}
+#changes button
+{
+    font: inherit;
+    font-size: 12px;
+    margin: 0 10px;
+    padding: 8px;
 }
 
 /* -- end nav layout -- */
@@ -370,6 +389,10 @@ body.authenticated .ctrl:hover
 
 /* -- end local and neighborhood devices layout -- */
 
+/* start mesh summary layout */
+
+/* end mesh summary layout */
+
 /* -- start services layout -- */
 
 #services .service
@@ -509,7 +532,7 @@ body.authenticated .ctrl:hover
     font: inherit;
     font-size: 16px;
     height: 80%;
-    min-width: 600px;
+    width: 600px;
     padding: 40px;
     border: 1px solid var(--ctrl-modal-border-color);
     background-color: var(--ctrl-modal-bg-color);
@@ -522,9 +545,10 @@ body.authenticated .ctrl:hover
 {
     flex: 0;
 }
-#ctrl-modal dialog > div
+#ctrl-modal dialog > div:nth-child(2)
 {
     flex: 1;
+    overflow-y: scroll;
 }
 #ctrl-modal dialog > div:last-child
 {
@@ -544,6 +568,24 @@ body.authenticated .ctrl:hover
 {
     float: right;
 }
+
+#ctrl-modal dialog .o
+{
+    color: var(--ctrl-modal-fg-option-color);
+    font-size: 16px;
+}
+#ctrl-modal dialog .m
+{
+    color: var(--ctrl-modal-fg-message-color);
+    font-size: 12px;
+    padding: 4px 0 10px 0;
+}
+#ctrl-modal dialog .help
+{
+    color: var(--ctrl-modal-fg-help-color);
+    font-size: 12px;
+    padding: 0px 40px 20px 10px;
+}
    
 .switch input[type=checkbox]
 {
@@ -555,6 +597,7 @@ body.authenticated .ctrl:hover
     position: relative;
     border-radius: .2em;
     cursor: pointer;
+    outline: none;
 }
    
 .switch input[type=checkbox]::before
@@ -583,3 +626,7 @@ body.authenticated .ctrl:hover
 }
 
 /* ctrls end */
+
+/* dialog customization start */
+
+/* dialog customization end */

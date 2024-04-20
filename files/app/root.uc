@@ -49,7 +49,7 @@ global._R = function(path, arg)
 
 global._H = function(str)
 {
-    return includeHelp ? str : "";
+    return includeHelp ? `<div class="help">${str}</div>` : "";
 };
 
 const uciMethods =
@@ -79,6 +79,50 @@ const uciMethods =
             cursor = uci.cursor();
         }
         cursor.foreach(a, b, fn);
+    },
+
+    commit: function(a)
+    {
+        if (cursor) {
+            cursor.commit(a);
+        }
+    }
+};
+
+const uciMeshMethods =
+{
+    get: function(a, b, c)
+    {
+        if (!cursorm)
+        {
+            cursorm = uci.cursor("/etc/config.mesh");
+        }
+        return cursorm.get(a, b, c);
+    },
+
+    set: function(a, b, c, d)
+    {
+        if (!cursorm)
+        {
+            cursorm = uci.cursor("/etc/config.mesh");
+        }
+        cursorm.set(a, b, c, d);
+    },
+
+    foreach: function(a, b, fn)
+    {
+        if (!cursorm)
+        {
+            cursorm = uci.cursor("/etc/config.mesh");
+        }
+        cursorm.foreach(a, b, fn);
+    },
+
+    commit: function(a)
+    {
+        if (cursorm) {
+            cursorm.commit(a);
+        }
     }
 };
 
@@ -175,13 +219,25 @@ global.handle_request = function(env)
             uhttpd.send("Status: 401 Unauthorized\r\n\r\n");
             return;
         }
+        const args = {};
+        if (env.CONTENT_TYPE === "application/x-www-form-urlencoded") {
+            const v = split(uhttpd.recv(1024), "&");
+            for (let i = 0; i < length(v); i++) {
+                const kv = split(v[i], "=");
+                const k = uhttpd.urldecode(kv[0]);
+                if (!(k in args)) {
+                    args[k] = uhttpd.urldecode(kv[1]);
+                }
+            }
+        }
         const response = { statusCode: 200, headers: { "Content-Type": "text/html" } };
         const fn = pageCache[tpath] || loadfile(tpath, { raw_mode: false });
         const res = render(call, fn, null, {
             config: config,
-            request: { env: env, headers: env.headers },
+            request: { env: env, headers: env.headers, args: args },
             response: response,
             uci: uciMethods,
+            uciMesh: uciMeshMethods,
             ubus: ubusMethods,
             auth: auth,
             includeHelp: (env.headers || {})["include-help"] === "1",

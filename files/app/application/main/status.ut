@@ -44,6 +44,10 @@
                             {{ _R("radio-and-antenna") }}
                         </div>
                     </div>
+                    <div id="mesh-summary">
+                        <hr>
+                        {{ _R("mesh-summary") }}
+                    </div>
                     <div id="dhcp">
                         <hr>
                         {{ _R("dhcp") }}
