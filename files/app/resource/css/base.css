@@ -229,10 +229,17 @@ body.authenticated .ctrl:hover
 
 #changes
 {
+    padding-left: 90px;
     font-size: 16px;
-    padding-top: 22px;
     color: var(--title-fg-color);
     text-align: center;
+}
+#changes > div
+{
+    width: 450px;
+    margin-top: 4px;
+    padding: 10px;
+    border: 2px solid var(--firmware-status-bg-color-positive);
 }
 #changes button
 {
@@ -240,6 +247,17 @@ body.authenticated .ctrl:hover
     font-size: 12px;
     margin: 0 10px;
     padding: 8px;
+    background-color: transparent;
+}
+#changes button:first-child
+{
+    border: 2px solid var(--firmware-status-bg-color-positive);
+    color: var(--firmware-status-bg-color-positive);
+}
+#changes button:last-child
+{
+    border: 2px solid var(--firmware-status-bg-color-negative);
+    color: var(--firmware-status-bg-color-negative);
 }
 
 /* -- end nav layout -- */
@@ -550,6 +568,7 @@ body.authenticated .ctrl:hover
 {
     flex: 1;
     overflow-y: scroll;
+    padding: 0 10px;
 }
 #ctrl-modal dialog > div:last-child
 {
@@ -569,6 +588,37 @@ body.authenticated .ctrl:hover
 {
     float: right;
 }
+.ctrl-modal-advanced
+{
+    display: flex;
+    padding: 20px 0;
+}
+.ctrl-modal-advanced hr
+{
+    flex: 1;
+    border-color: var(--ctrl-modal-advance-options-color);
+}
+.ctrl-modal-advanced button
+{
+    margin-left: -8px;
+    font: inherit;
+    font-size: 16px;
+    color: var(--ctrl-modal-advance-options-color);
+    border: 0;
+    background-color: transparent;
+}
+.ctrl-modal-advanced button:hover
+{
+    color: var(--ctrl-modal-textbox-fg-color);
+}
+.ctrl-modal-advanced + div
+{
+    display: none;
+}
+.ctrl-modal-advanced.active + div
+{
+    display: block;
+}
 
 #ctrl-modal dialog .o
 {
@@ -587,18 +637,53 @@ body.authenticated .ctrl:hover
     font-size: 12px;
     padding: 0px 40px 20px 10px;
 }
+
+#ctrl-modal dialog input[type=text]
+{
+    color: var(--ctrl-modal-textbox-fg-color);
+    background-color: var(--ctrl-modal-textbox-bg-color);
+    border: 1px solid var(--ctrl-modal-textbox-border-color);
+    padding: 5px;
+    margin-top: 2px;
+    border-radius: .2em;
+    outline: none;
+    font: inherit;
+    font-size: 14px;
+    text-align: right;
+}
+#ctrl-modal dialog input[type=text]:invalid
+{
+    border-color: var(--ctrl-modal-border-color-error);
+}
+
+#ctrl-modal dialog select
+{
+    font: inherit;
+    font-size: 14px;
+    appearance: none;
+    outline: none;
+    padding: 5px 5px 5px 10px;
+    border: 1px solid var(--ctrl-modal-textbox-border-color);
+    border-radius: .2em;
+    direction: rtl;
+}
+#ctrl-modal dialog select option
+{
+    direction: ltr;
+}
    
 .switch input[type=checkbox]
 {
     appearance: none;
     height: 2rem;
     width: 3.5rem;
-    background-color: var(--ctrl-modal-bg-color);
-    border: 1px solid var(--ctrl-modal-fg-title-color);
+    background-color: var(--ctrl-modal-textbox-bg-color);
+    border: 1px solid var(--ctrl-modal-textbox-border-color);
     position: relative;
     border-radius: .2em;
     cursor: pointer;
     outline: none;
+    margin-right: 0;
 }
    
 .switch input[type=checkbox]::before
@@ -629,5 +714,27 @@ body.authenticated .ctrl:hover
 /* ctrls end */
 
 /* dialog customization start */
+
+#ctrl-modal dialog .hideable:has(> div:first-child input[type='checkbox']:not(:checked)) > .hideable0
+{
+    display: none;
+}
+
+#ctrl-modal dialog .hideable:has(> div:first-child select > option) > .hideable0,
+#ctrl-modal dialog .hideable:has(> div:first-child select > option) > .hideable1,
+#ctrl-modal dialog .hideable:has(> div:first-child select > option) > .hideable2,
+#ctrl-modal dialog .hideable:has(> div:first-child select > option) > .hideable3,
+#ctrl-modal dialog .hideable:has(> div:first-child select > option) > .hideable4
+{
+    display: none;
+}
+#ctrl-modal dialog .hideable:has(> div:first-child select > option[value="0"]:checked) > .hideable0,
+#ctrl-modal dialog .hideable:has(> div:first-child select > option[value="1"]:checked) > .hideable1,
+#ctrl-modal dialog .hideable:has(> div:first-child select > option[value="2"]:checked) > .hideable2,
+#ctrl-modal dialog .hideable:has(> div:first-child select > option[value="3"]:checked) > .hideable3,
+#ctrl-modal dialog .hideable:has(> div:first-child select > option[value="4"]:checked) > .hideable4
+{
+    display: block;
+}
 
 /* dialog customization end */

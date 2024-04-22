@@ -1,0 +1,170 @@
+{% if (request.env.REQUEST_METHOD === "PUT") {
+    settings.prepareChanges();
+    if ("mesh_ip" in request.args) {
+        if (match(request.args.mesh_ip, /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/)) {
+            settings.setSetting("wifi_ip", request.args.mesh_ip);
+        }
+    }
+    if ("dhcp_mode" in request.args) {
+        const mode = int(request.args.dhcp_mode || 3);
+        if (mode >= 0 && mode <= 5 && mode !== 1) {
+            settings.setSetting("dmz_mode", mode);
+        }
+    }
+    if ("wan_enable" in request.args) {
+        if (request.args.wan_enable === "off") {
+            settings.setSetting("wan_proto", "disabled");
+        }
+        else {
+            settings.setSetting("wan_proto", "dhcp");
+        }
+    }
+    if ("wan_mode" in request.args) {
+        if (request.args.wan_mode === "0") {
+            settings.setSetting("wan_proto", "dhcp");
+        }
+        else {
+            settings.setSetting("wan_proto", "static");
+        }
+    }
+    if ("wan_ip" in request.args) {
+        if (match(request.args.wan_ip, /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/)) {
+            settings.setSetting("wan_ip", request.args.wan_ip);
+        }
+    }
+    if ("wan_mask" in request.args) {
+        if (match(request.args.wan_mask, /^(((255\.){3}(255|254|252|248|240|224|192|128|0+))|((255\.){2}(255|254|252|248|240|224|192|128|0+)\.0)|((255\.)(255|254|252|248|240|224|192|128|0+)(\.0+){2})|((255|254|252|248|240|224|192|128|0+)(\.0+){3}))$/)) {
+            settings.setSetting("wan_mask", request.args.wan_mask);
+        }
+    }
+    if ("wan_gw" in request.args) {
+        if (match(request.args.wan_gw, /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/)) {
+            settings.setSetting("wan_gw", request.args.wan_gw);
+        }
+    }
+    if ("wan_dns1" in request.args) {
+        if (match(request.args.wan_dns1, /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/)) {
+            settings.setSetting("wan_dns1", request.args.wan_dns1);
+        }
+    }
+    if ("wan_dns2" in request.args) {
+        if (match(request.args.wan_dns2, /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/)) {
+            settings.setSetting("wan_dns2", request.args.wan_dns2);
+        }
+    }
+    settings.saveSettings();
+%}
+{{ _R("changes") }}
+{% return; } %}
+{%
+    const dmz_mode = settings.getSettingAsInt("dmz_mode", 3);
+    const wan_proto = settings.getSettingAsString("wan_proto", "disabled");
+%}
+<dialog>
+    {{ _R("dialog-header", "Network") }}
+    <div>
+        <div class="cols">
+            <div>
+                <div class="o">Mesh A&zwnj;ddress</div>
+                <div class="m">The primary address of this node</div>
+            </div>
+            <div style="flex:0">
+                <input hx-put="{{ request.env.REQUEST_URI }}" name="mesh_ip" type="text" size="14" placeholder="10.X.X.X" pattern="^10\.((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){3}$" value="{{ settings.getSettingAsString("wifi_ip") }}">
+            </div>
+        </div>
+        {{ _H("The primary address of this AREDN node. This will always be of the form 10.X.X.X. The address is generated automatically based on hardware information so it will
+        always be the same even if you reinstall this node from scratch. You shouldn't have to change it.") }}
+        <hr>
+        <div class="cols">
+            <div>
+                <div class="o">LAN Size</div>
+                <div class="m">Size of LAN subnet</div>
+            </div>
+            <div style="flex:0">
+                <select hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="dhcp_mode">
+                    <option value="0" {{ dmz_mode == 0 ? "selected" : ""}}>NAT</option>
+                    <option value="2" {{ dmz_mode == 2 ? "selected" : ""}}>1 host</option>
+                    <option value="3" {{ dmz_mode == 3 ? "selected" : ""}}>5 hosts</option>
+                    <option value="4" {{ dmz_mode == 4 ? "selected" : ""}}>13 hosts</option>
+                    <option value="5" {{ dmz_mode == 5 ? "selected" : ""}}>29 hosts</option>
+                </select>
+            </div>
+        </div>
+        {{ _H("Select how many hosts you want to support on this nodes LAN network. This determines the size of the netmask associated with that network.
+        You can also select NAT which allows more hosts, firewalls your LAN hosts from the Mesh network, but requires explicity ports to be forwarded when
+        creating services.") }}
+        <hr>
+        <div class="hideable">
+            <div class="cols">
+                <div>
+                    <div class="o">WAN Enable</div>
+                    <div class="m">Allow node to directly access the Internet</div>
+                </div>
+                <div style="flex:0">
+                    {{ _R("switch", { name: "wan_enable", value: wan_proto === "disabled" ? false : true }) }}
+                </div>
+            </div>
+            {{ _H("Enable the WAN interface on this node, to allow it to access the Internet directly.") }}
+            <div class="hideable hideable0">
+                <div class="cols">
+                    <div>
+                        <div class="o">Mode</div>
+                        <div class="m">Static or DHCP mode</div>
+                    </div>
+                    <div style="flex:0">
+                        <select hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="wan_mode">
+                            <option value="0" {{ wan_proto !== "static" ? "selected" : "" }}>DHCP</option>
+                            <option value="1" {{ wan_proto === "static" ? "selected" : "" }}>Static</option>
+                        </select>
+                    </div>
+                </div>
+                {{ _H("The WAN interface can either use DHCP to retrieve an IP address, or it can be set statically.") }}
+                <div class="hideable1">
+                    <div class="cols">
+                        <div>
+                            <div class="o">A&zwnj;ddress</div>
+                            <div class="m">WAN IP a&zwnj;ddress</div>
+                        </div>
+                        <div style="flex:0">
+                            <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_ip" type="text" size="15" pattern="^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$" value="{{ settings.getSettingAsString("wan_ip") }}">
+                        </div>
+                    </div>
+                    {{ _H("A fixed IP address to assign to the WAN interace on this node.") }}
+                    <div class="cols">
+                        <div>
+                            <div class="o">Netmask</div>
+                            <div class="m">WAN netmask</div>
+                        </div>
+                        <div style="flex:0">
+                            <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_mask" type="text" size="15" pattern="^(((255\.){3}(255|254|252|248|240|224|192|128|0+))|((255\.){2}(255|254|252|248|240|224|192|128|0+)\.0)|((255\.)(255|254|252|248|240|224|192|128|0+)(\.0+){2})|((255|254|252|248|240|224|192|128|0+)(\.0+){3}))$" value="{{ settings.getSettingAsString("wan_mask") }}">
+                        </div>
+                    </div>
+                    {{ _H("The netmask (e.g. 255.255.255.0) for this interface.") }}
+                    <div class="cols">
+                        <div>
+                            <div class="o">Gateway</div>
+                            <div class="m">Default gateway</div>
+                        </div>
+                        <div style="flex:0">
+                            <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_gw" type="text" size="15" pattern="^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$" value="{{ settings.getSettingAsString("wan_gw") }}">
+                        </div>
+                    </div>
+                    {{ _H("The default gateway his node should use to access the Internet.") }}
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="cols">
+            <div>
+                <div class="o">DNS</div>
+                <div class="m">Internet DNS servers</div>
+            </div>
+            <div style="flex:0;white-space:nowrap">
+                <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_dns1" type="text" size="15" pattern="^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$" value="{{ settings.getSettingAsString("wan_dns1") }}">
+                <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_dns2" type="text" size="15" pattern="^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$" value="{{ settings.getSettingAsString("wan_dns2") }}">
+            </div>
+        </div>
+        {{ _H("For hosts not on the Mesh, use these DNS servers to resolve names to IP addresses.") }}
+    </div>
+    {{ _R("dialog-footer") }}
+</dialog>

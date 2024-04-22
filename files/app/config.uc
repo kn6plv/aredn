@@ -1,2 +1,2 @@
-export const application = "/app/application";
+export const application = "/app";
 export const debug = true;

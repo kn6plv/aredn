@@ -14,8 +14,10 @@
     }
     if (changes > 0) {
     %}
-        Pending changes: {{ changes }}
-        <button name="commit" value="1" hx-put="/a/status/e/changes">Commit</button>
-        <button name="revert" value="1" hx-put="/a/status/e/changes">Revert</button>
+        <div>
+            Pending changes: {{ changes }}
+            <button name="commit" value="1" hx-put="/a/status/e/changes">Commit</button>
+            <button name="revert" value="1" hx-put="/a/status/e/changes">Revert</button>
+        </div>
     {% } %}
 </div>

@@ -1,0 +1,11 @@
+{% if (request.env.REQUEST_METHOD === "PUT") {
+    settings.prepareChanges();
+%}
+{{ _R("changes") }}
+{% return; } %}
+<dialog>
+    {{ _R("dialog-header", "Radio") }}
+    <div>
+    </div>
+    {{ _R("dialog-footer") }}
+</dialog>

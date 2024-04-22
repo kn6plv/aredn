@@ -61,7 +61,7 @@
         w.close();
     }
 %}
-<div class="ctrl">
+<div class="ctrl" hx-get="status/e/tunnels" hx-target="#ctrl-modal">
     <div class="section-title">Tunnels</div>
     <div class="section">
         <div class="section-subtitle">Wireguard</div>

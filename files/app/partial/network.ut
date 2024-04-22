@@ -1,4 +1,4 @@
-<div class="ctrl">
+<div class="ctrl" hx-get="status/e/network" hx-target="#ctrl-modal">
     <div class="section-title">Network</div>
     <div class="t">{{ uci.get("network", "wifi", "ipaddr") }} <span class="ts">{{ uci.get("network", "wifi", "netmask") == "255.255.255.255" ? "/ 32" : "/ 8" }}<span></div>
     <div class="s">mesh address</div>

@@ -19,7 +19,7 @@
         }
     }
 %}
-<div class="ctrl">
+<div class="ctrl" hx-get="status/e/dhcp" hx-target="#ctrl-modal">
     <div class="section-title">DHCP</div>
     <div class="section">
         <div class="t">{{ dhcp.enabled ? "Active" : "Disabled" }}</div>

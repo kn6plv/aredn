@@ -14,14 +14,14 @@ const pageCache = {};
 
 if (!config.debug) {
     function cp(path) {
-        const dir = fs.opendir(config.application + path);
+        const dir = fs.opendir(`${config.application}${path}`);
         for (;;) {
             const entry = dir.read();
             if (!entry) {
                 break;
             }
             if (match(entry, /\.ut$/)) {
-                const tpath = config.application + path + entry;
+                const tpath = `${config.application}${path}${entry}`;
                 pageCache[tpath] = loadfile(tpath, { raw_mode: false });
             }
         }
@@ -33,7 +33,7 @@ if (!config.debug) {
 
 global._R = function(path, arg)
 {
-    const tpath = config.application + "/partial/" + path + ".ut";
+    const tpath = `${config.application}/partial/${path}.ut`;
     const fn = pageCache[tpath] || loadfile(tpath, { raw_mode: false });
     let old = inner;
     let r = "";

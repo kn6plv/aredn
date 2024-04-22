@@ -4,6 +4,8 @@ import * as math from "math";
 
 let cursor;
 let setup;
+let setupKeys;
+let setupChanged = false;
 
 const currentConfig = "/tmp/config.current";
 
@@ -12,12 +14,13 @@ function initCursor()
     if (!cursor) {
         cursor = uci.cursor("/etc/local/uci");
     }
-}
+};
 
 function initSetup()
 {
     if (!setup) {
         setup = {};
+        setupKeys = [];
         const f = fs.open("/etc/config.mesh/_setup");
         if (f) {
             for (;;) {
@@ -25,13 +28,57 @@ function initSetup()
                 if (!length(line)) {
                     break;
                 }
-                const kv = split(rtrim(line), " = ");
-                setup[kv[0]] = kv[1];
+                const kv = split(line, " =");
+                setup[kv[0]] = trim(kv[1]);
+                push(setupKeys, kv[0]);
             }
             f.close();
         }
     }
-}
+};
+
+export function getSettingAsString(key, def)
+{
+    initSetup();
+    if (key in setup) {
+        return `${setup[key]}`;
+    }
+    return def;
+};
+
+export function getSettingAsInt(key, def)
+{
+    initSetup();
+    if (key in setup) {
+        return int(setup[key]);
+    }
+    return def;
+};
+
+export function setSetting(key, value, def)
+{
+    initSetup();
+    const old = setup[key];
+    setup[key] = value || def;
+    if (old !== setup[key]) {
+        setupChanged = true;
+    }
+};
+
+export function saveSettings()
+{
+    if (setupChanged) {
+        const f = fs.open("/etc/config.mesh/_setup", "w");
+        if (f) {
+            for (let i = 0; i < length(setupKeys); i++) {
+                const k = setupKeys[i];
+                f.write(`${k} = ${setup[k] || ""}\n`);
+            }
+            f.close();
+            setupChanged = false;
+        }
+    }
+};
 
 export function getName()
 {
@@ -39,53 +86,46 @@ export function getName()
     return cursor.get("hsmmmesh", "settings", "node");
 };
 
-export function getDescription()
-{
-    initSetup();
-    return setup.description_node;
-};
-
 export function getFirmwareVersion()
 {
     return trim(fs.readfile("/etc/mesh-release"));
 };
 
-export function getTxPower()
-{
-    initSetup();
-    return int(setup.wifi_txpower);
-};
-
 export function getDHCP()
 {
     initSetup();
-    const root = replace(setup.dmz_lan_ip, /\d+$/, "");
-    const r = {
-        enabled: setup.lan_dhcp ? true : false,
-        start: `${root}${setup.dmz_dhcp_start}`,
-        end: `${root}${setup.dmz_dhcp_end}`,
-        gateway: setup.dmz_lan_ip,
-        mask: setup.dmz_lan_mask,
-        cidr: 32,
-        leases: "/tmp/dhcp.leases",
-        reservations: "/etc/config.mesh/_setup.dhcp.dmz"
-    };
-    switch (r.mask)
-    {
-        case "255.255.255.252":
-            r.cidr = 30;
-            break;
-        case "255.255.255.248":
-            r.cidr = 29;
-            break;
-        case "255.255.255.240":
-            r.cidr = 28;
-            break;
-        case "255.255.255.224":
-            r.cidr = 27;
-            break;
+    if (setup.dmz_mode === "0") {
+
     }
-    return r;
+    else {
+        const root = replace(setup.dmz_lan_ip, /\d+$/, "");
+        const r = {
+            enabled: setup.lan_dhcp ? true : false,
+            start: `${root}${setup.dmz_dhcp_start}`,
+            end: `${root}${setup.dmz_dhcp_end}`,
+            gateway: setup.dmz_lan_ip,
+            mask: setup.dmz_lan_mask,
+            cidr: 32,
+            leases: "/tmp/dhcp.leases",
+            reservations: "/etc/config.mesh/_setup.dhcp.dmz"
+        };
+        switch (r.mask)
+        {
+            case "255.255.255.252":
+                r.cidr = 30;
+                break;
+            case "255.255.255.248":
+                r.cidr = 29;
+                break;
+            case "255.255.255.240":
+                r.cidr = 28;
+                break;
+            case "255.255.255.224":
+                r.cidr = 27;
+                break;
+        }
+        return r;
+    }
 };
 
 export function prepareChanges()

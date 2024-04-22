@@ -1,0 +1,5 @@
+<div class="ctrl-modal-footer">
+    <hr/>
+    <button hx-get="{{ request.env.REQUEST_URI }}" hx-target="#ctrl-modal" hx-headers='{"Include-Help":"{{ includeHelp ? "" : "1" }}","Include-Advanced":"{{ request.headers['include-advanced'] ? "1" : "0" }}"}'>Help</button>
+    <button onclick="document.getElementById('ctrl-modal').innerHTML = ''">Done</button>
+</div>

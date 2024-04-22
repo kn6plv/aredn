@@ -6,7 +6,7 @@
     const minimapurl = lat && lon && map ? replace(replace(minimap, "{lat}", lat), "{lon}", lon) : null;
     const mapurl = lat && lon && map ? replace(replace(map, "{lat}", lat), "{lon}", lon) : null;
 %}
-<div class="ctrl">
+<div class="ctrl" hx-get="status/e/location" hx-target="#ctrl-modal">
     <div class="node-location">
         {% if (mapurl && minimapurl) { %}
             <a target="_blank" href="{{ mapurl }}"><div class="location-image"><iframe loading="eager" src="{{ minimapurl }}"></iframe></div></a>

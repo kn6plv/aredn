@@ -36,7 +36,7 @@
         f.close();
     }
 %}
-<div class="ctrl">
+<div class="ctrl" hx-get="status/e/local-services" hx-target="#ctrl-modal">
     <div class="section-title">Local Services</div>
     <div class="section">
     {%

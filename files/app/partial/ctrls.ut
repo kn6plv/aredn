@@ -1,0 +1,2 @@
+<div id="ctrl-modal" hx-on::after-swap="const e = event.target.querySelector('dialog'); if (e) { e.showModal(); }">
+</div>

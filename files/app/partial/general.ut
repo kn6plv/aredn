@@ -5,9 +5,9 @@
 {% if (url) { %}
 <div class="radio-image"><img src="{{ url }}"></div>
 {% } %}
-<div class="ctrl">
+<div class="ctrl" hx-get="status/e/description" hx-target="#ctrl-modal">
     <div class="node-description">
-        <div class="t">{{ settings.getDescription() || "-" }}</div>
+        <div class="t">{{ settings.getSettingAsString("description_node", "-") }}</div>
         <div class="s">description</div>
     </div>
 </div>

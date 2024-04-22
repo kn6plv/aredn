@@ -6,7 +6,7 @@
     {% if (auth.authenticated) { %}
     <script src="/a/js/htmx.min.js"></script>
     {% } %}
-    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
 </head>
 <body class="{{ auth.authenticated ? "authenticated" : "" }}">
     {{ _R("ctrls") }}
