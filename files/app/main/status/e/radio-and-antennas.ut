@@ -4,7 +4,7 @@
 {{ _R("changes") }}
 {% return; } %}
 <dialog>
-    {{ _R("dialog-header", "Radio") }}
+    {{ _R("dialog-header", "Radios &amp; Antennas") }}
     <div>
     </div>
     {{ _R("dialog-footer") }}

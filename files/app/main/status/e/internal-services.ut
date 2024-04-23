@@ -2,7 +2,6 @@
     settings.prepareChanges();
     if (request.args.cloudmesh) {
         uciMesh.set("aredn", "@supernode[0]", "support", request.args.cloudmesh === "on" ? "1" : "0");
-        uciMesh.commit("aredn");
     }
     if (request.args.iperf) {
         uciMesh.set("aredn", "@iperf[0]", "enable", request.args.iperf === "on" ? "1" : "0");

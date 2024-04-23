@@ -671,6 +671,17 @@ body.authenticated .ctrl:hover
 {
     direction: ltr;
 }
+
+#ctrl-modal dialog textarea
+{
+    font: inherit;
+    font-size: 12px;
+    border: 1px solid var(--ctrl-modal-textbox-border-color);
+    background-color: var(--ctrl-modal-textbox-bg-color);
+    padding: 5px;
+    outline: none;
+    resize: none;
+}
    
 .switch input[type=checkbox]
 {
@@ -735,6 +746,14 @@ body.authenticated .ctrl:hover
 #ctrl-modal dialog .hideable:has(> div:first-child select > option[value="4"]:checked) > .hideable4
 {
     display: block;
+}
+
+#location-edit-map iframe
+{
+    width: 100%;
+    height: 200px;
+    border: 1px solid var(--hr-color);
+    margin-bottom: 16px;
 }
 
 /* dialog customization end */

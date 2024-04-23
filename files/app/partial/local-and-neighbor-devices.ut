@@ -38,7 +38,7 @@
         return bitrate ? int(bitrate * 10 + 0.5) / 10 : "-";
     }
 %}
-<div class="noctrl">
+<div class="noctrl" hx-get="local-and-neighbor-devices" hx-swap="outerHTML" hx-trigger="every 60s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
     <div class="section-title">Local Devices</div>
     <div class="section" style="line-height:18px;margin-top:-16px">
         <div class="cols">

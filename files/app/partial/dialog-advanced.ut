@@ -1,4 +1,4 @@
-<div class="ctrl-modal-advanced {{ request.headers['include-advanced'] ? "active" : "" }}">
-    <button hx-get="{{ request.env.REQUEST_URI }}" hx-target="#ctrl-modal" hx-headers='{"Include-Help":"{{ includeHelp ? "1" : "0" }}","Include-Advanced":"{{ request.headers['include-advanced'] ? "" : "1" }}"}'>Advanced options</button>
+<div class="ctrl-modal-advanced {{ request.headers['include-advanced'] === "1" ? "active" : "" }}">
+    <button hx-get="{{ request.env.REQUEST_URI }}" hx-target="#ctrl-modal" hx-headers='{"Include-Help":"{{ includeHelp ? "1" : "0" }}","Include-Advanced":"{{ request.headers['include-advanced'] === "1" ? "0" : "1" }}"}'>Advanced options</button>
     <hr>
 </div>

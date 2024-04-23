@@ -1,11 +1,147 @@
 {% if (request.env.REQUEST_METHOD === "PUT") {
     settings.prepareChanges();
+    if ("gridsquare" in request.args) {
+        if (match(request.args.gridsquare, /^[A-X][A-X]\d\d[a-x][a-x]$/)) {
+            uciMesh.set("aredn", "@location[0]", "gridsquare", request.args.gridsquare);
+        }
+    }
+    if ("lat" in request.args) {
+        if (request.args.lat > -90 && request.args.lat < 90) {
+            uciMesh.set("aredn", "@location[0]", "lat", request.args.lat);
+        }
+    }
+    if ("lon" in request.args) {
+        if (request.args.lon > -180 && request.args.lon < 180) {
+            uciMesh.set("aredn", "@location[0]", "lon", request.args.lon);
+        }
+    }
+    if ("mapurl" in request.args) {
+        if (match(request.args.mapurl, /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,255}\.[a-zA-Z0-9()]{1,6}[-a-zA-Z0-9()@:%_\+.~#?&//=]*$/)) {
+            uciMesh.set("aredn", "@location[0]", "map", request.args.mapurl);
+        }
+    }
+    uciMesh.commit("aredn");
 %}
 {{ _R("changes") }}
 {% return; } %}
+{%
+    const map = uciMesh.get("aredn", "@location[0]", "map");
+    const lat = uciMesh.get("aredn", "@location[0]", "lat");
+    const lon = uciMesh.get("aredn", "@location[0]", "lon");
+    const gridsquare = uciMesh.get("aredn", "@location[0]", "gridsquare");
+    const mapurl = lat && lon && map ? replace(replace(map, "(lat)", lat), "(lon)", lon) : null;
+%}
 <dialog>
     {{ _R("dialog-header", "Location") }}
     <div>
+        {% if (mapurl) { %}
+        <div id="location-edit-map">
+            <iframe src="{{ mapurl }}"></iframe>
+        </div>
+        {% } %}
+        <div class="cols">
+            <div>
+                <div class="o">Latitude</div>
+                <div class="m">Node's latitude</div>
+            </div>
+            <div style="flex:0">
+                <input hx-put="{{ request.env.REQUEST_URI }}" name="lat" type="text" size="10" pattern="^-?\d+\.\d+$" value="{{ lat }}">
+            </div>
+        </div>
+        {{ _H("The latitude of this node. This information is used to determine the distance between this node and others and is required to
+        optimize connection latency and bandwidth.") }}
+        <div class="cols">
+            <div>
+                <div class="o">Longitude</div>
+                <div class="m">Node's longitude</div>
+            </div>
+            <div style="flex:0">
+                <input hx-put="{{ request.env.REQUEST_URI }}" name="lon" type="text" size="10" pattern="^-?\d+\.\d+$" value="{{ lon }}">
+            </div>
+        </div>
+        {{ _H("The longitude of this node. This information is used to determine the distance between this node and others and is required to
+        optimize connection latency and bandwidth.") }}
+        <div class="cols">
+            <div>
+                <div class="o">Gridsquare</div>
+                <div class="m">Maidenhead gridsquare</div>
+            </div>
+            <div style="flex:0">
+                <input hx-put="{{ request.env.REQUEST_URI }}" name="gridsquare" type="text" size="7" pattern="^[A-X][A-X]\d\d[a-x][a-x]$" value="{{ gridsquare }}">
+            </div>
+        </div>
+        {{ _H("A gridsquare is a 6 character (2 uppercase letters, 2 digits, 2 lowercase letters) designation of the node's location.
+        A gridsquare is approximately 3x4 miles in size.") }}
+        {{ _R("dialog-advanced") }}
+        <div>
+            <div class="cols">
+                <div>
+                    <div class="o">Map URL</div>
+                    <div class="m">URL for embedded map</div>
+                </div>
+                <div style="flex:0">
+                    <input hx-put="{{ request.env.REQUEST_URI }}" name="mapurl" type="text" size="45" pattern="^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,255}\.[a-zA-Z0-9()]{1,6}[-a-zA-Z0-9()@:%_\+.~#?&//=]*$" value="{{ map }}">
+                </div>
+            </div>
+            {{ _H("The map URL is used to embed maps in this page (see above) and in other node pages. The (lat) and (lon) parameters in
+            the URL are expanded before the URL is used.") }}
+        </div>
     </div>
     {{ _R("dialog-footer") }}
+    <script>
+    (function(){
+        const lat = document.querySelector("#ctrl-modal dialog input[name=lat]");
+        const lon = document.querySelector("#ctrl-modal dialog input[name=lon]");
+        const gridsquare = document.querySelector("#ctrl-modal dialog input[name=gridsquare]");
+        const map = document.querySelector("#ctrl-modal dialog iframe");
+        let mapt = null;
+        if (map) {
+            window.addEventListener("message", e => {
+                const msg = JSON.parse(e.data);
+                if (msg.type === "location") {
+                    lat.value = parseFloat(msg.lat).toFixed(5);
+                    lon.value = parseFloat(msg.lon).toFixed(5);
+                    clearTimeout(mapt);
+                    mapt = setTimeout(() => {
+                        htmx.ajax("PUT", "{{ request.env.REQUEST_URI }}", {
+                            target: "#changes",
+                            values: { lat: lat.value, lon: lon.value, gridsquare: gridsquare.value }
+                        });
+                    }, 500);
+                    latlon2gridsquare();
+                }
+            });
+            function llchange() {
+                map.contentWindow.postMessage(JSON.stringify({ type: "change-location", lat: lat.value, lon: lon.value }), "*");
+                latlon2gridsquare();
+            }
+            lat.addEventListener("change", llchange);
+            lon.addEventListener("change", llchange);
+            gridsquare.addEventListener("change", function() {
+                gridsquare2latlon();
+                map.contentWindow.postMessage(JSON.stringify({ type: "change-location", lat: lat.value, lon: lon.value }), "*");
+            });
+        }
+        function latlon2gridsquare()
+        {
+            const alat = parseFloat(lat.value) + 90;
+            const flat = String.fromCharCode(65 + Math.floor(alat / 10));
+            const slat = Math.floor(alat % 10);
+            const ulat = String.fromCharCode(97 + Math.floor((alat - Math.floor(alat)) * 60 / 2.5));
+
+            const alon = parseFloat(lon.value) + 180;
+            const flon = String.fromCharCode(65 + Math.floor(alon / 20));
+            const slon = Math.floor((alon / 2) % 10);
+            const ulon = String.fromCharCode(97 + Math.floor((alon - 2 * Math.floor(alon / 2)) * 60 / 5));
+
+            gridsquare.value = `${flon}${flat}${slon}${slat}${ulon}${ulat}`;
+        }
+        function gridsquare2latlon()
+        {
+            const grid = gridsquare.value;
+            lat.value = (10 * (grid.charCodeAt(1) - 65) + parseInt(grid.charAt(3)) - 90) + (2.5 / 60.0) * (grid.charCodeAt(5) - 97 + 0.5);
+		    lon.value = (20 * (grid.charCodeAt(0) - 65) + 2 * parseInt(grid.charAt(2)) - 180) + (5.0 / 60.0) * (grid.charCodeAt(4) - 97 + 0.5);
+        }
+    })();
+    </script>
 </dialog>

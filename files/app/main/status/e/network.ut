@@ -52,6 +52,16 @@
             settings.setSetting("wan_dns2", request.args.wan_dns2);
         }
     }
+    if ("wan_vlan" in request.args) {
+        const wan_iface = split(settings.getSettingAsString("wan_intf", ""), ".");
+        const wan_vlan = int(request.args.wan_vlan || 0);
+        if (wan_vlan === 0) {
+            settings.setSetting("wan_intf", wan_iface[0]);
+        }
+        else if (wan_vlan >= 3 && wan_vlan <= 4095) {
+            settings.setSetting("wan_intf", `${wan_iface[0]}.${wan_vlan}`);
+        }
+    }
     settings.saveSettings();
 %}
 {{ _R("changes") }}
@@ -59,6 +69,8 @@
 {%
     const dmz_mode = settings.getSettingAsInt("dmz_mode", 3);
     const wan_proto = settings.getSettingAsString("wan_proto", "disabled");
+    const wan_iface = split(settings.getSettingAsString("wan_intf", ""), ".");
+    const wan_vlan = wan_iface[1] ? wan_iface[1] : "";
 %}
 <dialog>
     {{ _R("dialog-header", "Network") }}
@@ -165,6 +177,20 @@
             </div>
         </div>
         {{ _H("For hosts not on the Mesh, use these DNS servers to resolve names to IP addresses.") }}
+        {{ _R("dialog-advanced") }}
+        <div>
+            <div class="cols">
+                <div>
+                    <div class="o">WAN VLAN</div>
+                    <div class="m">Vlan used for Internet access</div>
+                </div>
+                <div style="flex:0">
+                    <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_vlan" type="text" size="8" placeholder="Untagged" pattern="\d+" value="{{ wan_vlan }}">
+                </div>
+            </div>
+            {{ _H("By default, the WAN uses an untagged VLAN on multi-port devices, and VLAN 1 on single port devices. This can be changed here if your setup requires something different.
+            Enter the VLAN number required, or leave blank for untagged.") }}
+        </div>
     </div>
     {{ _R("dialog-footer") }}
 </dialog>
