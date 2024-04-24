@@ -6,7 +6,11 @@
     }
     const wifiIface = "wlan0";
 %}
+{% if (hardware.getRadioCount() > 0) { %}
 <div class="ctrl" hx-get="status/e/radio-and-antenna" hx-target="#ctrl-modal">
+{% } else { %}
+<div class="noctrl">
+{% } %}
     <div class="section-title">Radio</div>
     <div class="section">
         <div class="t">{{ hardware.getRadio().name }}</div>

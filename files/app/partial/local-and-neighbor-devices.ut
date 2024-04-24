@@ -49,11 +49,23 @@
         </div>
         {%
             const trackers = lqm.getTrackers();
-            let count = 0;
+            const llist = [];
+            const nlist = [];
             for (mac in trackers) {
                 const tracker = trackers[mac];
-                if (tracker.type === "DtD" && tracker.distance < 50 && (tracker.hostname || tracker.ip)) {
-                    count++;
+                if (tracker.hostname || tracker.ip) {
+                    if (tracker.type === "DtD" && tracker.distance < 50) {
+                        push(llist, { name: tracker.hostname || tracker.ip, mac: mac });
+                    }
+                    else {
+                        push(nlist, { name: tracker.hostname || tracker.ip, mac: mac });
+                    }
+                }
+            }
+            if (length(llist) > 0) {
+                sort(llist, (a, b) => a.name < b.name ? -1 : a.name == b.name ? 0 : 1);
+                for (let i = 0; i < length(llist); i++) {
+                    const tracker = trackers[llist[i].mac];
                     const status = calcColor(tracker);
                     print("<div class='cols " + status + "'>");
                     const link = links[tracker.ip] || {};
@@ -70,7 +82,7 @@
                     print("</div></div>");
                 }
             }
-            if (count === 0) {
+            else {
                 print("<div>None</div>");
             }
         %}
@@ -78,11 +90,10 @@
     <div class="section-title">Neighborhood Devices</div>
     <div class="section" style="line-height:18px">
     {%
-        count = 0;
-        for (mac in trackers) {
-            const tracker = trackers[mac];
-            if ((tracker.type !== "DtD" || tracker.distance >= 50) && (tracker.hostname || tracker.ip)) {
-                count++;
+        if (length(nlist) > 0) {
+            sort(nlist, (a, b) => a.name < b.name ? -1 : a.name == b.name ? 0 : 1);
+            for (let i = 0; i < length(nlist); i++) {
+                const tracker = trackers[nlist[i].mac];
                 const status = calcColor(tracker);
                 print("<div class='cols " + status + "'>");
                 const link = links[tracker.ip] || {};
@@ -99,7 +110,7 @@
                 print("</div></div>");
             }
         }
-        if (count === 0) {
+        else {
             print("<div>None</div>");
         }
     %}

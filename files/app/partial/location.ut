@@ -5,25 +5,23 @@
     const gridsquare = uci.get("aredn", "@location[0]", "gridsquare");
     const mapurl = lat && lon && map ? replace(replace(map, "(lat)", lat), "(lon)", lon) : null;
 %}
+{% if (mapurl) { %}
+<div class="noctrl">
+    <a target="_blank" href="{{ mapurl }}"><div class="location-image"><iframe loading="eager" src="{{ mapurl }}"></iframe></div></a>
+</div>
+{% } %}
 <div class="ctrl" hx-get="status/e/location" hx-target="#ctrl-modal">
-    <div class="node-location">
-        {% if (mapurl && !auth.authenticated) { %}
-            <a target="_blank" href="{{ mapurl }}"><div class="location-image"><iframe loading="eager" src="{{ mapurl }}"></iframe></div></a>
-        {% } else if (mapurl) { %}
-            <div class="location-image"><iframe loading="eager" src="{{ mapurl }}"></iframe></div>
-        {% }
-        if (lat && lon) { %}
-        <div class="cols">
-            <div class="t">{{ lat }}, {{ lon }}</div>
-            <div style="flex:0">{{ gridsquare }}</div>
-        {% } else if (gridsquare !== "") { %}
-        <div class="cols">
-            <div class="t">{{ gridsquare }}</div>
-        {% } else { %}
-        <div class="cols">
-            <div class="t">Unknown</div>
-        {% } %}
-        </div>
-        <div class="s">location</div>
+    {% if (lat && lon) { %}
+    <div class="cols">
+        <div class="t">{{ lat }}, {{ lon }}</div>
+        <div style="flex:0">{{ gridsquare }}</div>
+    {% } else if (gridsquare !== "") { %}
+    <div class="cols">
+        <div class="t">{{ gridsquare }}</div>
+    {% } else { %}
+    <div class="cols">
+        <div class="t">Unknown</div>
+    {% } %}
     </div>
+    <div class="s">location</div>
 </div>

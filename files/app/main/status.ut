@@ -39,10 +39,8 @@
                     </div>
                 </div>
                 <div id="c3">
-                    <div id="c3r1">
-                        <div id="radio-and-antenna">
-                            {{ _R("radio-and-antenna") }}
-                        </div>
+                    <div id="radio-and-antenna">
+                        {{ _R("radio-and-antenna") }}
                     </div>
                     <div id="mesh-summary">
                         <hr>
