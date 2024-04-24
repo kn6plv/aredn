@@ -167,16 +167,12 @@ body.authenticated .ctrl:hover
 {
     display: flex;
     flex-direction: column;
-    flex: 2;
+    min-height: 250px;
 }
 #local-and-neighbor-devices
 {
-    flex: 4;
 }
-#mesh-summary
-{
-    flex: 0;
-}
+
 #c3
 {
     display: flex;
@@ -186,26 +182,24 @@ body.authenticated .ctrl:hover
 }
 #c3r1
 {
-    display: flex;
-    flex: 2;
 }
 #radio-and-antenna
 {
     display: flex;
     flex-direction: column;
-    flex: 1;
+}
+#mesh-summary
+{
 }
 #tunnels
 {
     display: flex;
     flex-direction: column;
-    flex: 1;
 }
 #dhcp
 {
     display: flex;
     flex-direction: column;
-    flex: 1;
 }
 
 /* -- end overall layout -- */
