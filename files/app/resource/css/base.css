@@ -563,6 +563,7 @@ body.authenticated .ctrl:hover
 {
     flex: 1;
     overflow-y: scroll;
+    overscroll-behavior: contain;
     padding: 0 10px;
 }
 #ctrl-modal dialog > div:last-child
