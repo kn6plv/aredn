@@ -169,7 +169,7 @@
                         <div class="m">Hotspot password</div>
                     </div>
                     <div style="flex:0">
-                        <input hx-put="{{ request.env.REQUEST_URI }}" name="{{ prefix }}password" type="password" size="10" maxlength="32" pattern="" value="{{ hexdec(wlan[w].modes[2].key) }}">
+                        <input hx-put="{{ request.env.REQUEST_URI }}" name="{{ prefix }}password" type="password" size="10" maxlength="32" value="{{ hexdec(wlan[w].modes[2].key) }}">
                     </div>
                 </div>
             </div>
@@ -189,7 +189,7 @@
                         <div class="m">Client password</div>
                     </div>
                     <div style="flex:0">
-                        <input hx-put="{{ request.env.REQUEST_URI }}" name="{{ prefix }}password" type="password" size="10" maxlength="32" pattern="" value="{{ hexdec(wlan[w].modes[3].key) }}">
+                        <input hx-put="{{ request.env.REQUEST_URI }}" name="{{ prefix }}password" type="password" size="10" maxlength="32" value="{{ hexdec(wlan[w].modes[3].key) }}">
                     </div>
                 </div>
             </div>
@@ -257,7 +257,7 @@
         (function(){
             const radio0 = document.querySelector("#ctrl-modal dialog.radio-and-antenna select[name=radio0_mode]");
             const radio1 = document.querySelector("#ctrl-modal dialog.radio-and-antenna select[name=radio1_mode]");
-            radio0.addEventListener("change", function() {
+            radio0.addEventListener("htmx:beforeRequest", function() {
                 if (radio0.value === radio1.value && radio1.value !== 0) {
                     radio1.value = 0;
                     htmx.ajax("PUT", "{{ request.env.REQUEST_URI }}", {
@@ -266,7 +266,7 @@
                     });
                 }
             });
-            radio1.addEventListener("change", function() {
+            radio1.addEventListener("htmx:beforeRequest", function() {
                 if (radio1.value === radio0.value && radio0.value !== 0) {
                     radio0.value = 0;
                     htmx.ajax("PUT", "{{ request.env.REQUEST_URI }}", {
