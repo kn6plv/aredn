@@ -7,7 +7,7 @@
 {% } %}
 <div class="ctrl" hx-get="status/e/description" hx-target="#ctrl-modal">
     <div class="node-description">
-        <div class="t">{{ settings.getSettingAsString("description_node", "-") }}</div>
+        <div class="t">{{ settings.getSettingAsString("description_node", "None") }}</div>
         <div class="s">description</div>
     </div>
 </div>

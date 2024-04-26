@@ -83,8 +83,14 @@ export function getRadioCount()
         let count = 0;
         const d = fs.opendir("/sys/class/ieee80211");
         if (d) {
-            while (d.read()) {
-                count++;
+            for (;;) {
+                const l = d.read();
+                if (!l) {
+                    break;
+                }
+                if (l !== "." && l !== "..") {
+                    count++;
+                }
             }
             d.close();
         }
@@ -103,7 +109,7 @@ function getRadioIntf(wifiIface)
     }
 };
 
-function getRfChannels(wifiIface)
+export function getRfChannels(wifiIface)
 {
     let channels = channelsCache[wifiIface];
     if (!channels) {
@@ -151,7 +157,7 @@ function getRfChannels(wifiIface)
     return channels;
 };
 
-function getRfBandwidths(wifiIface)
+export function getRfBandwidths(wifiIface)
 {
     const radio = getRadioIntf(wifiIface);
     if (radio.bandwidths) {
@@ -162,7 +168,7 @@ function getRfBandwidths(wifiIface)
     }
 };
 
-function getDefaultChannel(wifiIface)
+export function getDefaultChannel(wifiIface)
 {
     const rfchannels = getRfChannels(wifiIface);
     for (let i = 0; i < length(rfchannels); i++) {
@@ -192,7 +198,7 @@ function getDefaultChannel(wifiIface)
     return null;
 };
 
-function getAntennas(wifiIface)
+export function getAntennas(wifiIface)
 {
     let ants = antennasCache[wifiIface];
     if (!ants) {
@@ -219,7 +225,7 @@ function getAntennas(wifiIface)
     return ants;
 };
 
-function getAntennasAux(wifiIface)
+export function getAntennasAux(wifiIface)
 {
     let ants = antennasCache["aux:" + wifiIface];
     if (!ants) {
@@ -240,14 +246,13 @@ function getAntennasAux(wifiIface)
     return ants;
 };
 
-export function getCurrentAntenna(wifiIface)
+export function getAntennaInfo(wifiIface, antenna)
 {
     const ants = getAntennas(wifiIface);
     if (ants) {
         if (length(ants) === 1) {
             return ants[0];
         }
-        const antenna = uci.cursor().get("aredn", "@location[0]", "antenna");
         if (antenna) {
             for (let i = 0; i < length(ants); i++) {
                 if (ants[i].model === antenna) {
@@ -259,14 +264,13 @@ export function getCurrentAntenna(wifiIface)
     return null;
 };
 
-export function getCurrentAntennaAux(wifiIface)
+export function getAntennaAuxInfo(wifiIface, antenna)
 {
     const ants = getAntennasAux(wifiIface);
     if (ants) {
         if (length(ants) === 1) {
             return ants[0];
         }
-        const antenna = uci.cursor().get("aredn", "@location[0]", "antenna_aux");
         if (antenna) {
             for (let i = 0; i < length(ants); i++) {
                 if (ants[i].model === antenna) {
@@ -278,44 +282,38 @@ export function getCurrentAntennaAux(wifiIface)
     return null;
 };
 
-export function getWifiInfo(wifiIface)
+export function getChannelFrequencyRange(wifiIface, channel, bandwidth)
 {
-    const radio = replace(wifiIface, "wlan", "radio");
-    const cursor = uci.cursor();
-    let chan = int(cursor.get("wireless", radio, "channel")) || 0;
-    const bw = int(cursor.get("wireless", radio, "chanbw")) || 20;
-    let range = "";
     const rfchans = getRfChannels(wifiIface);
     if (rfchans[0]) {
-        const basefreq = rfchans[0].frequency;
-        if (basefreq > 3000 && basefreq < 5000) {
-            chan = chan * 5 + 3000;
-        }
-        else if (basefreq > 900 && basefreq < 2300) {
-            chan = chan * 5 + 887;
-        }
         for (let i = 0; i < length(rfchans); i++) {
             const c = rfchans[i];
-            if (c.number === chan) {
-                range = (c.frequency - bw / 2) + " - " + (c.frequency + bw / 2) + " MHz";
-                break;
+            if (c.number === channel) {
+                return (c.frequency - bandwidth / 2) + " - " + (c.frequency + bandwidth / 2) + " MHz";
             }
         }
     }
-    let ssid = "none";
-    cursor.foreach("wireless", "wifi-iface", function(section)
-    {
-        if (section.network === "wifi" && section.device === radio) {
-            ssid = section.ssid;
-            return false;
+    return null;
+};
+
+export function getMaxTxPower(wifiIface, channel)
+{
+    const radio = getRadioIntf(wifiIface);
+    if (radio) {
+        const maxpower = radio.maxpower;
+        const chanpower = radio.chanpower;
+        if (channel && chanpower) {
+            for (let k in chanpower) {
+                if (channel <= k) {
+                    return chanpower[k];
+                }
+            }
         }
-    });
-    return {
-        channel: chan,
-        bandwidth: bw,
-        ssid: ssid,
-        frequencyRange: range
-    };
+        if (maxpower) {
+            return maxpower;
+        }
+    }
+    return 27;
 };
 
 export function getTxPowerOffset(wifiIface)
@@ -331,10 +329,13 @@ export function getTxPowerOffset(wifiIface)
             if (!line) {
                 break;
             }
-            const pwroff = match(line, /TX power offset: (\d+)/);
-            if (pwroff) {
-                f.close();
-                return int(pwroff[1]);
+            if (index(line, "TX power offset: ") !== -1) {
+                const pwroff = match(line, /TX power offset: (\d+)/);
+                if (pwroff) {
+                    f.close();
+                    return int(pwroff[1]);
+                }
+                return 0;
             }
         }
         f.close();

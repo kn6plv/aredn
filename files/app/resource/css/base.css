@@ -149,7 +149,6 @@ body.authenticated .ctrl:hover
 {
     display: flex;
     flex-direction: column;
-    flex: 1;
     padding: 10px 5px;
 }
 #location
@@ -329,6 +328,11 @@ body.authenticated .ctrl:hover
 {
     padding: 20px 0;
     font-size: 14px;
+}
+
+#general .network
+{
+    min-height: 150px;
 }
 
 /* -- end general layout -- */
@@ -629,7 +633,8 @@ body.authenticated .ctrl:hover
     padding: 0px 40px 20px 10px;
 }
 
-#ctrl-modal dialog input[type=text]
+#ctrl-modal dialog input[type=text],
+#ctrl-modal dialog input[type=password]
 {
     color: var(--ctrl-modal-textbox-fg-color);
     background-color: var(--ctrl-modal-textbox-bg-color);
@@ -642,7 +647,8 @@ body.authenticated .ctrl:hover
     font-size: 14px;
     text-align: right;
 }
-#ctrl-modal dialog input[type=text]:invalid
+#ctrl-modal dialog input[type=text]:invalid,
+#ctrl-modal dialog input[type=password]:invalid
 {
     border-color: var(--ctrl-modal-border-color-error);
 }

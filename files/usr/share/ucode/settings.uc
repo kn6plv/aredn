@@ -40,17 +40,15 @@ function initSetup()
 export function getSettingAsString(key, def)
 {
     initSetup();
-    if (key in setup) {
-        return `${setup[key]}`;
-    }
-    return def;
+    return setup[key] || def;
 };
 
 export function getSettingAsInt(key, def)
 {
     initSetup();
-    if (key in setup) {
-        return int(setup[key]);
+    const v = int(setup[key]);
+    if (type(v) === "int") {
+        return v;
     }
     return def;
 };

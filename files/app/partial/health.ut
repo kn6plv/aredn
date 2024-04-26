@@ -9,11 +9,11 @@
         uptime = "1 day, " + update;
     }
     const ld = split(fs.readfile("/proc/loadavg"), " ");
-    const ram = int(match(fs.readfile("/proc/meminfo"), /MemFree: +(\d+) kB/)[1]);
+    const ram = int(match(fs.readfile("/proc/meminfo"), /MemFree: +(\d+) kB/)[1]) / 1000.0;
     const f = fs.popen("exec /bin/df /");
     let flash = "-";
     if (f) {
-        flash = split(f.read("all"), /\s+/)[10];
+        flash = int(split(f.read("all"), /\s+/)[10]) / 1000.0;
         f.close();
     }
     const tm = localtime();
@@ -30,11 +30,11 @@
         <div class="s">load</div>
         <div class="cols">
             <div>
-                <div class="t">{{ flash }} KB</div>
+                <div class="t">{{ flash }} MB</div>
                 <div class="s">free flash</div>
             </div>
             <div>
-                <div class="t">{{ ram }} KB</div>
+                <div class="t">{{ ram }} MB</div>
                 <div class="s">free ram</div>
             </div>
             <div></div>

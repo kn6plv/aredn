@@ -9,6 +9,8 @@ import * as hardware from "hardware";
 import * as lqm from "lqm";
 import * as network from "network";
 import * as olsr from "olsr";
+import * as units from "units";
+import * as radios from "radios";
 
 const pageCache = {};
 
@@ -215,7 +217,7 @@ global.handle_request = function(env)
     const tpath = `${config.application}/main/${env.PATH_INFO || "status"}.ut`;
     if (fs.access(tpath)) {
         auth.runAuthentication(env);
-        if (index(env.PATH_INFO, "/e/") !== -1 && !auth.authenticated) {
+        if (index(env.PATH_INFO, "/e/") !== -1 && !auth.authenticated && !config.debug) {
             uhttpd.send("Status: 401 Unauthorized\r\n\r\n");
             return;
         }
@@ -246,7 +248,9 @@ global.handle_request = function(env)
             hardware: hardware,
             lqm: lqm,
             network: network,
-            olsr: olsr
+            olsr: olsr,
+            units: units,
+            radios: radios
         });
         if (config.debug) {
             uhttpd.send(

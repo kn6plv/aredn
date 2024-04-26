@@ -3,9 +3,281 @@
 %}
 {{ _R("changes") }}
 {% return; } %}
-<dialog>
+{% const wlan = radios.getConfiguration(); %}
+<dialog class="radio-and-antenna">
     {{ _R("dialog-header", "Radios &amp; Antennas") }}
     <div>
+        {%
+            if (length(wlan) > 0) {
+                for (let w = 0; w < length(wlan); w++) {
+                    const prefix = `radio${w}_`;
+                    if (w !== 0) {
+                        print("<hr>");
+                    }
+        %}
+        <div class="hideable">
+            <div class="cols">
+                <div>
+                    <div class="o">Radio {{ length(wlan) > 1 ? w : "" }}</div>
+                    <div class="m">Radio purpose</div>
+                </div>
+                <div style="flex:0">
+                    <select hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="{{ prefix }}mode">
+                        <option value="0" {{ wlan[w].mode === 0 ? "selected" : "" }}>Off</option>
+                        <option value="1" {{ wlan[w].mode === 1 ? "selected" : "" }}>Mesh</option>
+                        <option value="2" {{ wlan[w].mode === 2 ? "selected" : "" }}>LAN Hotspot</option>
+                        <option value="3" {{ wlan[w].mode === 3 ? "selected" : "" }}>WAN Client</option>
+                    </select>
+                </div>
+            </div>
+            <div class="hideable1" {{ length(wlan) > 1 ? "style='padding-left:10px'" : "" }}>
+                <div class="cols">
+                    <div>
+                        <div class="o">Channel</div>
+                        <div class="m">Channel and frequency of this connection</div>
+                    </div>
+                    <div style="flex:0">
+                        <select hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="{{ prefix }}channel">
+                        {%
+                            const channel = wlan[w].modes[1].channel;
+                            for (let i = 0; i < length(wlan[w].channels); i++) {
+                                print(`<option value="${wlan[w].channels[i].number}" ${wlan[w].channels[i].number == channel ? "selected" : ""}>${wlan[w].channels[i].label}</option>`);
+                            }
+                        %}
+                        </select>
+                    </div>
+                </div>
+                <div class="cols">
+                    <div>
+                        <div class="o">Channel Width</div>
+                        <div class="m">Channel bandwidth</div>
+                    </div>
+                    <div style="flex:0">
+                        <select hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="{{ prefix }}bandwidth">
+                        {%
+                            const bandwidth = wlan[w].modes[1].bandwidth;
+                            for (let i = 0; i < length(wlan[w].bws); i++) {
+                                print(`<option value="${wlan[w].bws[i]}" ${wlan[w].bws[i] == bandwidth ? "selected" : ""}>${wlan[w].bws[i]} MHz</option>`);
+                            }
+                        %}
+                        </select>
+                    </div>
+                </div>
+                <div class="cols">
+                    <div>
+                        <div class="o">Transmit Power</div>
+                        <div class="m">Transmit power</div>
+                    </div>
+                    <div style="flex:0">
+                        <select hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="{{ prefix }}txpower">
+                        {%
+                            const txpower = wlan[w].modes[1].txpower;
+                            for (let i = wlan[w].txmaxpower; i > 0; i--) {
+                                print(`<option value="${i}" ${i == txpower ? "selected" : ""}>${i + wlan[w].txpoweroffset}</option>`);
+                            }
+                        %}
+                        </select>
+                    </div>
+                </div>
+                <div class="cols">
+                    <div>
+                        <div class="o">SSID</div>
+                        <div class="m">AREDN mesh identifier</div>
+                    </div>
+                    <div style="flex:0;white-space:nowrap">
+                        <input hx-put="{{ request.env.REQUEST_URI }}" name="{{ prefix }}ssid" type="text" size="10" maxlength="32" pattern="^[^!#;+\]\/"\t][^+\]\/"\t]{0,30}[^ !#;+\]\/"\t]$|^[^ !#;+\]\/"\t]$" value="{{ wlan[w].modes[1].ssid }}"><span>-{{ wlan[w].modes[1].bandwidth }}-v3</span>
+                    </div>
+                </div>
+                <div class="cols">
+                    <div>
+                        <div class="o">Minimum SNR</div>
+                        <div class="m">Acceptable SNR for connection (dB)</div>
+                    </div>
+                    <div style="flex:0">
+                        <input hx-put="{{ request.env.REQUEST_URI }}" name="{{ prefix }}minsnr" type="text" size="3" pattern="^\d\d?$" value="{{ uciMesh.get("aredn", "@lqm[0]", "min_snr") }}">
+                    </div>
+                </div>
+                <div class="cols">
+                    <div>
+                        <div class="o">Maximum Distance</div>
+                        <div class="m">Maximum distance allowed to other nodes in miles</div>
+                    </div>
+                    <div style="flex:0">
+                        <input hx-put="{{ request.env.REQUEST_URI }}" name="{{ prefix }}maxdistance" type="text" size="3" pattern="^\d+$" value="{{ int(0.5 + units.meters2distance(uciMesh.get("aredn", "@lqm[0]", "max_distance"))) }}">
+                    </div>
+                </div>
+                <div class="cols">
+                    <div>
+                        <div class="o">Minimum Quality</div>
+                        <div class="m">Minimum connection quaility percentage</div>
+                    </div>
+                    <div style="flex:0;white-space:nowrap">
+                        <input hx-put="{{ request.env.REQUEST_URI }}" name="{{ prefix }}minquality" type="text" size="3" pattern="^\d\d?$" value="{{ uciMesh.get("aredn", "@lqm[0]", "min_quality") }}">
+                    </div>
+                </div>
+                <script>
+                (function(){
+                    const bws = document.querySelector("#ctrl-modal dialog.radio-and-antenna select[name={{ prefix }}bandwidth]");
+                    const bwssid = document.querySelector("#ctrl-modal dialog.radio-and-antenna input[name={{ prefix }}ssid] + span");
+                    bws.addEventListener("change", function() {
+                        bwssid.innerHTML = `-${bws.value}-v3`;
+                    });
+                })();
+                </script>
+            </div>
+            <div class="hideable2" {{ length(wlan) > 1 ? "style='padding-left:10px'" : "" }}>
+                <div class="cols">
+                    <div>
+                        <div class="o">SSID</div>
+                        <div class="m">Hotspot SSID</div>
+                    </div>
+                    <div style="flex:0">
+                        <input hx-put="{{ request.env.REQUEST_URI }}" name="{{ prefix }}ssid" type="text" size="10" maxlength="32" pattern="^[^!#;+\]\/"\t][^+\]\/"\t]{0,30}[^ !#;+\]\/"\t]$|^[^ !#;+\]\/"\t]$" value="{{ hexdec(wlan[w].modes[2].ssid) }}">
+                    </div>
+                </div>
+                <div class="cols">
+                    <div>
+                        <div class="o">Channel</div>
+                        <div class="m">Hotspot channel</div>
+                    </div>
+                    <div style="flex:0">
+                        <select hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="{{ prefix }}channel">
+                        {%
+                            const channel = wlan[w].modes[2].channel;
+                            for (let i = 0; i < length(wlan[w].channels); i++) {
+                                print(`<option value="${wlan[w].channels[i].number}" ${wlan[w].channels[i].number == channel ? "selected" : ""}>${wlan[w].channels[i].number}</option>`);
+                            }
+                        %}
+                        </select>
+                    </div>
+                </div>
+                <div class="cols">
+                    <div>
+                        <div class="o">Encryption</div>
+                        <div class="m">Encryption algorithm</div>
+                    </div>
+                    <div style="flex:0">
+                        <select hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="{{ prefix }}encryption">
+                            <option value="psk" {{ wlan[w].modes[2].encryption == "psk" ? "selected" : "" }}>WPA PSK</option>
+                            <option value="psk2" {{ wlan[w].modes[2].encryption == "psk2" ? "selected" : "" }}>WPA2 PSK</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="cols">
+                    <div>
+                        <div class="o">Password</div>
+                        <div class="m">Hotspot password</div>
+                    </div>
+                    <div style="flex:0">
+                        <input hx-put="{{ request.env.REQUEST_URI }}" name="{{ prefix }}password" type="password" size="10" maxlength="32" pattern="" value="{{ hexdec(wlan[w].modes[2].key) }}">
+                    </div>
+                </div>
+            </div>
+            <div class="hideable3" {{ length(wlan) > 1 ? "style='padding-left:10px'" : "" }}>
+                <div class="cols">
+                    <div>
+                        <div class="o">SSID</div>
+                        <div class="m">WAN client</div>
+                    </div>
+                    <div style="flex:0">
+                        <input hx-put="{{ request.env.REQUEST_URI }}" name="{{ prefix }}ssid" type="text" size="10" maxlength="32" pattern="^[^!#;+\]\/"\t][^+\]\/"\t]{0,30}[^ !#;+\]\/"\t]$|^[^ !#;+\]\/"\t]$" value="{{ hexdec(wlan[w].modes[3].ssid) }}">
+                    </div>
+                </div>
+                <div class="cols">
+                    <div>
+                        <div class="o">Password</div>
+                        <div class="m">Client password</div>
+                    </div>
+                    <div style="flex:0">
+                        <input hx-put="{{ request.env.REQUEST_URI }}" name="{{ prefix }}password" type="password" size="10" maxlength="32" pattern="" value="{{ hexdec(wlan[w].modes[3].key) }}">
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div {{ length(wlan) > 1 ? "style='padding-left:10px'" : "" }}>
+                <div class="cols">
+                    <div>
+                        <div class="o">Antenna</div>
+                        <div class="m">Antenna</div>
+                    </div>
+                    <div style="flex:0;white-space:nowrap">
+                        {% if (length(wlan[w].ants) === 1) { %}
+                            <span>{{ wlan[w].ants[0].description }}<span>
+                        {% } else { %}
+                            <select hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="{{ prefix }}antenna">
+                            {%
+                                const model = wlan[w].ant.model;
+                                for (let i = 0; i < length(wlan[w].ants); i++) {
+                                    print(`<option value="${wlan[w].ants[i].model}" ${wlan[w].ants[i].model == model ? "selected" : ""}>${wlan[w].ants[i].description}</option>`);
+                                }
+                            %}
+                            </select>
+                        {% } %}
+                    </div>
+                </div>
+                {% if (w === 0) { %}
+                {% if (!(length(wlan[w].ants) === 1 && wlan[w].ants[0].beamwidth === 360)) { %}
+                <div class="cols">
+                    <div>
+                        <div class="o">Azimuth</div>
+                        <div class="m">Antenna azimuth in degrees</div>
+                    </div>
+                    <div style="flex:0">
+                        <input hx-put="{{ request.env.REQUEST_URI }}" name="{{ prefix }}azimuth" type="text" size="10" pattern="^\d+$" value="{{ uciMesh.get("aredn", "@location[0]", "azimuth") }}">
+                    </div>
+                </div>
+                {% } %}
+                <div class="cols">
+                    <div>
+                        <div class="o">Height</div>
+                        <div class="m">Antenna height in meters</div>
+                    </div>
+                    <div style="flex:0">
+                        <input hx-put="{{ request.env.REQUEST_URI }}" name="{{ prefix }}height" type="text" size="10" pattern="^\d+$" value="{{ uciMesh.get("aredn", "@location[0]", "height") }}">
+                    </div>
+                </div>
+                <div class="cols">
+                    <div>
+                        <div class="o">Elevation</div>
+                        <div class="m">Antenna elevation in degrees</div>
+                    </div>
+                    <div style="flex:0">
+                        <input hx-put="{{ request.env.REQUEST_URI }}" name="{{ prefix }}elevation" type="text" size="10" pattern="^\d+$" value="{{ uciMesh.get("aredn", "@location[0]", "elevation") }}">
+                    </div>
+                </div>
+                {% } %}
+            </div>
+        </div>
+        {%
+                }
+            }
+        %}
+        {% if (length(wlan) > 1) { %}
+        <script>
+        (function(){
+            const radio0 = document.querySelector("#ctrl-modal dialog.radio-and-antenna select[name=radio0_mode]");
+            const radio1 = document.querySelector("#ctrl-modal dialog.radio-and-antenna select[name=radio1_mode]");
+            radio0.addEventListener("change", function() {
+                if (radio0.value === radio1.value && radio1.value !== 0) {
+                    radio1.value = 0;
+                    htmx.ajax("PUT", "{{ request.env.REQUEST_URI }}", {
+                        target: "#changes",
+                        values: { radio1_mode: 0 }
+                    });
+                }
+            });
+            radio1.addEventListener("change", function() {
+                if (radio1.value === radio0.value && radio0.value !== 0) {
+                    radio0.value = 0;
+                    htmx.ajax("PUT", "{{ request.env.REQUEST_URI }}", {
+                        target: "#changes",
+                        values: { radio0_mode: 0 }
+                    });
+                }
+            });
+        })();
+        </script>
+        {% } %}
     </div>
     {{ _R("dialog-footer") }}
 </dialog>

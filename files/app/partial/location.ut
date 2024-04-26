@@ -15,7 +15,7 @@
     <div class="cols">
         <div class="t">{{ lat }}, {{ lon }}</div>
         <div style="flex:0">{{ gridsquare }}</div>
-    {% } else if (gridsquare !== "") { %}
+    {% } else if (gridsquare) { %}
     <div class="cols">
         <div class="t">{{ gridsquare }}</div>
     {% } else { %}
