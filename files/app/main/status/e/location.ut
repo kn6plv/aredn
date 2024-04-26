@@ -26,10 +26,10 @@
 {% return; } %}
 {%
     const map = uciMesh.get("aredn", "@location[0]", "map");
-    const lat = uciMesh.get("aredn", "@location[0]", "lat");
-    const lon = uciMesh.get("aredn", "@location[0]", "lon");
+    const lat = uciMesh.get("aredn", "@location[0]", "lat") ?? 37;
+    const lon = uciMesh.get("aredn", "@location[0]", "lon") ?? -122;
     const gridsquare = uciMesh.get("aredn", "@location[0]", "gridsquare");
-    const mapurl = lat && lon && map ? replace(replace(map, "(lat)", lat), "(lon)", lon) : null;
+    const mapurl = map ? replace(replace(map, "(lat)", lat), "(lon)", lon) : null;
 %}
 <dialog>
     {{ _R("dialog-header", "Location") }}
@@ -45,7 +45,7 @@
                 <div class="m">Node's latitude</div>
             </div>
             <div style="flex:0">
-                <input hx-put="{{ request.env.REQUEST_URI }}" name="lat" type="text" size="10" pattern="^-?\d+\.\d+$" value="{{ lat }}">
+                <input hx-put="{{ request.env.REQUEST_URI }}" name="lat" type="text" size="10" pattern="^-?\d+(\.\d+)?$" value="{{ lat }}">
             </div>
         </div>
         {{ _H("The latitude of this node. This information is used to determine the distance between this node and others and is required to
@@ -56,7 +56,7 @@
                 <div class="m">Node's longitude</div>
             </div>
             <div style="flex:0">
-                <input hx-put="{{ request.env.REQUEST_URI }}" name="lon" type="text" size="10" pattern="^-?\d+\.\d+$" value="{{ lon }}">
+                <input hx-put="{{ request.env.REQUEST_URI }}" name="lon" type="text" size="10" pattern="^-?\d+(\.\d+)?$" value="{{ lon }}">
             </div>
         </div>
         {{ _H("The longitude of this node. This information is used to determine the distance between this node and others and is required to
@@ -111,17 +111,33 @@
                     latlon2gridsquare();
                 }
             });
-            function llchange() {
-                map.contentWindow.postMessage(JSON.stringify({ type: "change-location", lat: lat.value, lon: lon.value }), "*");
-                latlon2gridsquare();
-            }
-            lat.addEventListener("change", llchange);
-            lon.addEventListener("change", llchange);
-            gridsquare.addEventListener("change", function() {
-                gridsquare2latlon();
-                map.contentWindow.postMessage(JSON.stringify({ type: "change-location", lat: lat.value, lon: lon.value }), "*");
-            });
         }
+        function llchange() {
+            if (map) {
+                map.contentWindow.postMessage(JSON.stringify({ type: "change-location", lat: lat.value, lon: lon.value }), "*");
+            }
+            latlon2gridsquare();
+            if (!map) {
+                htmx.ajax("PUT", "{{ request.env.REQUEST_URI }}", {
+                    target: "#changes",
+                    values: { lat: lat.value, lon: lon.value, gridsquare: gridsquare.value }
+                });
+            }
+        }
+        lat.addEventListener("change", llchange);
+        lon.addEventListener("change", llchange);
+        gridsquare.addEventListener("change", function() {
+            gridsquare2latlon();
+            if (map) {
+                map.contentWindow.postMessage(JSON.stringify({ type: "change-location", lat: lat.value, lon: lon.value }), "*");
+            }
+            else {
+                htmx.ajax("PUT", "{{ request.env.REQUEST_URI }}", {
+                    target: "#changes",
+                    values: { lat: lat.value, lon: lon.value, gridsquare: gridsquare.value }
+                });
+            }
+        });
         function latlon2gridsquare()
         {
             const alat = parseFloat(lat.value) + 90;
@@ -139,8 +155,8 @@
         function gridsquare2latlon()
         {
             const grid = gridsquare.value;
-            lat.value = (10 * (grid.charCodeAt(1) - 65) + parseInt(grid.charAt(3)) - 90) + (2.5 / 60.0) * (grid.charCodeAt(5) - 97 + 0.5);
-		    lon.value = (20 * (grid.charCodeAt(0) - 65) + 2 * parseInt(grid.charAt(2)) - 180) + (5.0 / 60.0) * (grid.charCodeAt(4) - 97 + 0.5);
+            lat.value = ((10 * (grid.charCodeAt(1) - 65) + parseInt(grid.charAt(3)) - 90) + (2.5 / 60.0) * (grid.charCodeAt(5) - 97 + 0.5)).toFixed(5);
+		    lon.value = ((20 * (grid.charCodeAt(0) - 65) + 2 * parseInt(grid.charAt(2)) - 180) + (5.0 / 60.0) * (grid.charCodeAt(4) - 97 + 0.5)).toFixed(5);
         }
     })();
     </script>

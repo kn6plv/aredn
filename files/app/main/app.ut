@@ -1,0 +1,27 @@
+<!DOCTYPE>
+<html>
+<head>
+    <link href="/a/css/aredn.css" rel="stylesheet">
+    <link href="/a/css/base.css" rel="stylesheet">
+    {% if (auth.authenticated) { %}
+    <script src="/a/js/htmx.min.js"></script>
+    {% } %}
+    <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+</head>
+<body class="{{ auth.authenticated ? "authenticated" : "" }}">
+    {{ _R("ctrls") }}
+    <div id="all">
+        <div id="nav">
+            {{ _R("nav") }}
+        </div>
+        <div id="panel">
+            <div id="select">
+                {{ _R("selection") }}
+            </div>
+            <div id="main">
+                {{ _R(request.page) }}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

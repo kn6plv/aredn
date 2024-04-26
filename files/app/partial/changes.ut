@@ -1,17 +1,35 @@
-{% if (request.env.REQUEST_METHOD === "PUT") {
-    if (request.args.revert) {
-        settings.revertChanges();
+{%
+    if (request.env.REQUEST_METHOD === "PUT") {
+        if (request.args.reboot) {
+            _R("reboot");
+            return;
+        }
+        else if (request.args.revert) {
+            settings.revertChanges();
+        }
+        else if (request.args.commit) {
+            settings.commitChanges();
+            print(`<div id="main" hx-swap-oob="true">${_R(request.page)}</div>`);
+        }
     }
-    else if (request.args.commit) {
-        settings.commitChanges();
-    }
-} %}
+%}
 <div id="changes" hx-swap-oob="true">
     {%
     let changes = 0;
+    let reboot = false;
     if (auth.authenticated) {
         changes = settings.countChanges();
+        if (fs.access("/tmp/reboot-required")) {
+            reboot = true;
+        }
     }
+    if (reboot) {
+    %}
+        <div>
+            Reboot required:
+            <button name="reboot" value="1" hx-put="/a/status/e/changes">Reboot</button>
+        </div>
+    {% }
     if (changes > 0) {
     %}
         <div>

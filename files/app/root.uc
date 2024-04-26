@@ -214,73 +214,91 @@ const ubusMethods =
 
 global.handle_request = function(env)
 {
-    const tpath = `${config.application}/main/${env.PATH_INFO || "status"}.ut`;
-    if (fs.access(tpath)) {
-        auth.runAuthentication(env);
-        if (index(env.PATH_INFO, "/e/") !== -1 && !auth.authenticated && !config.debug) {
-            uhttpd.send("Status: 401 Unauthorized\r\n\r\n");
-            return;
-        }
-        const args = {};
-        if (env.CONTENT_TYPE === "application/x-www-form-urlencoded") {
-            const v = split(uhttpd.recv(1024), "&");
-            for (let i = 0; i < length(v); i++) {
-                const kv = split(v[i], "=");
-                const k = uhttpd.urldecode(kv[0]);
-                if (!(k in args)) {
-                    args[k] = uhttpd.urldecode(kv[1]);
-                }
-            }
-        }
-        const response = { statusCode: 200, headers: { "Content-Type": "text/html" } };
-        const fn = pageCache[tpath] || loadfile(tpath, { raw_mode: false });
-        const res = render(call, fn, null, {
-            config: config,
-            request: { env: env, headers: env.headers, args: args },
-            response: response,
-            uci: uciMethods,
-            uciMesh: uciMeshMethods,
-            ubus: ubusMethods,
-            auth: auth,
-            includeHelp: (env.headers || {})["include-help"] === "1",
-            fs: fs,
-            settings: settings,
-            hardware: hardware,
-            lqm: lqm,
-            network: network,
-            olsr: olsr,
-            units: units,
-            radios: radios
-        });
-        if (config.debug) {
-            uhttpd.send(
-                `Status: ${response.statusCode} OK\r\n`,
-                join("", map(keys(response.headers), k => k + ": " + response.headers[k] + "\r\n")),
-                "\r\n",
-                res
-            );
+    const secured = index(env.PATH_INFO, "/e/") !== -1;
+    const page = substr(env.PATH_INFO, 1) || "status";
+    const main = index(page, "/") === -1;
+
+    if (main || secured) {
+        let tpath;
+        if (secured) {
+            tpath = `${config.application}/main${env.PATH_INFO}.ut`;
         }
         else {
-            const datafile = "/tmp/" + time() + math.rand();
-            try {
-                fs.writefile(datafile, res);
-                const z = fs.popen("exec /bin/gzip -c " + datafile);
+            tpath = `${config.application}/main/${page}.ut`;
+            if (!((config.debug && fs.access(tpath)) || (!config.debug && pageCache[tpath]))) {
+                tpath = `${config.application}/main/app.ut`;
+            }
+        }
+
+        if (pageCache[tpath] || fs.access(tpath)) {
+            auth.runAuthentication(env);
+            if (secured && !auth.authenticated && !config.debug) {
+                uhttpd.send("Status: 401 Unauthorized\r\n\r\n");
+                return;
+            }
+            const args = {};
+            if (env.CONTENT_TYPE === "application/x-www-form-urlencoded") {
+                const v = split(uhttpd.recv(1024), "&");
+                for (let i = 0; i < length(v); i++) {
+                    const kv = split(v[i], "=");
+                    const k = uhttpd.urldecode(kv[0]);
+                    if (!(k in args)) {
+                        args[k] = uhttpd.urldecode(kv[1]);
+                    }
+                }
+            }
+            const response = { statusCode: 200, headers: { "Content-Type": "text/html" } };
+            const fn = pageCache[tpath] || loadfile(tpath, { raw_mode: false });
+            const res = render(call, fn, null, {
+                config: config,
+                request: { env: env, headers: env.headers, args: args, page: page },
+                response: response,
+                uci: uciMethods,
+                uciMesh: uciMeshMethods,
+                ubus: ubusMethods,
+                auth: auth,
+                includeHelp: (env.headers || {})["include-help"] === "1",
+                fs: fs,
+                settings: settings,
+                hardware: hardware,
+                lqm: lqm,
+                network: network,
+                olsr: olsr,
+                units: units,
+                radios: radios
+            });
+            if (config.debug) {
+                uhttpd.send(
+                    `Status: ${response.statusCode} OK\r\n`,
+                    join("", map(keys(response.headers), k => k + ": " + response.headers[k] + "\r\n")),
+                    "\r\n",
+                    res
+                );
+            }
+            else {
+                const datafile = "/tmp/" + time() + math.rand();
                 try {
-                    uhttpd.send(
-                        `Status: ${response.statusCode} OK\r\nContent-Encoding: gzip\r\n`,
-                        join("", map(keys(response.headers), k => k + ": " + response.headers[k] + "\r\n")),
-                        "\r\n",
-                        z.read("all")
-                    );
+                    fs.writefile(datafile, res);
+                    const z = fs.popen("exec /bin/gzip -c " + datafile);
+                    try {
+                        uhttpd.send(
+                            `Status: ${response.statusCode} OK\r\nContent-Encoding: gzip\r\n`,
+                            join("", map(keys(response.headers), k => k + ": " + response.headers[k] + "\r\n")),
+                            "\r\n",
+                            z.read("all")
+                        );
+                    }
+                    catch (_) {
+                    }
+                    z.close();
                 }
                 catch (_) {
                 }
-                z.close();
+                fs.unlink(datafile);
             }
-            catch (_) {
-            }
-            fs.unlink(datafile);
+            return;
         }
+        uhttpd.send("Status: 404 Not Found\r\n\r\n");
         return;
     }
 

@@ -1,13 +1,16 @@
-{%
+<div hx-boost="true">
+    <a title="Node status" href="status">
+        <div class="icon status {{ request.page === "status" }}"></div>
+    </a>
+    <a title="See what is on the mesh" href="mesh">
+        <div class="icon mesh {{ request.page === "mesh" }}"></div>
+    </a>
+    {% 
     const ip = (match(fs.readfile("/tmp/dnsmasq.d/supernode.conf"), /^#([0-9.]+)/) || [])[1];
-    const status = request.env.PATH_INFO === "/status" ? "select" : "";
-    const mesh = request.env.PATH_INFO === "/mesh" ? "select" : "";
-%}
-<div>
-    <a title="Node status" href="status"><div class="icon status {{ status }}"></div></a>
-    <a title="See what is on the mesh" href="mesh"><div class="icon mesh {{ mesh }}"></div></a>
-    {% if (ip) { %}
-    <a title="See what is on the whole AREDN mesh" href="http://{{ ip }}/cgi-bin/mesh"><div class="icon cloud"></div></a>
+    if (ip) { %}
+    <a title="See what is on the whole AREDN mesh" href="http://{{ ip }}/cgi-bin/mesh">
+        <div class="icon cloud"></div>
+    </a>
     {% } %}
 </div>
 <div style="flex:1"></div>

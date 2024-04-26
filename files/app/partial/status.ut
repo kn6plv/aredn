@@ -1,0 +1,36 @@
+<div id="c1">
+    <div id="general">
+        {{ _R("general") }}
+    </div>
+    <div id="location">
+        <hr>
+        {{ _R("location") }}
+    </div>
+</div>
+<div id="c2">
+    <div id="services">
+        {{ _R("internal-services" )}}
+        {{ _R("local-services") }}
+    </div>
+    <div id="local-and-neighbor-devices">
+        <hr>
+        {{ _R("local-and-neighbor-devices") }}
+    </div>
+</div>
+<div id="c3">
+    <div id="radio-and-antenna">
+        {{ _R("radio-and-antenna") }}
+    </div>
+    <div id="mesh-summary">
+        <hr>
+        {{ _R("mesh-summary") }}
+    </div>
+    <div id="dhcp">
+        <hr>
+        {{ _R("dhcp") }}
+    </div>
+    <div id="tunnels">
+        <hr>
+        {{ _R("tunnels") }}
+    </div>
+</div>
