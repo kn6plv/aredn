@@ -2,10 +2,15 @@
 <dialog id="login">
     Password <input type="password"><button>OK</button>
 </dialog>
-<div id="login-icon" title="Log in" class="icon login"></div>
+<div id="login-icon">
+    <div class="icon login"></div>
+    <div class="menu">
+        <div>Login</div>
+    </div>
+</div>
 <script>
     const loginDialog = document.getElementById('login');
-    document.getElementById("login-icon").addEventListener("click", function()
+    document.querySelector("#login-icon .menu > div").addEventListener("click", function()
     {
         loginDialog.showModal();
     });
@@ -35,9 +40,15 @@
     loginDialog.querySelector('input').addEventListener("change", doAuth);
 </script>
 {% } else { %}
-<div id="logout-icon" title="Log out" class="icon login authenticated"></div>
+<div id="logout-icon">
+    <div class="icon login authenticated"></div>
+    <div class="menu">
+        <div>Logout</div>
+        <div>Reboot</div>
+    </div>
+</div>
 <script>
-    document.getElementById("logout-icon").addEventListener("click", function()
+    htmx.on("#logout-icon .menu > div:first-child", "click", function()
     {
         fetch(`${location.origin}/a/authenticate`, {
             method: "POST",
@@ -48,6 +59,10 @@
         }).then(function(response) {
             location.reload();
         });
+    });
+    htmx.on("#logout-icon .menu > div:last-child", "click", function()
+    {
+        htmx.ajax("PUT", `${location.origin}/a/status/e/reboot`);
     });
 </script>
 {% } %}

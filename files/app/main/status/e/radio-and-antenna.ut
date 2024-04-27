@@ -1,5 +1,5 @@
 {% if (request.env.REQUEST_METHOD === "PUT") {
-    settings.prepareChanges();
+    configuration.prepareChanges();
 %}
 {{ _R("changes") }}
 {% return; } %}
@@ -100,7 +100,7 @@
                 <div class="cols">
                     <div>
                         <div class="o">Maximum Distance</div>
-                        <div class="m">Maximum distance allowed to other nodes in miles</div>
+                        <div class="m">Maximum distance allowed to other nodes in {{ units.distanceUnit() }}</div>
                     </div>
                     <div style="flex:0">
                         <input hx-put="{{ request.env.REQUEST_URI }}" name="{{ prefix }}maxdistance" type="text" size="3" pattern="^\d+$" value="{{ int(0.5 + units.meters2distance(uciMesh.get("aredn", "@lqm[0]", "max_distance"))) }}">
@@ -117,8 +117,8 @@
                 </div>
                 <script>
                 (function(){
-                    const bws = document.querySelector("#ctrl-modal dialog.radio-and-antenna select[name={{ prefix }}bandwidth]");
-                    const bwssid = document.querySelector("#ctrl-modal dialog.radio-and-antenna input[name={{ prefix }}ssid] + span");
+                    const bws = htmx.find("#ctrl-modal dialog.radio-and-antenna select[name={{ prefix }}bandwidth]");
+                    const bwssid = htmx.find("#ctrl-modal dialog.radio-and-antenna input[name={{ prefix }}ssid] + span");
                     bws.addEventListener("change", function() {
                         bwssid.innerHTML = `-${bws.value}-v3`;
                     });
@@ -255,8 +255,8 @@
         {% if (length(wlan) > 1) { %}
         <script>
         (function(){
-            const radio0 = document.querySelector("#ctrl-modal dialog.radio-and-antenna select[name=radio0_mode]");
-            const radio1 = document.querySelector("#ctrl-modal dialog.radio-and-antenna select[name=radio1_mode]");
+            const radio0 = htmx.find("#ctrl-modal dialog.radio-and-antenna select[name=radio0_mode]");
+            const radio1 = htmx.find("#ctrl-modal dialog.radio-and-antenna select[name=radio1_mode]");
             radio0.addEventListener("htmx:beforeRequest", function() {
                 if (radio0.value === radio1.value && radio1.value !== 0) {
                     radio1.value = 0;

@@ -1,8 +1,8 @@
 {%
-    const dhcp = settings.getDHCP();
+    const dhcp = configuration.getDHCP();
     let da = 0;
     let dr = 0;
-    if (settings.enabled) {
+    if (dhcp.enabled) {
         const f = fs.open(dhcp.leases);
         if (f) {
             while (length(f.read("line"))) {

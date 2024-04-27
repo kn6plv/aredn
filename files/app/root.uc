@@ -4,7 +4,7 @@ import * as fs from "fs";
 import * as math from "math";
 import * as uci from "uci";
 import * as ubus from "ubus";
-import * as settings from "settings";
+import * as configuration from "configuration";
 import * as hardware from "hardware";
 import * as lqm from "lqm";
 import * as network from "network";
@@ -31,6 +31,8 @@ if (!config.debug) {
     cp("/main/");
     cp("/partial/");
     cp("/main/status/e/");
+
+    radios.getCommonConfiguration();
 }
 
 global._R = function(path, arg)
@@ -214,11 +216,11 @@ const ubusMethods =
 
 global.handle_request = function(env)
 {
-    const secured = index(env.PATH_INFO, "/e/") !== -1;
-    const page = substr(env.PATH_INFO, 1) || "status";
-    const main = index(page, "/") === -1;
+    const path = match(env.PATH_INFO, /^\/([-a-z]*)(.*)$/);
+    const page = path[1] || "status";
+    const secured = index(path[2], "/e/") === 0;
 
-    if (main || secured) {
+    if (path[2] == "" || secured) {
         let tpath;
         if (secured) {
             tpath = `${config.application}/main${env.PATH_INFO}.ut`;
@@ -259,7 +261,7 @@ global.handle_request = function(env)
                 auth: auth,
                 includeHelp: (env.headers || {})["include-help"] === "1",
                 fs: fs,
-                settings: settings,
+                configuration: configuration,
                 hardware: hardware,
                 lqm: lqm,
                 network: network,
@@ -295,6 +297,9 @@ global.handle_request = function(env)
                 catch (_) {
                 }
                 fs.unlink(datafile);
+            }
+            if (response.reboot) {
+                fs.popen("exec /sbin/reboot");
             }
             return;
         }

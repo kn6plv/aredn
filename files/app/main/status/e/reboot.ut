@@ -1,0 +1,50 @@
+{%
+    response.reboot = true;
+%}
+<div id="reboot">
+<script>
+    const TIMEOUT = 5000;
+    const COUNTDOWN = 120;
+    const DELAY = 20;
+    function reload() {
+        const start = Date.now();
+        const req = new XMLHttpRequest();
+        req.open('GET', window.origin + "/a/status");
+        req.onreadystatechange = function() {
+            if (req.readyState === 4) {
+                if (req.status === 200) {
+                    window.location = window.origin + "/a/status";
+                }
+                else {
+                    const time = Date.now() - start;
+                    setTimeout(reload, time > TIMEOUT ? 0 : TIMEOUT - time);
+                }
+            }
+        }
+        req.timeout = TIMEOUT;
+        try {
+            req.send(null);
+        }
+        catch (_) {
+        }
+    }
+    const start = Date.now()
+    function cdown() {
+        const div = document.getElementById("countdown");
+        if (div) {
+            let t = Math.round(COUNTDOWN - (Date.now() - start) / 1000);
+            div.innerHTML = t <= 0 ? "..." : new Date(1000 * t).toISOString().substring(14, 19);
+            const cdp = document.getElementById("cdprogress");
+            if (cdp) {
+                if (t < 0)
+                    cdp.removeAttribute("value");
+                else
+                    cdp.setAttribute("value", cdp.getAttribute("max") - t);
+            }
+        }
+    }
+    setInterval(cdown, 1000);
+    setTimeout(reload, DELAY * 1000);
+</script>
+Rebooting ...
+</div>

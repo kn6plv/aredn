@@ -4,10 +4,6 @@
     for (let i = 0; i < length(o); i++) {
         links[o[i].remoteIP] = o[i];
     }
-    function calcDistance(meters)
-    {
-        return meters ? int(0.000621371 * meters + 0.5) : "-";
-    }
     function calcColor(tracker)
     {
         if (tracker.blocked) {
@@ -44,7 +40,7 @@
         <div class="cols">
             <div class="heading" style="flex:0.75"></div>
             <div class="heading ts cols stats">
-                <div>lq</div><div>nlq</div><div>snr</div><div>rsnr</div><div>quality</div><div>tx&nbsp;mbps</div><div>miles</div>
+                <div>lq</div><div>nlq</div><div>snr</div><div>rsnr</div><div>quality</div><div>tx&nbsp;mbps</div><div>{{ units.distanceUnit() }}</div>
             </div>
         </div>
         {%
@@ -106,7 +102,8 @@
                     print("<div style='flex:0.75'><a title='link status: " + status + "' href='http://" + tracker.ip + "'>" + tracker.ip + "</a></div>");
                 }
                 print("<div class='ts cols stats'>");
-                print("<div>"+ lq + "</div><div>" + nlq + "</div><div>" + (tracker.snr || "-") + "</div><div>" + (tracker.snr || "-") + "</div><div>" + tracker.quality + "%</div><div>" + calcBitrate(tracker.tx_bitrate) + "</div><div>" + calcDistance(tracker.distance) + "</div>");
+                const d = units.meters2distance(tracker.distance);
+                print("<div>"+ lq + "</div><div>" + nlq + "</div><div>" + (tracker.snr || "-") + "</div><div>" + (tracker.snr || "-") + "</div><div>" + tracker.quality + "%</div><div>" + calcBitrate(tracker.tx_bitrate) + "</div><div>" + (d < 1 ? "< 1" : d) + "</div>");
                 print("</div></div>");
             }
         }

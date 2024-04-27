@@ -1,5 +1,5 @@
 {% if (request.env.REQUEST_METHOD === "PUT") {
-    settings.prepareChanges();
+    configuration.prepareChanges();
 %}
 {{ _R("changes") }}
 {% return; } %}

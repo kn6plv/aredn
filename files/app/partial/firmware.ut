@@ -1,5 +1,5 @@
 {%
-    const firmware = settings.getFirmwareVersion();
+    const firmware = configuration.getFirmwareVersion();
     let releases = split(fs.readfile("/etc/current_releases"), " ");
     let message = "uptodate";
     if (!releases) {

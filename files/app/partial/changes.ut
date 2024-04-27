@@ -1,14 +1,10 @@
 {%
     if (request.env.REQUEST_METHOD === "PUT") {
-        if (request.args.reboot) {
-            _R("reboot");
-            return;
-        }
-        else if (request.args.revert) {
-            settings.revertChanges();
+        if (request.args.revert) {
+            configuration.revertChanges();
         }
         else if (request.args.commit) {
-            settings.commitChanges();
+            configuration.commitChanges();
             print(`<div id="main" hx-swap-oob="true">${_R(request.page)}</div>`);
         }
     }
@@ -18,7 +14,7 @@
     let changes = 0;
     let reboot = false;
     if (auth.authenticated) {
-        changes = settings.countChanges();
+        changes = configuration.countChanges();
         if (fs.access("/tmp/reboot-required")) {
             reboot = true;
         }
@@ -27,7 +23,7 @@
     %}
         <div>
             Reboot required:
-            <button name="reboot" value="1" hx-put="/a/status/e/changes">Reboot</button>
+            <button name="reboot" value="1" hx-get="/a/status/e/reboot" hx-target="body">Reboot</button>
         </div>
     {% }
     if (changes > 0) {
@@ -37,5 +33,13 @@
             <button name="commit" value="1" hx-put="/a/status/e/changes">Commit</button>
             <button name="revert" value="1" hx-put="/a/status/e/changes">Revert</button>
         </div>
+        <script>
+        (function(){
+            htmx.on("#changes button[name=commit]", "click", e => {
+                e.target.innerText = "Committing ...";
+                htmx.find("#changes button[name=revert]").style.display = "none";
+            });
+        })();
+        </script>
     {% } %}
 </div>

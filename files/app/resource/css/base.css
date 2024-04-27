@@ -485,7 +485,9 @@ body.authenticated .ctrl:hover
     filter: var( --icon-filter);
 }
 .icon:hover,
-.icon.true
+.icon.true,
+#login-icon:hover .icon,
+#logout-icon:hover .icon
 {
     filter: var(--icon-filter-select);
 }
@@ -517,6 +519,40 @@ body.authenticated .ctrl:hover
 /* -- end icons -- */
 
 /* login start */
+
+#login-icon,
+#logout-icon
+{
+    position: relative;
+}
+#login-icon .menu,
+#logout-icon .menu
+{
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding-top: 64px;
+    text-align: right;
+    font-size: 14px;
+}
+#login-icon .menu > div,
+#logout-icon .menu > div
+{
+    padding: 12px 20px;
+    color: var(--login-menu-fg-color);
+    background-color: var(--nav-bg-color);
+}
+#login-icon:hover .menu,
+#logout-icon:hover .menu
+{
+    display: block;
+}
+#login-icon .menu > div:hover,
+#logout-icon .menu > div:hover
+{
+    color: var(--login-menu-fg-select-color);
+}
 
 #login
 {
@@ -728,6 +764,15 @@ body.authenticated .ctrl:hover
 }
 
 /* ctrls end */
+
+/* reboot start */
+
+#reboot
+{
+    color: white;
+}
+
+/* reboot end */
 
 /* dialog customization start */
 

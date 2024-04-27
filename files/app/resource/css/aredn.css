@@ -29,6 +29,8 @@
     --service-bg-color-status-disabled: #900000;
     --icon-filter: invert(75%) sepia(0%) saturate(1338%) hue-rotate(137deg) brightness(86%) contrast(87%);
     --icon-filter-select: invert(30%) sepia(27%) saturate(4907%) hue-rotate(173deg) brightness(95%) contrast(102%);
+    --login-menu-fg-color: #202020;
+    --login-menu-fg-select-color: #1278a5;
     --login-fg-color: #404040;
     --login-bg-color: #d0d0d0;
     --login-border-color: #808080;

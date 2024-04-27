@@ -1,75 +1,75 @@
 {% if (request.env.REQUEST_METHOD === "PUT") {
-    settings.prepareChanges();
+    configuration.prepareChanges();
     if ("mesh_ip" in request.args) {
         if (match(request.args.mesh_ip, /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/)) {
-            settings.setSetting("wifi_ip", request.args.mesh_ip);
+            configuration.setSetting("wifi_ip", request.args.mesh_ip);
         }
     }
     if ("dhcp_mode" in request.args) {
         const mode = int(request.args.dhcp_mode || 3);
         if (mode >= 0 && mode <= 5 && mode !== 1) {
-            settings.setSetting("dmz_mode", mode);
+            configuration.setSetting("dmz_mode", mode);
         }
     }
     if ("wan_enable" in request.args) {
         if (request.args.wan_enable === "off") {
-            settings.setSetting("wan_proto", "disabled");
+            configuration.setSetting("wan_proto", "disabled");
         }
         else {
-            settings.setSetting("wan_proto", "dhcp");
+            configuration.setSetting("wan_proto", "dhcp");
         }
     }
     if ("wan_mode" in request.args) {
         if (request.args.wan_mode === "0") {
-            settings.setSetting("wan_proto", "dhcp");
+            configuration.setSetting("wan_proto", "dhcp");
         }
         else {
-            settings.setSetting("wan_proto", "static");
+            configuration.setSetting("wan_proto", "static");
         }
     }
     if ("wan_ip" in request.args) {
         if (match(request.args.wan_ip, /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/)) {
-            settings.setSetting("wan_ip", request.args.wan_ip);
+            configuration.setSetting("wan_ip", request.args.wan_ip);
         }
     }
     if ("wan_mask" in request.args) {
         if (match(request.args.wan_mask, /^(((255\.){3}(255|254|252|248|240|224|192|128|0+))|((255\.){2}(255|254|252|248|240|224|192|128|0+)\.0)|((255\.)(255|254|252|248|240|224|192|128|0+)(\.0+){2})|((255|254|252|248|240|224|192|128|0+)(\.0+){3}))$/)) {
-            settings.setSetting("wan_mask", request.args.wan_mask);
+            configuration.setSetting("wan_mask", request.args.wan_mask);
         }
     }
     if ("wan_gw" in request.args) {
         if (match(request.args.wan_gw, /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/)) {
-            settings.setSetting("wan_gw", request.args.wan_gw);
+            configuration.setSetting("wan_gw", request.args.wan_gw);
         }
     }
     if ("wan_dns1" in request.args) {
         if (match(request.args.wan_dns1, /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/)) {
-            settings.setSetting("wan_dns1", request.args.wan_dns1);
+            configuration.setSetting("wan_dns1", request.args.wan_dns1);
         }
     }
     if ("wan_dns2" in request.args) {
         if (match(request.args.wan_dns2, /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/)) {
-            settings.setSetting("wan_dns2", request.args.wan_dns2);
+            configuration.setSetting("wan_dns2", request.args.wan_dns2);
         }
     }
     if ("wan_vlan" in request.args) {
-        const wan_iface = split(settings.getSettingAsString("wan_intf", ""), ".");
+        const wan_iface = split(configuration.getSettingAsString("wan_intf", ""), ".");
         const wan_vlan = int(request.args.wan_vlan || 0);
         if (wan_vlan === 0) {
-            settings.setSetting("wan_intf", wan_iface[0]);
+            configuration.setSetting("wan_intf", wan_iface[0]);
         }
         else if (wan_vlan >= 3 && wan_vlan <= 4095) {
-            settings.setSetting("wan_intf", `${wan_iface[0]}.${wan_vlan}`);
+            configuration.setSetting("wan_intf", `${wan_iface[0]}.${wan_vlan}`);
         }
     }
-    settings.saveSettings();
+    configuration.saveSettings();
 %}
 {{ _R("changes") }}
 {% return; } %}
 {%
-    const dmz_mode = settings.getSettingAsInt("dmz_mode", 3);
-    const wan_proto = settings.getSettingAsString("wan_proto", "disabled");
-    const wan_iface = split(settings.getSettingAsString("wan_intf", ""), ".");
+    const dmz_mode = configuration.getSettingAsInt("dmz_mode", 3);
+    const wan_proto = configuration.getSettingAsString("wan_proto", "disabled");
+    const wan_iface = split(configuration.getSettingAsString("wan_intf", ""), ".");
     const wan_vlan = wan_iface[1] ? wan_iface[1] : "";
 %}
 <dialog>
@@ -81,7 +81,7 @@
                 <div class="m">The primary address of this node</div>
             </div>
             <div style="flex:0">
-                <input hx-put="{{ request.env.REQUEST_URI }}" name="mesh_ip" type="text" size="14" placeholder="10.X.X.X" pattern="^10\.((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){3}$" value="{{ settings.getSettingAsString("wifi_ip") }}">
+                <input hx-put="{{ request.env.REQUEST_URI }}" name="mesh_ip" type="text" size="14" placeholder="10.X.X.X" pattern="^10\.((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){3}$" value="{{ configuration.getSettingAsString("wifi_ip") }}">
             </div>
         </div>
         {{ _H("The primary address of this AREDN node. This will always be of the form 10.X.X.X. The address is generated automatically based on hardware information so it will
@@ -138,7 +138,7 @@
                             <div class="m">WAN IP a&zwnj;ddress</div>
                         </div>
                         <div style="flex:0">
-                            <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_ip" type="text" size="15" pattern="^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$" value="{{ settings.getSettingAsString("wan_ip") }}">
+                            <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_ip" type="text" size="15" pattern="^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$" value="{{ configuration.getSettingAsString("wan_ip") }}">
                         </div>
                     </div>
                     {{ _H("A fixed IP address to assign to the WAN interace on this node.") }}
@@ -148,7 +148,7 @@
                             <div class="m">WAN netmask</div>
                         </div>
                         <div style="flex:0">
-                            <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_mask" type="text" size="15" pattern="^(((255\.){3}(255|254|252|248|240|224|192|128|0+))|((255\.){2}(255|254|252|248|240|224|192|128|0+)\.0)|((255\.)(255|254|252|248|240|224|192|128|0+)(\.0+){2})|((255|254|252|248|240|224|192|128|0+)(\.0+){3}))$" value="{{ settings.getSettingAsString("wan_mask") }}">
+                            <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_mask" type="text" size="15" pattern="^(((255\.){3}(255|254|252|248|240|224|192|128|0+))|((255\.){2}(255|254|252|248|240|224|192|128|0+)\.0)|((255\.)(255|254|252|248|240|224|192|128|0+)(\.0+){2})|((255|254|252|248|240|224|192|128|0+)(\.0+){3}))$" value="{{ configuration.getSettingAsString("wan_mask") }}">
                         </div>
                     </div>
                     {{ _H("The netmask (e.g. 255.255.255.0) for this interface.") }}
@@ -158,7 +158,7 @@
                             <div class="m">Default gateway</div>
                         </div>
                         <div style="flex:0">
-                            <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_gw" type="text" size="15" pattern="^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$" value="{{ settings.getSettingAsString("wan_gw") }}">
+                            <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_gw" type="text" size="15" pattern="^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$" value="{{ configuration.getSettingAsString("wan_gw") }}">
                         </div>
                     </div>
                     {{ _H("The default gateway his node should use to access the Internet.") }}
@@ -172,8 +172,8 @@
                 <div class="m">Internet DNS servers</div>
             </div>
             <div style="flex:0;white-space:nowrap">
-                <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_dns1" type="text" size="15" pattern="^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$" value="{{ settings.getSettingAsString("wan_dns1") }}">
-                <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_dns2" type="text" size="15" pattern="^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$" value="{{ settings.getSettingAsString("wan_dns2") }}">
+                <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_dns1" type="text" size="15" pattern="^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$" value="{{ configuration.getSettingAsString("wan_dns1") }}">
+                <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_dns2" type="text" size="15" pattern="^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$" value="{{ configuration.getSettingAsString("wan_dns2") }}">
             </div>
         </div>
         {{ _H("For hosts not on the Mesh, use these DNS servers to resolve names to IP addresses.") }}

@@ -137,7 +137,9 @@ export function prepareChanges()
                 if (!entry) {
                     break;
                 }
-                fs.writefile(`${currentConfig}/${entry}`, fs.readfile(`/etc/config.mesh/${entry}`));
+                if (entry !== "." && entry !== "..") {
+                    fs.writefile(`${currentConfig}/${entry}`, fs.readfile(`/etc/config.mesh/${entry}`));
+                }
             }
             d.close();
         }
@@ -146,6 +148,7 @@ export function prepareChanges()
 
 export function commitChanges()
 {
+    const status = {};
     if (fs.access(`${currentConfig}/_setup`)) {
         const d = fs.opendir(currentConfig);
         if (d) {
@@ -154,12 +157,25 @@ export function commitChanges()
                 if (!entry) {
                     break;
                 }
-                fs.unlink(`${currentConfig}/${entry}`);
+                if (entry !== "." && entry !== "..") {
+                    fs.unlink(`${currentConfig}/${entry}`);
+                }
             }
             d.close();
             fs.rmdir(currentConfig);
+            const n = fs.popen("exec /usr/local/bin/node-setup");
+            if (n) {
+                status.setup = n.read("all");
+                n.close();
+                const c = fs.popen("exec /usr/local/bin/restart-services.sh");
+                if (c) {
+                    status.restart = c.read("all");
+                    c.close();
+                }
+            }
         }
     }
+    return status;
 };
 
 export function revertChanges()
@@ -172,9 +188,11 @@ export function revertChanges()
                 if (!entry) {
                     break;
                 }
-                const from = `${currentConfig}/${entry}`;
-                fs.writefile(`/etc/config.mesh/${entry}`, fs.readfile(from));
-                fs.unlink(from);
+                if (entry !== "." && entry !== "..") {
+                    const from = `${currentConfig}/${entry}`;
+                    fs.writefile(`/etc/config.mesh/${entry}`, fs.readfile(from));
+                    fs.unlink(from);
+                }
             }
             d.close();
             fs.rmdir(currentConfig);
@@ -193,23 +211,25 @@ export function countChanges()
                 if (!entry) {
                     break;
                 }
-                const from = `${currentConfig}/${entry}`;
-                const to = `/etc/config.mesh/${entry}`;
-                const p = fs.popen(`exec /usr/bin/diff -BbdiU0 ${from} ${to}`);
-                if (p) {
-                    for (;;) {
-                        const l = rtrim(p.read("line"));
-                        if (!l) {
-                            break;
-                        }
-                        if (index(l, "@@") === 0) {
-                            const v = match(l, /^@@ [+-]\d+,?(\d*) [+-]\d+,?(\d*) @@$/);
-                            if (v) {
-                                count += max(math.abs(int(v[1] === "" ? 1 : v[1])), math.abs(int(v[2] === "" ? 1 : v[2])));
+                if (entry !== "." && entry !== "..") {
+                    const from = `${currentConfig}/${entry}`;
+                    const to = `/etc/config.mesh/${entry}`;
+                    const p = fs.popen(`exec /usr/bin/diff -BbdiU0 ${from} ${to}`);
+                    if (p) {
+                        for (;;) {
+                            const l = rtrim(p.read("line"));
+                            if (!l) {
+                                break;
+                            }
+                            if (index(l, "@@") === 0) {
+                                const v = match(l, /^@@ [+-]\d+,?(\d*) [+-]\d+,?(\d*) @@$/);
+                                if (v) {
+                                    count += max(math.abs(int(v[1] === "" ? 1 : v[1])), math.abs(int(v[2] === "" ? 1 : v[2])));
+                                }
                             }
                         }
+                        p.close();
                     }
-                    p.close();
                 }
             }
             d.close();

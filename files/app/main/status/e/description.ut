@@ -1,9 +1,9 @@
 {% if (request.env.REQUEST_METHOD === "PUT") {
-    settings.prepareChanges();
+    configuration.prepareChanges();
     if ("description_node" in request.args) {
-        settings.setSetting("description_node", request.args.description_node || "");
+        configuration.setSetting("description_node", request.args.description_node || "");
     }
-    settings.saveSettings();
+    configuration.saveSettings();
 %}
 {{ _R("changes") }}
 {% return; } %}
@@ -16,7 +16,7 @@
                 <div class="m">Information about this node</div>
             </div>
             <div style="flex:0">
-                <textarea style="width:340px" rows="2" columns="80" hx-put="{{ request.env.REQUEST_URI }}" name="description_node">{{ settings.getSettingAsString("description_node", "") }}</textarea>
+                <textarea style="width:340px" rows="2" columns="80" hx-put="{{ request.env.REQUEST_URI }}" name="description_node">{{ configuration.getSettingAsString("description_node", "") }}</textarea>
             </div>
         </div>
         {{ _H("Some optional descriptive text about this node. This can be anything you think relevant.

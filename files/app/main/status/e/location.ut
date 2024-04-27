@@ -1,5 +1,5 @@
 {% if (request.env.REQUEST_METHOD === "PUT") {
-    settings.prepareChanges();
+    configuration.prepareChanges();
     if ("gridsquare" in request.args) {
         if (match(request.args.gridsquare, /^[A-X][A-X]\d\d[a-x][a-x]$/)) {
             uciMesh.set("aredn", "@location[0]", "gridsquare", request.args.gridsquare);
@@ -90,10 +90,10 @@
     {{ _R("dialog-footer") }}
     <script>
     (function(){
-        const lat = document.querySelector("#ctrl-modal dialog input[name=lat]");
-        const lon = document.querySelector("#ctrl-modal dialog input[name=lon]");
-        const gridsquare = document.querySelector("#ctrl-modal dialog input[name=gridsquare]");
-        const map = document.querySelector("#ctrl-modal dialog iframe");
+        const lat = htmx.find("#ctrl-modal dialog input[name=lat]");
+        const lon = htmx.find("#ctrl-modal dialog input[name=lon]");
+        const gridsquare = htmx.find("#ctrl-modal dialog input[name=gridsquare]");
+        const map = htmx.find("#ctrl-modal dialog iframe");
         let mapt = null;
         if (map) {
             window.addEventListener("message", e => {

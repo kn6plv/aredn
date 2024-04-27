@@ -1,6 +1,5 @@
 import * as hardware from "hardware";
 import * as uci from "uci";
-import * as settings from "settings";
 
 export const RADIO_OFF = 0;
 export const RADIO_MESH = 1;
@@ -45,7 +44,7 @@ export function getActiveConfiguration()
                 channel: 0,
                 bandwidth: 10,
                 ssid: "AREDN",
-                txpower: settings.getSettingAsInt("wifi_txpower")
+                txpower: configuration.getSettingAsInt("wifi_txpower")
             };
             cursor.foreach("wireless", "wifi-iface", function(s)
             {
@@ -77,20 +76,20 @@ export function getConfiguration()
     const nrradios = length(radio);
     if (nrradios > 0) {
         const modes = [ null, {
-            channel: settings.getSettingAsInt("wifi_channel"),
-            bandwidth: settings.getSettingAsInt("wifi_chanbw", 10),
-            ssid: settings.getSettingAsString("wifi_ssid", "AREDN"),
-            txpower: settings.getSettingAsInt("wifi_txpower", 27)
+            channel: configuration.getSettingAsInt("wifi_channel"),
+            bandwidth: configuration.getSettingAsInt("wifi_chanbw", 10),
+            ssid: configuration.getSettingAsString("wifi_ssid", "AREDN"),
+            txpower: configuration.getSettingAsInt("wifi_txpower", 27)
         },
         {
-            channel: settings.getSettingAsInt("wifi2_channel"),
-            encryption: settings.getSettingAsString("wifi2_encryption", "psk2"),
-            key: settings.getSettingAsString("wifi2_key", ""),
-            ssid: settings.getSettingAsString("wifi2_ssid", "")
+            channel: configuration.getSettingAsInt("wifi2_channel"),
+            encryption: configuration.getSettingAsString("wifi2_encryption", "psk2"),
+            key: configuration.getSettingAsString("wifi2_key", ""),
+            ssid: configuration.getSettingAsString("wifi2_ssid", "")
         },
         {
-            key: settings.getSettingAsString("wifi3_key", ""),
-            ssid: settings.getSettingAsString("wifi3_ssid", "")
+            key: configuration.getSettingAsString("wifi3_key", ""),
+            ssid: configuration.getSettingAsString("wifi3_ssid", "")
         }];
         for (let i = 0; i < nrradios; i++) {
             radio[i].modes = modes;
@@ -99,9 +98,9 @@ export function getConfiguration()
         radio[0].ant = hardware.getAntennaInfo(radio[0].iface, cursor.get("aredn", "@location[0]", "antenna"));
         radio[0].antaux = hardware.getAntennaAuxInfo(radio[0].iface, cursor.get("aredn", "@location[0]", "antenna_aux"));
 
-        const wifi_enable = settings.getSettingAsInt("wifi_enable", 0);
-        const wifi2_enable = settings.getSettingAsInt("wifi2_enable", 0);
-        const wifi3_enable = settings.getSettingAsInt("wifi3_enable", 0);
+        const wifi_enable = configuration.getSettingAsInt("wifi_enable", 0);
+        const wifi2_enable = configuration.getSettingAsInt("wifi2_enable", 0);
+        const wifi3_enable = configuration.getSettingAsInt("wifi3_enable", 0);
         if (nrradios === 1) {
             if (wifi_enable) {
                 radio[0].mode = 1;
@@ -114,7 +113,7 @@ export function getConfiguration()
             }
         }
         else if (wifi_enable) {
-            const wifi_iface = settings.getSettingAsString("wifi_intf", "wlan0");
+            const wifi_iface = configuration.getSettingAsString("wifi_intf", "wlan0");
             if (wifi_iface === "wlan0") {
                 radio[0].mode = 1;
                 if (wifi2_enable) {
@@ -135,7 +134,7 @@ export function getConfiguration()
             }
         }
         else if (wifi2_enable) {
-            const wifi2_hwmode = settings.getSettingAsString("wifi2_hwmode", "11a");
+            const wifi2_hwmode = configuration.getSettingAsString("wifi2_hwmode", "11a");
             if ((wifi2_hwmode === "11a" && radio[0].def.band === "5GHz") || (wifi2_hwmode === "11g" && radio[0].def.band === "2.4GHz")) {
                 radio[0].mode = 2;
                 if (wifi3_enable) {
@@ -150,7 +149,7 @@ export function getConfiguration()
             }
         }
         else if (wifi3_enable) {
-            const wifi3_hwmode = settings.getSettingAsString("wifi3_hwmode", "11a");
+            const wifi3_hwmode = configuration.getSettingAsString("wifi3_hwmode", "11a");
             if ((wifi3_hwmode === "11a" && radio[0].def.band === "5GHz") || (wifi3_hwmode === "11g" && radio[0].def.band === "2.4GHz")) {
                 radio[0].mode = 3;
             }
