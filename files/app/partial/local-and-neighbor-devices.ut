@@ -40,7 +40,7 @@
         <div class="cols">
             <div class="heading" style="flex:0.75"></div>
             <div class="heading ts cols stats">
-                <div>lq</div><div>nlq</div><div>snr</div><div>rsnr</div><div>quality</div><div>tx&nbsp;mbps</div><div>{{ units.distanceUnit() }}</div>
+                <div>lq</div><div>nlq</div><div>snr</div><div>rsnr</div><div>errors</div><div>tx&nbsp;mbps</div><div>{{ units.distanceUnit() }}</div>
             </div>
         </div>
         {%
@@ -68,13 +68,13 @@
                     const lq = link.lossMultiplier ? (int(100 * link.linkQuality * 65536 / link.lossMultiplier) + "%"): "-";
                     const nlq = link.lossMultiplier ? (int(100 * link.neighborLinkQuality * 65536 / link.lossMultiplier) + "%") : "-";
                     if (tracker.hostname) {
-                        print("<div style='flex:0.75'><a title='link status: " + status + "' href='http://" + tracker.hostname + ".local.mesh'>" + tracker.hostname + "</a></div>");
+                        print(`<div style='flex:0.75'><a title='link status: ${status}' href='http://${tracker.hostname}.local.mesh'>${tracker.hostname}</a></div>`);
                     }
                     else {
-                        print("<div style='flex:0.75'><a title='link status: " + status + "' href='http://" + tracker.ip + "'>" + tracker.ip + "</a></div>");
+                        print(`<div style='flex:0.75'><a title='link status: ${status}' href='http://${tracker.ip}'>${tracker.ip}</a></div>`);
                     }
                     print("<div class='ts cols stats'>");
-                    print("<div>" + lq + "</div><div>" + nlq + "</div><div></div><div></div><div>" + tracker.quality + "%</div><div></div><div></div>");
+                    print(`<div>${lq}</div><div>${nlq}</div><div></div><div></div><div>${100 - tracker.quality}%</div><div></div><div></div>`);
                     print("</div></div>");
                 }
             }
@@ -96,14 +96,14 @@
                 const lq = link.lossMultiplier ? (int(100 * link.linkQuality * 65536 / link.lossMultiplier) + "%"): "-";
                 const nlq = link.lossMultiplier ? (int(100 * link.neighborLinkQuality * 65536 / link.lossMultiplier) + "%") : "-";
                 if (tracker.hostname) {
-                    print("<div style='flex:0.75'><a title='link status: " + status + "' href='http://" + tracker.hostname + ".local.mesh'>" + tracker.hostname + "</a></div>");
+                    print(`<div style='flex:0.75'><a title='link status: ${status}' href='http://${tracker.hostname}.local.mesh'>${tracker.hostname}</a></div>`);
                 }
                 else {
-                    print("<div style='flex:0.75'><a title='link status: " + status + "' href='http://" + tracker.ip + "'>" + tracker.ip + "</a></div>");
+                    print(`<div style='flex:0.75'><a title='link status: ${status}' href='http://${tracker.ip}'>${tracker.ip}</a></div>`);
                 }
                 print("<div class='ts cols stats'>");
                 const d = units.meters2distance(tracker.distance);
-                print("<div>"+ lq + "</div><div>" + nlq + "</div><div>" + (tracker.snr || "-") + "</div><div>" + (tracker.snr || "-") + "</div><div>" + tracker.quality + "%</div><div>" + calcBitrate(tracker.tx_bitrate) + "</div><div>" + (d < 1 ? "< 1" : d) + "</div>");
+                print(`<div>${lq}</div><div>${nlq}</div><div>${tracker.snr || "-"}</div><div>${tracker.snr || "-"}</div><div>${100 - tracker.quality}%</div><div>${calcBitrate(tracker.tx_bitrate)}</div><div>${d < 1 ? "< 1" : d}</div>`);
                 print("</div></div>");
             }
         }
