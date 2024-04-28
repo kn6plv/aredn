@@ -6,6 +6,7 @@ let cursor;
 let setup;
 let setupKeys;
 let setupChanged = false;
+let firmwareVersion = null;
 
 const currentConfig = "/tmp/config.current";
 
@@ -86,7 +87,10 @@ export function getName()
 
 export function getFirmwareVersion()
 {
-    return trim(fs.readfile("/etc/mesh-release"));
+    if (firmwareVersion === null) {
+        firmwareVersion = trim(fs.readfile("/etc/mesh-release"));
+    }
+    return firmwareVersion;
 };
 
 export function getDHCP()

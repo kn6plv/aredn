@@ -35,6 +35,23 @@ if (!config.debug) {
     radios.getCommonConfiguration();
 }
 
+const resourceVersions = {};
+function prepareResource(id, resource)
+{
+    const path = `${config.application}/resource/${resource}`;
+    const pathgz = `${config.application}/resource/${resource}.gz`;
+    if (!fs.access(pathgz)) {
+        fs.popen(`/bin/gzip -k ${path}`).close();
+    }
+    const md = fs.popen(`/usr/bin/md5sum ${pathgz}`);
+    resourceVersions[id] = match(md.read("all"), /^([0-9a-f]+)/)[1];
+    md.close();
+    fs.symlink(pathgz, `${path}.${resourceVersions[id]}.gz`);
+}
+prepareResource("basecss", "css/base.css");
+prepareResource("aredncss", "css/aredn.css");
+prepareResource("htmx", "js/htmx.min.js");
+
 global._R = function(path, arg)
 {
     const tpath = `${config.application}/partial/${path}.ut`;
@@ -249,10 +266,11 @@ global.handle_request = function(env)
                     }
                 }
             }
-            const response = { statusCode: 200, headers: { "Content-Type": "text/html" } };
+            const response = { statusCode: 200, headers: { "Content-Type": "text/html", "Cache-Control": "no-store" } };
             const fn = pageCache[tpath] || loadfile(tpath, { raw_mode: false });
             const res = render(call, fn, null, {
                 config: config,
+                versions: resourceVersions,
                 request: { env: env, headers: env.headers, args: args, page: page },
                 response: response,
                 uci: uciMethods,
@@ -317,6 +335,12 @@ global.handle_request = function(env)
         else if (substr(rpath, -4) === ".css") {
             uhttpd.send("Content-Type: text/css\r\n");
         }
+        if (config.debug) {
+            uhttpd.send("Cache-Control: no-store\r\n");
+        }
+        else {
+            uhttpd.send("Cache-Control: max-age=604800\r\n");
+        }
         uhttpd.send("\r\n", fs.readfile(gzrpath));
         return;
     }
@@ -335,10 +359,21 @@ global.handle_request = function(env)
         else if (substr(rpath, -4) === ".css") {
             uhttpd.send("Content-Type: text/css\r\n");
         }
+        if (config.debug) {
+            uhttpd.send("Cache-Control: no-store\r\n");
+        }
+        else {
+            uhttpd.send("Cache-Control: max-age=604800\r\n");
+        }
         uhttpd.send("\r\n", fs.readfile(rpath));
         return;
     }
 
-    uhttpd.send("Status: 404 Not Found\r\n\r\n");
+    if (config.debug) {
+        uhttpd.send("Status: 404 Not Found\r\nCache-Control: no-store\r\n\r\n");
+    }
+    else {
+        uhttpd.send("Status: 404 Not Found\r\nCache-Control: max-age=600\r\n\r\n");
+    }
 };
 %}
