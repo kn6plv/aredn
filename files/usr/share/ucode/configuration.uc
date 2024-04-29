@@ -58,10 +58,12 @@ export function setSetting(key, value, def)
 {
     initSetup();
     const old = setup[key];
-    setup[key] = value || def;
+    setup[key] = `${value || def}`;
     if (old !== setup[key]) {
         setupChanged = true;
+        return true;
     }
+    return false;
 };
 
 export function saveSettings()

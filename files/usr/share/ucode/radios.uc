@@ -4,7 +4,7 @@ import * as uci from "uci";
 export const RADIO_OFF = 0;
 export const RADIO_MESH = 1;
 export const RADIO_LAN = 2;
-export const RADION_WAN = 3;
+export const RADIO_WAN = 3;
 
 export function getCommonConfiguration()
 {
