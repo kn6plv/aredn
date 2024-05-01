@@ -104,7 +104,7 @@
                     clearTimeout(mapt);
                     mapt = setTimeout(() => {
                         htmx.ajax("PUT", "{{ request.env.REQUEST_URI }}", {
-                            target: "#changes",
+                            swap: "none",
                             values: { lat: lat.value, lon: lon.value, gridsquare: gridsquare.value }
                         });
                     }, 500);
@@ -119,7 +119,7 @@
             latlon2gridsquare();
             if (!map) {
                 htmx.ajax("PUT", "{{ request.env.REQUEST_URI }}", {
-                    target: "#changes",
+                    swap: "none",
                     values: { lat: lat.value, lon: lon.value, gridsquare: gridsquare.value }
                 });
             }
@@ -133,7 +133,7 @@
             }
             else {
                 htmx.ajax("PUT", "{{ request.env.REQUEST_URI }}", {
-                    target: "#changes",
+                    swap: "none",
                     values: { lat: lat.value, lon: lon.value, gridsquare: gridsquare.value }
                 });
             }

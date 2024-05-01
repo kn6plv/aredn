@@ -13,6 +13,7 @@ import * as units from "units";
 import * as radios from "radios";
 
 const pageCache = {};
+const resourceVersions = {};
 
 if (!config.debug) {
     function cp(path) {
@@ -33,24 +34,24 @@ if (!config.debug) {
     cp("/main/status/e/");
 
     radios.getCommonConfiguration();
-}
 
-const resourceVersions = {};
-function prepareResource(id, resource)
-{
-    const path = `${config.application}/resource/${resource}`;
-    const pathgz = `${config.application}/resource/${resource}.gz`;
-    if (!fs.access(pathgz)) {
-        fs.popen(`/bin/gzip -k ${path}`).close();
+    function prepareResource(id, resource)
+    {
+        const path = `${config.application}/resource/${resource}`;
+        const pathgz = `${config.application}/resource/${resource}.gz`;
+        if (!fs.access(pathgz)) {
+            fs.popen(`/bin/gzip -k ${path}`).close();
+        }
+        const md = fs.popen(`/usr/bin/md5sum ${pathgz}`);
+        resourceVersions[id] = match(md.read("all"), /^([0-9a-f]+)/)[1];
+        md.close();
+        fs.symlink(pathgz, `${path}.${resourceVersions[id]}.gz`);
     }
-    const md = fs.popen(`/usr/bin/md5sum ${pathgz}`);
-    resourceVersions[id] = match(md.read("all"), /^([0-9a-f]+)/)[1];
-    md.close();
-    fs.symlink(pathgz, `${path}.${resourceVersions[id]}.gz`);
+    prepareResource("basecss", "css/base.css");
+    prepareResource("aredncss", "css/aredn.css");
+    prepareResource("htmx", "js/htmx.min.js");
+    prepareResource("meshpage", "js/meshpage.js");
 }
-prepareResource("basecss", "css/base.css");
-prepareResource("aredncss", "css/aredn.css");
-prepareResource("htmx", "js/htmx.min.js");
 
 global._R = function(path, arg)
 {

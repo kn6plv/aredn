@@ -129,7 +129,7 @@
         <div id="radio{{w}}" class="hideable">
             <div class="cols">
                 <div>
-                    <div class="o">Radio {{ wlan[w].def.band }}</div>
+                    <div class="o" {{ length(wlan) > 1 ? "style='font-weight:bold'" : "" }}>Radio {{ wlan[w].def.band }}</div>
                     <div class="m">Radio purpose</div>
                 </div>
                 <div style="flex:0">

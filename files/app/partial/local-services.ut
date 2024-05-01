@@ -1,4 +1,6 @@
 {%
+    const reService = regexp("^([^|]+)\\|(tcp|udp)\\|(.+)\\s+#([0-9.]+).*$");
+    const reHttp = regexp("^(https?://)([^:]+):(\\d+)(.*)$");
     const localhosts = {};
     const trackers = lqm.getTrackers();
     for (t in trackers) {
@@ -22,11 +24,11 @@
             if (!length(l)) {
                 break;
             }
-            const v = match(l, /^([^|]+)\|(tcp|udp)\|(.+)\s+#([0-9.]+).*$/);
+            const v = match(l, reService);
             // v[1] == url, v[3] == name, v[4] == ip address
             if (v && localhosts[v[4]]) {
                 if (index(v[1], "http") === 0) {
-                    const r = match(v[1], /^(https?:\/\/)([^:]+):(\d+)(.*)$/);
+                    const r = match(v[1], reHttp);
                     if (r) switch (r[3]) {
                         case "0":
                             push(services, `<div class="service">${v[3]}</div>`);

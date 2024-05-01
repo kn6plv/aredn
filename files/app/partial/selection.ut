@@ -12,6 +12,17 @@
         <div class="icon cloud"></div>
     </a>
     {% } %}
+    {%
+    const map = uci.get("aredn", "@location[0]", "map");
+    const lat = uci.get("aredn", "@location[0]", "lat");
+    const lon = uci.get("aredn", "@location[0]", "lon");
+    const mapurl = lat && lon && map ? replace(replace(map, "(lat)", lat), "(lon)", lon) : null;
+    if (mapurl) {
+    %}
+    <a title="Map of the mesh" href="{{ mapurl }}">
+        <div class="icon map"></div>
+    </a>
+    {% } %}
 </div>
 <div style="flex:1"></div>
 <div>

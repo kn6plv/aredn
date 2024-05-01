@@ -1,4 +1,4 @@
-<a href="http://arednmesh.org" style="text-decoration:none"><div class="icon-logo">AREDN</div></a>
+<a href="http://arednmesh.org" style="text-decoration:none"><div class="icon-logo"><span>AREDN</span></div></a>
 <div class="nav-node-name">{{ configuration.getName() || "NOCALL" }} </div>
 <div class="nav-status">{{ request.page }}</div>
 <div style="flex:1">
