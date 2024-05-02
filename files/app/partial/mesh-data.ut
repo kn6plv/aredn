@@ -3,76 +3,18 @@
 print("<script>\n");
 print("window.mesh = {");
 
-const reArpCache = regexp("^([0-9.]+)\\s+0x.\\s+0x.\\s+([0-9a-f:]+)");
-const reTxBitRate1 = regexp("^Station ([0-9a-f:]+)");
-const reTxBitRate2 = regexp("tx bitrate:\\s+([0-9.]+) MBit");
-const reHostsOlsr = regexp("^([0-9.]+)\\s+([^\\s]+)\\s+#\\s+([0-9.]+)");
-const reHosts = regexp("^([0-9.]+)\\s+([^\\s]+)\\s*(.+)$");
-const reServices = regexp("^([^|]+)\\|(tcp|udp)\\|(.+)\\s+#([0-9.]+).*$");
+const reHostsOlsr = regexp("^([0-9.]+)[ \t]+([^ \t]+)[ \t]+#[ \t]+([0-9.]+)");
+const reServices = regexp("^([^|]+)\\|(tcp|udp)\\|(.+)[ \t]+#([0-9.]+).*$");
 
-print("etx:{");
+print("etx:[");
 const routes = olsr.getRoutes();
 for (let i = 0; i < length(routes); i++) {
     const node = routes[i];
     if (node.genmask !== 0 && node.etx <= 50) {
-        print(`"${node.destination}":${node.etx},`);
+        print(`["${node.destination}",${sprintf("%.1f", node.etx)}],`);
     }
 }
-print("},wangateways:{");
-const hnas = olsr.getHNAs();
-for (let i = 0; i < length(hnas); i++) {
-    const node = hnas[i];
-    if (node.destination === "0.0.0.0") {
-        print(`"${node.gateway}":1,`);
-    }
-}
-print("},links:{");
-const links = olsr.getLinks();
-for (let i = 0; i < length(links); i++) {
-    const node = links[i];
-    print(`"${node.remoteIP}":\{lq:${node.linkQuality},nlq:${node.neighborLinkQuality},weight:${65536 / node.lossMultiplier}\},`);
-}
-print("},arpcache:{");
-const a = fs.open("/proc/net/arp");
-if (a) {
-    for (;;) {
-        const line = a.read("line");
-        if (!length(line)) {
-            break;
-        }
-        const v = match(line, reArpCache);
-        if (v) {
-            print(`"${v[1]}":"${v[2]}","${v[2]}":"${v[1]}",`);
-        }
-    }
-    a.close();
-}
-print("},txbitrates:{");
-if (wifiIface) {
-    const f = fs.popen(`exec /usr/sbin/iw ${wifiIface} station dump`);
-    if (f) {
-        let station = null;
-        for (;;) {
-            const line = f.read("line");
-            if (!length(line)) {
-                break;
-            }
-            const mac = match(line, reTxBitRate1);
-            if (mac) {
-                station = mac;
-            }
-            if (station) {
-                const bitrate = match(line, reTxBitRate2);
-                if (bitrate) {
-                    print(`"${mac}":${bitrate},`);
-                    station = null;
-                }
-            }
-        }
-        f.close();
-    }
-}
-print("},hosts:{");
+print("].sort((a,b)=>a[1]-b[1]),hosts:{");
 const h = fs.open("/var/run/hosts_olsr");
 if (h) {
     let originator = null;
@@ -90,39 +32,19 @@ if (h) {
                 originator = v[3];
                 print(`"${v[3]}":[`);
             }
-            print(`{host:"${v[2]}",ip:"${v[1]}"},`);
-        }
-    }
-    print("]");
-    h.close();
-}
-print("},localhosts:{");
-const l = fs.open("/etc/hosts");
-if (h) {
-    const alias = {};
-    const noprop = {};
-    for (;;) {
-        const line = l.read("line");
-        if (!length(line)) {
-            break;
-        }
-        if (index(line, "10.") === 0) {
-            const v = match(line, reHosts);
-            if (v) {
-                let name = v[2];
-                if (!(index(name, "localnode") === 0 || index(name, "localhost") === 0 || index(name, "localap") === 0 || index(name, "dtdlink") === 0)) {
-                    if (index(name, ".") === -1) {
-                        name +=".local.mesh";
-                    }
-                    if (index(v[3], "#ALIAS") !== -1) {
-                    }
-                    if (index(v[3], "#NOPROP") !== -1) {
-                    }
+            const host = v[2];
+            if (index(host, "mid") !== 0 && index(host, "dtdlink") !== 0 && index(host, "xlink") !== 0) {
+                if (v[1] === originator) {
+                    print(`["${host}"],`);
+                }
+                else {
+                    print(`["${host}","${v[1]}"],`);
                 }
             }
         }
     }
-    l.close();
+    print("]");
+    h.close();
 }
 print("},services:{");
 const s = fs.open("/var/run/services_olsr");

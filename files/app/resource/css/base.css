@@ -814,3 +814,144 @@ body.authenticated .ctrl:hover
 }
 
 /* dialog customization end */
+
+/* meshpage start */
+
+#meshfilter
+{
+    padding-top: 30px;
+    display: flex;
+}
+#meshfilter input
+{
+    width: 300px;
+    outline: none;
+    border: 1px solid var(--meshpage-input-border-color);
+    font: inherit;
+    padding: 5px;
+}
+#meshfilter button
+{
+    padding: 5px 10px;
+    border: 1px solid var(--meshpage-input-border-color);
+    background-color: transparent;
+    font: inherit;
+    color: var(--meshpage-input-border-color);
+}
+#meshfilter button:hover
+{
+    background-color: var(--meshpage-node-bg-color-hover);
+}
+#meshpage
+{
+    padding: 40px 60px;
+    font-size: 14px;
+}
+#meshpage .block
+{
+    display: flex;
+    flex-flow: wrap;
+    padding: 30px 20px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    border-width: 2px;
+    border-style: solid;
+}
+#meshpage .node
+{
+    width: 50%;
+    padding: 2px 20px;
+    border-radius: 10px;
+}
+#meshpage .node:hover
+{
+    background-color: var(--meshpage-node-bg-color-hover);
+}
+#meshpage .node .etx
+{
+    font-size: 10px;
+    color: var(--meshpage-etx-fg-color);
+    padding-left: 6px;
+}
+#meshpage .lanhosts
+{
+    font-size: 13px;
+    padding: 4px 0 6px 0;
+}
+#meshpage .host,
+#meshpage .lanhost
+{
+    display: flex;
+}
+#meshpage .host .name,
+#meshpage .lanhost .name
+{
+    flex: 1;
+}
+#meshpage .host .name a
+{
+    text-decoration: none;
+    color: var(--meshpage-hostname-fg-color);
+}
+#meshpage .host .name a:hover
+{
+    text-decoration: underline;
+}
+#meshpage .services
+{
+    flex: 1;
+    font-size: 13px;
+}
+#meshpage .service
+{
+    white-space: nowrap;
+}
+#meshpage .service a,
+#meshpage .service span
+{
+    text-decoration: none;
+    color: inherit;
+    white-space: normal;
+}
+#meshpage .service a:hover
+{
+    text-decoration: underline;
+    color: var(--meshpage-service-hover-fg-color);
+}
+#meshpage .service div
+{
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M8.914 6.025a.75.75 0 0 1 1.06 0 3.5 3.5 0 0 1 0 4.95l-2 2a3.5 3.5 0 0 1-5.396-4.402.75.75 0 0 1 1.251.827 2 2 0 0 0 3.085 2.514l2-2a2 2 0 0 0 0-2.828.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M7.086 9.975a.75.75 0 0 1-1.06 0 3.5 3.5 0 0 1 0-4.95l2-2a3.5 3.5 0 0 1 5.396 4.402.75.75 0 0 1-1.251-.827 2 2 0 0 0-3.085-2.514l-2 2a2 2 0 0 0 0 2.828.75.75 0 0 1 0 1.06Z" clip-rule="evenodd" /></svg>') center center no-repeat;
+}
+.block0
+{
+    border-color: var(--meshpage-block0-border-color);
+}
+.block1
+{
+    border-color: var(--meshpage-block1-border-color);
+}
+.block2
+{
+    border-color: var(--meshpage-block2-border-color);
+}
+.block3
+{
+    border-color: var(--meshpage-block3-border-color);
+}
+.block5
+{
+    border-color: var(--meshpage-block5-border-color);
+}
+.block10
+{
+    border-color: var(--meshpage-block10-border-color);
+}
+.block10000
+{
+    border-color: var(--meshpage-block1000-border-color);
+}
+
+/* meshpage end

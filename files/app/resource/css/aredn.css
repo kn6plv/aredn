@@ -50,4 +50,16 @@
     --ctrl-modal-textbox-bg-color: #ffffff;
     --ctrl-modal-textbox-border-color: #404040;
     --ctrl-modal-advance-options-color: #a0a0a0;
+    --meshpage-input-border-color: #808080;
+    --meshpage-node-bg-color-hover: rgba(0,0,0,0.05);
+    --meshpage-etx-fg-color: #808080;
+    --meshpage-hostname-fg-color: #1278a5;
+    --meshpage-service-hover-fg-color: #2826a7;
+    --meshpage-block0-border-color: green;
+    --meshpage-block1-border-color: rgb(0, 122, 0);
+    --meshpage-block2-border-color: rgb(79, 128, 0);
+    --meshpage-block3-border-color: orange;
+    --meshpage-block5-border-color: darkorange;
+    --meshpage-block10-border-color: darkred;
+    --meshpage-block1000-border-color: red;
 }
