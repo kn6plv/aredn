@@ -954,4 +954,27 @@ body.authenticated .ctrl:hover
     border-color: var(--meshpage-block1000-border-color);
 }
 
+#meshpage.filtering .service,
+#meshpage.filtering .lanhost,
+#meshpage.filtering .node,
+#meshpage.filtering .block
+{
+    display: none;
+}
+#meshpage.filtering .service.valid,
+#meshpage.filtering .node:has(.service.valid),
+#meshpage.filtering .node:has(.lanhost.valid),
+#meshpage.filtering .node:has(.host.valid)
+{
+    display: block;
+}
+#meshpage.filtering .lanhost:has(.service.valid),
+#meshpage.filtering .lanhost.valid,
+#meshpage.filtering .block:has(.service.valid),
+#meshpage.filtering .block:has(.lanhost.valid),
+#meshpage.filtering .block:has(.host.valid)
+{
+    display: flex;
+}
+
 /* meshpage end

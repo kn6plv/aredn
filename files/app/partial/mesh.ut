@@ -2,7 +2,7 @@
 <div style="width:100%">
     <div id="meshfilter">
         <div style="width:115px"></div>
-        <div style="flex:1;text-align:center"><input type="text" placeholder="Search the mesh ..."></div>
+        <div style="flex:1;text-align:center"><input type="search" autocorrect="off" spellcheck="false" placeholder="Search the mesh ..."></div>
         <div style="padding-right:60px"><button>Help</button></div>
     </div>
     <div id="meshpage"></div>

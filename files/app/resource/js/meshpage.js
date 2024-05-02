@@ -1,10 +1,45 @@
 function render()
 {
 
+const search = document.querySelector("#meshfilter input");
 const page = document.getElementById("meshpage");
 const etx = mesh.etx;
 const hosts = mesh.hosts;
 const services = mesh.services;
+
+let filtering;
+let cfilter;
+function filter()
+{
+    clearTimeout(filtering);
+    filtering = setTimeout(function() {
+        const filter = search.value.toLowerCase();
+        if (filter === cfilter) {
+            return;
+        }
+        cfilter = filter;
+        const filtered = document.querySelectorAll(".valid");
+        for (let i = 0; i < filtered.length; i++) {
+            filtered[i].classList.remove("valid");
+        }
+        if (filter === "") {
+            page.classList.remove("filtering");
+        }
+        else {
+            page.classList.add("filtering");
+            const targets = document.querySelectorAll("[data-search]");
+            for (let i = 0; i < targets.length; i++) {
+                const target = targets[i];
+                if (target.dataset.search.indexOf(filter) !== -1) {
+                    target.classList.add("valid");
+                }
+            }
+        }
+    }, 200);
+}
+search.addEventListener("keyup", filter);
+search.addEventListener("click", filter);
+search.addEventListener("keypress", event => event.keyCode == 13 && event.preventDefault());
 
 function serv(ip, hostname)
 {
@@ -16,27 +51,22 @@ function serv(ip, hostname)
             const name = s[i].name;
             const url = s[i].url;
             if (url.match(re)) {
+                const lname = name.toLowerCase();
                 const r = url.match(/^(.+:\/\/)([^:]+):(\d+)(.*)$/);
-                if (r[3] !== "0") {
-                    if (r) switch (r[3]) {
-                        case "0":
-                            view += `<div class="service"><span>${name}</span></div>`;
-                            break;
-                        case "80":
-                            view += `<div class="service"><a target="_blank" href="${r[1]}${r[2]}.local.mesh${r[4]}">${name}</a>&#8288;<div></div></div>`;
-                            break;
-                        case "443":
-                            view += `<div class="service"><a target="_blank" href="${r[1]}${r[2]}.local.mesh${r[4]}">${name}</a>&#8288;<div></div></div>`;
-                            break;
-                        default:
-                            view += `<div class="service"><a target="_blank" href="${r[1]}${r[2]}.local.mesh:${r[3]}${r[4]}">${name}</a>&#8288;<div></div></div>`;
-                            break;
-                    }
+                switch (r[3]) {
+                    case "0":
+                        view += `<div class="service" data-search="${lname}"><span>${name}</span></div>`;
+                        break;
+                    case "80":
+                        view += `<div class="service" data-search="${lname}"><a target="_blank" href="${r[1]}${r[2]}.local.mesh${r[4]}">${name}</a>&#8288;<div></div></div>`;
+                        break;
+                    case "443":
+                        view += `<div class="service" data-search="${lname}"><a target="_blank" href="${r[1]}${r[2]}.local.mesh${r[4]}">${name}</a>&#8288;<div></div></div>`;
+                        break;
+                    default:
+                        view += `<div class="service" data-search="${lname}"><a target="_blank" href="${r[1]}${r[2]}.local.mesh:${r[3]}${r[4]}">${name}</a>&#8288;<div></div></div>`;
+                        break;
                 }
-                else {
-                    view += `<div class="service"><span>${name}</span></div>`;
-                }
-
             }
         }
     }
@@ -63,10 +93,10 @@ for (let i = 0; i < etx.length; i++) {
                 const lanhost = hostlist[j];
                 if (lanhost[1] && lanhost[1] !== ip) {
                     const lan = lanhost[0].replace(/^\*./, "");
-                    lanview += `<div class="lanhost"><div class="name">&nbsp;&nbsp;${lan}</div><div class="services">${serv(ip, lanhost[0])}</div></div>`;
+                    lanview += `<div class="lanhost" data-search="${lan.toLowerCase()}"><div class="name">&nbsp;&nbsp;${lan}</div><div class="services">${serv(ip, lanhost[0])}</div></div>`;
                 }
             }
-            data += `<div class="node"><div class="host"><div class="name"><a href="http://${hostname}.local.mesh">${hostname}</a><span class="etx">${item[1]}</span></div><div class="services">${serv(ip, hostname)}</div></div>${lanview ? '<div class="lanhosts">' + lanview + '</div>' : ''}</div>`;
+            data += `<div class="node"><div class="host" data-search="${hostname.toLowerCase()}"><div class="name"><a href="http://${hostname}.local.mesh">${hostname}</a><span class="etx">${item[1]}</span></div><div class="services">${serv(ip, hostname)}</div></div>${lanview ? '<div class="lanhosts">' + lanview + '</div>' : ''}</div>`;
         }
     }
 }
