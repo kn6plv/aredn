@@ -58,8 +58,6 @@ function serv(ip, hostname)
                         view += `<div class="service" data-search="${lname}"><span>${name}</span></div>`;
                         break;
                     case "80":
-                        view += `<div class="service" data-search="${lname}"><a target="_blank" href="${r[1]}${r[2]}.local.mesh${r[4]}">${name}</a>&#8288;<div></div></div>`;
-                        break;
                     case "443":
                         view += `<div class="service" data-search="${lname}"><a target="_blank" href="${r[1]}${r[2]}.local.mesh${r[4]}">${name}</a>&#8288;<div></div></div>`;
                         break;
@@ -73,8 +71,8 @@ function serv(ip, hostname)
     return view;
 }
 
-const blocks = [ 0, 1, 2, 3, 5, 10, 10000, 10000 ];
-let data = `<div class="block block0">`;
+const blocks = [ 1, 2, 3, 5, 10, 10000 ];
+let data = `<div class="block block1">`;
 for (let i = 0; i < etx.length; i++) {
     const item = etx[i];
     const ip = item[0];
@@ -82,8 +80,8 @@ for (let i = 0; i < etx.length; i++) {
     if (hostlist) {
         const hostname = (hostlist.find(h => !h[1]) || [])[0];
         if (hostname) {
-            if (item[1] > blocks[1]) {
-                while (item[1] > blocks[1]) {
+            if (item[1] >= blocks[0]) {
+                while (item[1] >= blocks[0]) {
                     blocks.shift();
                 }
                 data += `</div><div class="block block${blocks[0]}">`;
