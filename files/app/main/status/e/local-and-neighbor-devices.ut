@@ -1,0 +1,11 @@
+{% if (request.env.REQUEST_METHOD === "PUT") {
+    configuration.prepareChanges();
+%}
+{{ _R("changes") }}
+{% return; } %}
+<dialog>
+    {{ _R("dialog-header", "Local &amp; Neighborhood Devices") }}
+    <div>
+    </div>
+    {{ _R("dialog-footer") }}
+</dialog>
