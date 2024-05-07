@@ -3,7 +3,16 @@
     <div id="meshfilter">
         <div style="width:115px"></div>
         <div style="flex:1;text-align:center"><input type="search" autocorrect="off" spellcheck="false" placeholder="Search the mesh ..."></div>
-        <div style="padding-right:60px"><button>Help</button></div>
+        <div style="padding-right:60px"><button id="meshpage-help">Help</button></div>
+    </div>
+    <div class="meshpage-help">
+        This page shows a list of all the other nodes on the network, as well as what server and services they provide.
+        Nodes which are closer to you (have less radio hops to reach from here) are toward the top of this page, while nodes further
+        away are toward the bottom. As nodes get further away, they often become harder (or impossible) to reach. We group nodes together
+        with a simple colored border where greener is better, and redder is worse.
+        <p>
+        The search box above can be used to filter the nodes, servers and services on this page, making it easier to find specific things.
+        For example, typing "cam" in the box will filter out everything except names containsing "cam" ... which are probably cameras.
     </div>
     <div id="meshpage"></div>
 </div>

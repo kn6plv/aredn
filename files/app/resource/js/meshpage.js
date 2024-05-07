@@ -3,6 +3,7 @@ function render()
 
 const search = document.querySelector("#meshfilter input");
 const page = document.getElementById("meshpage");
+const help = document.getElementById("meshpage-help");
 const etx = mesh.etx;
 const hosts = mesh.hosts;
 const services = mesh.services;
@@ -99,6 +100,10 @@ for (let i = 0; i < etx.length; i++) {
     }
 }
 page.innerHTML = data + "</div>";
+
+help.addEventListener("click", () => {
+    document.querySelector(".meshpage-help").classList.toggle("visible");
+});
 
 }
 render();
