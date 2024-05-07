@@ -277,24 +277,10 @@ local settings = {
     },
     {
         category = "Map Paths",
-        key = "aredn.@map[0].maptiles",
+        key = "aredn.@location[0].map",
         type = "string",
-        desc = "<b>Map Tiles URL</b><br><br><small>aredn.@map[0].maptiles</small>",
-        default = "http://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg"
-    },
-    {
-        category = "Map Paths",
-        key = "aredn.@map[0].leafletcss",
-        type = "string",
-        desc = "<b>Leaflet.css URL</b><br><br><small>aredn.@map[0].leafletcss</small>",
-        default = "http://unpkg.com/leaflet@0.7.7/dist/leaflet.css"
-    },
-    {
-        category = "Map Paths",
-        key = "aredn.@map[0].leafletjs",
-        type = "string",
-        desc = "<b>Leaflet.js URL</b><br><br><small>aredn.@map[0].leafletjs</small>",
-        default = "http://unpkg.com/leaflet@0.7.7/dist/leaflet.js"
+        desc = "<b>Map URL</b><br><br><small>aredn.@location[0].maps</small>",
+        default = "https://worldmap.arednmesh.org/#12/(lat)/(lon)"
     },
     {
         category = "Firmware",
