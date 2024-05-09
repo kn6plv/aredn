@@ -603,6 +603,7 @@ body.authenticated .ctrl:hover
     padding: 40px;
     border: 1px solid var(--ctrl-modal-border-color);
     background-color: var(--ctrl-modal-bg-color);
+    border-radius: 10px;
 }
 #ctrl-modal dialog::backdrop
 {
@@ -992,3 +993,75 @@ body.authenticated .ctrl:hover
 }
 
 /* meshpage end
+
+/* dhcp start */
+
+#ctrl-modal dialog .reservation input[type=text]:first-child,
+#ctrl-modal dialog .lease input:first-child,
+#ctrl-modal dialog .reservation-label div:first-child div:first-child,
+#ctrl-modal dialog .lease-label div:first-child div:first-child
+{
+    width: 155px;
+}
+#ctrl-modal dialog .reservation select:nth-child(2),
+#ctrl-modal dialog .lease input:nth-child(2),
+#ctrl-modal dialog .reservation-label div:first-child div:nth-child(2),
+#ctrl-modal dialog .lease-label div:first-child div:nth-child(2)
+{
+    width: 120px;
+}
+#ctrl-modal dialog .reservation input:nth-child(3),
+#ctrl-modal dialog .lease input:nth-child(3),
+#ctrl-modal dialog .reservation-label div:first-child div:nth-child(3),
+#ctrl-modal dialog .lease-label div:first-child div:nth-child(3)
+{
+    width: 130px;
+}
+#ctrl-modal dialog .reservation-label div:first-child div:nth-child(4)
+{
+    white-space: normal;
+    width: 50px;
+    text-align: center;
+}
+#ctrl-modal dialog .reservation input[type=checkbox]
+{
+    width: 14px;
+    height: 14px;
+    accent-color: var(--ctrl-modal-checkbox-color);
+    margin-left: 18px;
+}
+#ctrl-modal dialog .reservation-label div:first-child div,
+#ctrl-modal dialog .lease-label div:first-child div
+{
+    display: inline-block;
+    font-size: 10px;
+    text-align: right;
+    color: var(--ctrl-modal-fg-message-color);
+}
+#dhcp-reservations + div
+{
+    display: none;
+}
+#dhcp-reservations:has(> :last-child:nth-child(1)) + div
+{
+    display: block;
+}
+#dhcp-reservations:has(> :last-child:nth-child(1))
+{
+    display: none;
+}
+#dhcp-reservations
+{
+    display: block;
+}
+#ctrl-modal dialog .dhcp button
+{
+    margin-top: 4px;
+    width: 24px;
+    height: 23px;
+    border-radius: 8px;
+    background-color: var(--ctrl-modal-textbox-bg-color);
+    border: 1px solid var(--ctrl-modal-textbox-border-color);
+}
+
+/* dhcp end */

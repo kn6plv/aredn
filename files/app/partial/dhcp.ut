@@ -19,12 +19,12 @@
         }
     }
 %}
+{% if (dhcp.enabled) { %}
 <div class="ctrl" hx-get="status/e/dhcp" hx-target="#ctrl-modal">
     <div class="section-title">DHCP</div>
     <div class="section">
-        <div class="t">{{ dhcp.enabled ? "Active" : "Disabled" }}</div>
+        <div class="t">Active</div>
         <div class="s">status</div>
-        {% if (dhcp.enabled) { %}
         <div class="cols">
             <div>
                 <div class="t">{{ dhcp.gateway }} <span class="ts">/ {{ dhcp.cidr }}</span></div>
@@ -46,6 +46,14 @@
             </div>
             <div></div>
         </div>
-        {% } %}
     </div>
 </div>
+{% } else { %}
+<div class="noctrl">
+    <div class="section-title">DHCP</div>
+    <div class="section">
+        <div class="t">Disabled"</div>
+        <div class="s">status</div>
+    </div>
+</div>
+{% } %}

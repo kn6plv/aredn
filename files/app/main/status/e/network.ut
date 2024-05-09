@@ -81,7 +81,7 @@
                 <div class="m">The primary address of this node</div>
             </div>
             <div style="flex:0">
-                <input hx-put="{{ request.env.REQUEST_URI }}" name="mesh_ip" type="text" size="14" placeholder="10.X.X.X" pattern="^10\.((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){3}$" value="{{ configuration.getSettingAsString("wifi_ip") }}">
+                <input hx-put="{{ request.env.REQUEST_URI }}" name="mesh_ip" type="text" size="14" placeholder="10.X.X.X" pattern="10\.((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){3}" value="{{ configuration.getSettingAsString("wifi_ip") }}">
             </div>
         </div>
         {{ _H("The primary address of this AREDN node. This will always be of the form 10.X.X.X. The address is generated automatically based on hardware information so it will
@@ -138,7 +138,7 @@
                             <div class="m">WAN IP a&zwnj;ddress</div>
                         </div>
                         <div style="flex:0">
-                            <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_ip" type="text" size="15" pattern="^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$" value="{{ configuration.getSettingAsString("wan_ip") }}">
+                            <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_ip" type="text" size="15" pattern="((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}" value="{{ configuration.getSettingAsString("wan_ip") }}">
                         </div>
                     </div>
                     {{ _H("A fixed IP address to assign to the WAN interace on this node.") }}
@@ -148,7 +148,7 @@
                             <div class="m">WAN netmask</div>
                         </div>
                         <div style="flex:0">
-                            <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_mask" type="text" size="15" pattern="^(((255\.){3}(255|254|252|248|240|224|192|128|0+))|((255\.){2}(255|254|252|248|240|224|192|128|0+)\.0)|((255\.)(255|254|252|248|240|224|192|128|0+)(\.0+){2})|((255|254|252|248|240|224|192|128|0+)(\.0+){3}))$" value="{{ configuration.getSettingAsString("wan_mask") }}">
+                            <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_mask" type="text" size="15" pattern="(((255\.){3}(255|254|252|248|240|224|192|128|0+))|((255\.){2}(255|254|252|248|240|224|192|128|0+)\.0)|((255\.)(255|254|252|248|240|224|192|128|0+)(\.0+){2})|((255|254|252|248|240|224|192|128|0+)(\.0+){3}))" value="{{ configuration.getSettingAsString("wan_mask") }}">
                         </div>
                     </div>
                     {{ _H("The netmask (e.g. 255.255.255.0) for this interface.") }}
@@ -158,7 +158,7 @@
                             <div class="m">Default gateway</div>
                         </div>
                         <div style="flex:0">
-                            <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_gw" type="text" size="15" pattern="^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$" value="{{ configuration.getSettingAsString("wan_gw") }}">
+                            <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_gw" type="text" size="15" pattern="((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}" value="{{ configuration.getSettingAsString("wan_gw") }}">
                         </div>
                     </div>
                     {{ _H("The default gateway his node should use to access the Internet.") }}
@@ -172,8 +172,8 @@
                 <div class="m">Internet DNS servers</div>
             </div>
             <div style="flex:0;white-space:nowrap">
-                <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_dns1" type="text" size="15" pattern="^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$" value="{{ configuration.getSettingAsString("wan_dns1") }}">
-                <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_dns2" type="text" size="15" pattern="^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$" value="{{ configuration.getSettingAsString("wan_dns2") }}">
+                <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_dns1" type="text" size="15" pattern="((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}" value="{{ configuration.getSettingAsString("wan_dns1") }}">
+                <input hx-put="{{ request.env.REQUEST_URI }}" name="wan_dns2" type="text" size="15" pattern="((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}" value="{{ configuration.getSettingAsString("wan_dns2") }}">
             </div>
         </div>
         {{ _H("For hosts not on the Mesh, use these DNS servers to resolve names to IP addresses.") }}

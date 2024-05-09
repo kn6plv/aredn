@@ -1,11 +1,292 @@
 {% if (request.env.REQUEST_METHOD === "PUT") {
-    configuration.prepareChanges();
+    if (request.args.options) {
+        configuration.prepareChanges();
+        const options = json(request.args.options);
+        const dhcp = configuration.getDHCP();
+        let f = fs.open(dhcp.reservations, "w");
+        if (f) {
+            const base = iptoarr(dhcp.start)[3];
+            for (let i = 0; i < length(options); i++) {
+                const o = options[i];
+                if (o.reserved) {
+                    const ip = iptoarr(o.ip)[3];
+                    if (length(o.name) > 0 && ip >= base && match(o.mac, /^([0-9a-f][0-9a-f]:){5}[0-9a-f][0-9a-f]$/)) {
+                        f.write(`${o.mac} ${ip - base + 2} ${o.name}${o.noprop ? " #NOPROP" : ""}\n`);
+                    }
+                }
+            }
+            f.close();
+        }
+        configuration.saveSettings();
+    }
 %}
 {{ _R("changes") }}
 {% return; } %}
+{%
+    const dhcp = configuration.getDHCP();
+    const start = iptoarr(dhcp.start);
+    const end = iptoarr(dhcp.end);
+    const leases = [];
+    const options = [];
+    for (let i = start[3]; i <= end[3]; i++) {
+        push(options, { mac: "", ip: `${start[0]}.${start[1]}.${start[2]}.${i}`, name: "", noprop: false, reserved: false, leased: false });
+    }
+    let reservations = 0;
+    let active = 0;
+    let f = fs.open(dhcp.reservations);
+    if (f) {
+        for (;;) {
+            const l = f.read("line");
+            if (!length(l)) {
+                break;
+            }
+            // mac, last-ip, name, flags
+            const v = match(l, /^([^ ]+) ([^ ]+) ([^ ]+) ?(.*)/);
+            if (v) {
+                const o = options[int(v[2]) - 2];
+                if (o) {
+                    o.mac = v[1];
+                    o.name = v[3];
+                    o.noprop = trim(v[4]) == "#NOPROP";
+                    o.reserved = true;
+                    reservations++;
+                }
+            }
+        }
+        f.close();
+    }
+    f = fs.open(dhcp.leases);
+    for (;;) {
+        const l = f.read("line");
+        if (!length(l)) {
+            break;
+        }
+        // ?, mac, ip, name, ?
+        const v = match(l, /^(.+) (.+) (.+) (.+) (.+)$/);
+        if (v) {
+            const ip = iptoarr(v[3]);
+            const o = options[ip[3] - start[3]];
+            if (o) {
+                o.leased = true;
+                if (o.mac === "") {
+                    o.mac = v[2];
+                }
+                if (o.name === "") {
+                    o.name = v[4];
+                }
+                active++;
+            }
+        }
+    }
+%}
 <dialog>
     {{ _R("dialog-header", "DHCP") }}
-    <div>
+    <div class="dhcp">
+        <div>
+            <div class="cols">
+                <div>
+                    <div class="o">Address Reservations</div>
+                    <div class="m">Hostnames with fixed addresses</div>
+                </div>
+                <button {{ length(options) === reservations ? "disabled" : "" }}>+</button>
+            </div>
+        </div>
+        <div id="dhcp-reservations">
+            <div class="cols reservation-label">
+                <div style="white-space:nowrap">
+                    <div>hostname</div>
+                    <div>ip address</div>
+                    <div>mac a&zwnj;ddress</div>
+                    <div>do not propagate</div>
+                </div>
+                <div></div>
+            </div>
+        {% if (reservations > 0) {
+            for (let i = 0; i < length(options); i++) {
+                const o = options[i];
+                if (o.reserved) {
+        %}
+                    <div class="cols reservation" data-ip="{{ o.ip }}">
+                        <div style="white-space:nowrap">
+                            <input name="hostname" type="text" required placeholder="hostname" value="{{ o.name }}">
+                            <select class="dhcp-addresses">
+                            </select>
+                            <input name="mac" type="text" required placeholder="mac a&zwnj;ddress" pattern="([0-9a-f][0-9a-f]:){5}[0-9a-f][0-9a-f]" value="{{ o.mac }}">
+                            <label><input type="checkbox" {{ o.noprop ? "checked" : "" }}></label>
+                        </div>
+                        <button>-</button>
+                    </div>
+        {%      }
+            }
+        } %}
+        </div>
+        <div>&nbsp;None</div>
+        <hr>
+        <div class="o">Active Leases</div>
+        <div class="m">Addresses currently in use</div>
+        {% if (active > 0) {
+        %}
+                    <div class="cols lease-label">
+                        <div style="white-space:nowrap">
+                            <div>hostname</div>
+                            <div>ip address</div>
+                            <div>mac a&zwnj;ddress</div>
+                        </div>
+                        <div></div>
+                    </div>
+        {%
+            for (let i = 0; i < length(options); i++) {
+                const o = options[i];
+                if (o.leased) {
+        %}
+                    <div class="cols lease" data-ip="{{ o.ip }}">
+                        <div style="white-space:nowrap">
+                            <input readonly type="text" placeholder="hostname" value="{{ o.name }}">
+                            <input readonly type="text" placeholder="ip address" value="{{ o.ip }}">
+                            <input readonly type="text" placeholder="mac a&zwnj;ddress" value="{{ o.mac }}">
+                        </div>
+                        <button {{ o.reserved ? "disabled" : "" }}>+</button>
+                    </div>
+        {%      }
+            }
+        }
+        else { %}
+        <div>&nbsp;None</div>
+        {% } %}
     </div>
     {{ _R("dialog-footer") }}
+    <script>
+    (function(){
+        const options = {{ sprintf("%J", options) }};
+        function update()
+        {
+            htmx.ajax("PUT", "{{ request.env.REQUEST_URI }}", {
+                swap: "none",
+                values: { options: JSON.stringify(options) }
+            });
+        }
+        function refreshIPSelectors()
+        {
+            const addrs = document.querySelectorAll(".dhcp-addresses");
+            for (let i = 0; i < addrs.length; i++) {
+                let opt = "";
+                for (let j = 0; j < options.length; j++) {
+                    const o = options[j];
+                    const self = o.ip === addrs[i].parentNode.parentNode.dataset.ip;
+                    if (self || (!o.leased && !o.reserved)) {
+                        opt += `<option value="${o.ip}" ${self ? "selected" : ""}>${o.ip}</option>`;
+                    }
+                }
+                addrs[i].innerHTML = opt;
+            }
+        }
+        refreshIPSelectors();
+        htmx.on("#ctrl-modal dialog .dhcp", "change", event => {
+            const target = event.target;
+            switch (target.nodeName) {
+                case "SELECT":
+                {
+                    const oldip = target.parentNode.parentNode.dataset.ip;
+                    const newip = target.value;
+                    const oo = options.find(o => o.ip == oldip);
+                    const no = options.find(o => o.ip == newip);
+                    Object.assign(no, { name: oo.name, mac: oo.mac, noprop: oo.noprop, reserved: true, leased: false });
+                    Object.assign(oo, { name: "", mac: "", noprop: false, reserved: false, leased: false });
+                    target.parentNode.parentNode.dataset.ip = newip;
+                    refreshIPSelectors();
+                    update();
+                    break;
+                }
+                case "INPUT":
+                    switch (target.type) {
+                        case "text":
+                        {
+                            if (target.validity.valid) {
+                                const ip = target.parentNode.parentNode.dataset.ip;
+                                const o = options.find(o => o.ip == ip);
+                                if (target.name === "hostname") {
+                                    o.name = target.value;
+                                }
+                                else {
+                                    o.mac = target.value;
+                                }
+                                update();
+                            }
+                            break;
+                        }
+                        case "checkbox":
+                        {
+                            const ip = target.parentNode.parentNode.parentNode.dataset.ip;
+                            const o = options.find(o => o.ip == ip);
+                            o.noprop = target.checked;
+                            update();
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        });
+        htmx.on("#ctrl-modal dialog .dhcp", "click", event => {
+            const target = event.target;
+            switch (target.nodeName) {
+                case "BUTTON":
+                    switch (target.innerText) {
+                        case "+":
+                        {
+                            const ip = target.parentNode.dataset.ip;
+                            if (ip) {
+                                target.disabled = true;
+                                const o = options.find(o => o.ip == ip);
+                                o.reserved = true;
+                                o.noprop = true;
+                                const item = document.createElement("div");
+                                item.innerHTML = `<div class="cols reservation" data-ip="${o.ip}"><div style="white-space:nowrap"><input name="hostname" type="text" placeholder="hostname" value="${o.name}" required> <select class="dhcp-addresses"></select> <input name="mac" type="text" placeholder="mac a&zwnj;ddress" required pattern="([0-9a-f][0-9a-f]:){5}[0-9a-f][0-9a-f]" value="${o.mac}"><label> <input type="checkbox" ${o.noprop ? "checked" : ""}></label></div><button>-</button></div>`;
+                                htmx.find("#dhcp-reservations").appendChild(item.firstChild);
+                                update();
+                            }
+                            else {
+                                const o = options.find(o => !o.reserved && !o.leased);
+                                if (o) {
+                                    Object.assign(o, { name: "", mac: "", noprop: true, reserved: true, leased: false });
+                                    const item = document.createElement("div");
+                                    item.innerHTML = `<div class="cols reservation" data-ip="${o.ip}"><div style="white-space:nowrap"><input name="hostname" type="text" placeholder="hostname" value="${o.name}" required> <select class="dhcp-addresses"></select> <input name="mac" type="text" placeholder="mac a&zwnj;ddress" required pattern="([0-9a-f][0-9a-f]:){5}[0-9a-f][0-9a-f]" value="${o.mac}"><label> <input type="checkbox" ${o.noprop ? "checked" : ""}></label></div><button>-</button></div>`;
+                                    htmx.find("#dhcp-reservations").appendChild(item.firstChild);
+                                }
+                                if (!options.find(o => !o.reserved && !o.leased)) {
+                                    target.disabled = true;
+                                }
+                            }
+                            refreshIPSelectors();
+                            break;
+                        }
+                        case "-":
+                        {
+                            const ip = target.parentNode.dataset.ip;
+                            const o = options.find(o => o.ip == ip);
+                            o.reserved = false;
+                            if (o.leased) {
+                                const l = htmx.find(`#ctrl-modal dialog .lease[data-ip="${ip}"] button`);
+                                l.disabled = false;
+                            }
+                            const item = target.parentNode;
+                            htmx.remove(item);
+                            htmx.find("#ctrl-modal dialog .dhcp button").disabled = false;
+                            refreshIPSelectors();
+                            update();
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        });
+    })();
+    </script>
 </dialog>
