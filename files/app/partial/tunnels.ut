@@ -4,17 +4,17 @@
     let ws = 0;
     let lc = 0;
     let ls = 0;
-    uci.foreach("wireguard", "client", function()
+    uciMesh.foreach("wireguard", "client", function()
     {
         ws++;
     });
-    uci.foreach("vtun", "client", function()
+    uciMesh.foreach("vtun", "client", function()
     {
         ls++;
     });
-    uci.foreach("vtun", "server", function(s)
+    uciMesh.foreach("vtun", "server", function(s)
     {
-        if (index(s, ":") !== -1) {
+        if (index(s.netip, ":") !== -1) {
             wc++;
         }
         else {
@@ -32,10 +32,10 @@
             if (!length(l)) {
                 break;
             }
-            if (index(l, "vtund[c]") !== -1) {
+            if (index(l, "vtund[s]") !== -1) {
                 las++;
             }
-            else if (index(l, "vtund[s]") !== -1) {
+            else if (index(l, "vtund[c]") !== -1) {
                 lac++;
             }
         }
@@ -51,10 +51,10 @@
             const v = split(l, /\t/);
             if (v && v[2] + 300 > time() / 1000) {
                 if (index(v[1], "wgc") === 0) {
-                    was++;
+                    wac++;
                 }
                 else {
-                    wac++;
+                    was++;
                 }
             }
         }

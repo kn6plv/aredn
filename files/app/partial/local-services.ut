@@ -1,20 +1,21 @@
 {%
-    const reService = regexp("^([^|]+)\\|(tcp|udp)\\|(.+)\\s+#([0-9.]+).*$");
+    const reService = regexp("^([^|]+)\\|(tcp|udp)\\|(.+)\\s+#(.*)$");
     const reUrl = regexp("^(.+://)([^:]+):(\\d+)(.*)$");
-    const localhosts = {};
+    const localhosts = { "my own service": true };
     const trackers = lqm.getTrackers();
     for (t in trackers) {
         const tracker = trackers[t];
-        if (tracker.ip) {
-            localhosts[tracker.ip] = true;
-            if (tracker.hostname) {
-                const ip = network.getIPAddressFromHostname(tracker.hostname);
-                if (ip) {
-                    localhosts[ip] = true;
+        if (tracker.type == "DtD") {
+            if (tracker.ip) {
+                localhosts[tracker.ip] = true;
+                if (tracker.hostname) {
+                    const ip = network.getIPAddressFromHostname(tracker.hostname);
+                    if (ip) {
+                        localhosts[ip] = true;
+                    }
                 }
             }
         }
-        
     }
     const services = [];
     const f = fs.open("/var/run/services_olsr");
@@ -25,8 +26,8 @@
                 break;
             }
             const v = match(l, reService);
-            // v[1] == url, v[3] == name, v[4] == ip address
-            if (v && localhosts[v[4]]) {
+            // v[1] == url, v[3] == name, v[4] == ip address | my own service
+            if (v && localhosts[trim(v[4])]) {
                 const r = match(v[1], reUrl);
                 switch (r ? r[3] : "i") {
                     case "0":

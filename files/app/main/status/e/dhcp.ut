@@ -41,13 +41,13 @@
                 break;
             }
             // mac, last-ip, name, flags
-            const v = match(l, /^([^ ]+) ([^ ]+) ([^ ]+) ?(.*)/);
+            const v = match(trim(l), /^([^ ]+) ([^ ]+) ([^ ]+) ?(.*)/);
             if (v) {
                 const o = options[int(v[2]) - 2];
                 if (o) {
                     o.mac = v[1];
                     o.name = v[3];
-                    o.noprop = trim(v[4]) == "#NOPROP";
+                    o.noprop = v[4] == "#NOPROP";
                     o.reserved = true;
                     reservations++;
                 }
