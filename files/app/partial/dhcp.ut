@@ -19,8 +19,9 @@
         }
     }
 %}
+<div hx-get="dhcp" hx-swap="outerHTML" hx-trigger="every 120s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
 {% if (dhcp.enabled) { %}
-<div class="ctrl" hx-get="status/e/dhcp" hx-target="#ctrl-modal">
+<div class="ctrl" hx-get="status/e/dhcp" hx-target="#ctrl-modal" hx-swap="innerHTML">
     <div class="section-title">DHCP</div>
     <div class="section">
         <div class="t">Active</div>
@@ -57,3 +58,4 @@
     </div>
 </div>
 {% } %}
+</div>

@@ -1063,5 +1063,48 @@ body.authenticated .ctrl:hover
     background-color: var(--ctrl-modal-textbox-bg-color);
     border: 1px solid var(--ctrl-modal-textbox-border-color);
 }
+#ctrl-modal dialog .dhcp button:disabled
+{
+    border-color: var(--ctrl-modal-fg-help-border-color);
+}
 
 /* dhcp end */
+
+/* neighbors start */
+
+#ctrl-modal dialog .neighbor
+{
+    padding-bottom: 16px;
+}
+#ctrl-modal dialog .neighbor .o
+{
+    font-size: 20px;
+    padding: 8px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    background-color: var(--ctrl-modal-bg-secondary-color);
+}
+#ctrl-modal dialog .neighbor > div:not(.o)
+{
+    padding-left: 10px;
+}
+#ctrl-modal dialog .neighbor .i
+{
+    padding-top: 2px;
+    font-size: 14px;
+}
+#ctrl-modal dialog .neighbor .i div:last-child
+{
+    font-size: 12px;
+    color: var(--subtitle-fg-color);
+}
+#ctrl-modal dialog .neighbor select
+{
+    padding: 2px;
+    vertical-align: top;
+    direction: ltr;
+    float: right;
+    border-color: var(--subtitle-fg-color);
+}
+
+/* neighbors end */

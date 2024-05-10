@@ -34,8 +34,8 @@
         return bitrate ? int(bitrate * 10 + 0.5) / 10 : "-";
     }
 %}
-<div hx-swap="outerHTML" hx-trigger="every 60s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
-    <div class="ctrl" hx-get="status/e/local-and-neighbor-devices" hx-target="#ctrl-modal" hx-swap="innerHTML">
+<div hx-get="local-and-neighbor-devices" hx-swap="outerHTML" hx-trigger="every 60s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
+    <div class="ctrl" hx-get="status/e/local-devices" hx-target="#ctrl-modal" hx-swap="innerHTML">
         <div class="section-title">Local Devices</div>
         <div class="section" style="line-height:18px;margin-top:-16px">
             <div class="cols">
@@ -50,7 +50,7 @@
                 const nlist = [];
                 for (mac in trackers) {
                     const tracker = trackers[mac];
-                    if (tracker.hostname || tracker.ip) {
+                    if (tracker.hostname || (tracker.ip && tracker.routable)) {
                         if (tracker.type === "DtD" && tracker.distance < 50) {
                             push(llist, { name: tracker.hostname || `|${tracker.ip}`, mac: mac });
                         }
@@ -84,6 +84,8 @@
                 }
             %}
         </div>
+    </div>
+    <div class="ctrl" hx-get="status/e/neighbor-devices" hx-target="#ctrl-modal" hx-swap="innerHTML">
         <div class="section-title">Neighborhood Devices</div>
         <div class="section" style="line-height:18px">
         {%

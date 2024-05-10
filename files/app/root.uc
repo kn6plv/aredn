@@ -269,25 +269,31 @@ global.handle_request = function(env)
             }
             const response = { statusCode: 200, headers: { "Content-Type": "text/html", "Cache-Control": "no-store" } };
             const fn = pageCache[tpath] || loadfile(tpath, { raw_mode: false });
-            const res = render(call, fn, null, {
-                config: config,
-                versions: resourceVersions,
-                request: { env: env, headers: env.headers, args: args, page: page },
-                response: response,
-                uci: uciMethods,
-                uciMesh: uciMeshMethods,
-                ubus: ubusMethods,
-                auth: auth,
-                includeHelp: (env.headers || {})["include-help"] === "1",
-                fs: fs,
-                configuration: configuration,
-                hardware: hardware,
-                lqm: lqm,
-                network: network,
-                olsr: olsr,
-                units: units,
-                radios: radios
-            });
+            let res = "";
+            try {
+                res = render(call, fn, null, {
+                    config: config,
+                    versions: resourceVersions,
+                    request: { env: env, headers: env.headers, args: args, page: page },
+                    response: response,
+                    uci: uciMethods,
+                    uciMesh: uciMeshMethods,
+                    ubus: ubusMethods,
+                    auth: auth,
+                    includeHelp: (env.headers || {})["include-help"] === "1",
+                    fs: fs,
+                    configuration: configuration,
+                    hardware: hardware,
+                    lqm: lqm,
+                    network: network,
+                    olsr: olsr,
+                    units: units,
+                    radios: radios
+                });
+            }
+            catch (e) {
+                res = `<div id="ctrl-modal" hx-on::after-swap="const e = event.target.querySelector('dialog'); if (e) { e.showModal(); }"><dialog style="font-size:12px"><b>ERROR: ${e.message}<b><div><pre>${e.stacktrace[0].context}</pre></dialog></div>`;
+            }
             if (config.debug) {
                 uhttpd.send(
                     `Status: ${response.statusCode} OK\r\n`,

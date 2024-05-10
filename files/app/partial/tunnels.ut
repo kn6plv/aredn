@@ -61,7 +61,8 @@
         w.close();
     }
 %}
-<div class="ctrl" hx-get="status/e/tunnels" hx-target="#ctrl-modal">
+<div hx-get="tunnels" hx-swap="outerHTML" hx-trigger="every 120s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
+<div class="ctrl" hx-get="status/e/tunnels" hx-target="#ctrl-modal" hx-swap="innerHTML">
     <div class="section-title">Tunnels</div>
     <div class="section">
         <div class="section-subtitle">Wireguard</div>
@@ -103,4 +104,5 @@
             </div>
         </div>
     </div>
+</div>
 </div>
