@@ -258,7 +258,7 @@ global.handle_request = function(env)
             }
             const args = {};
             if (env.CONTENT_TYPE === "application/x-www-form-urlencoded") {
-                const v = split(uhttpd.recv(1024), "&");
+                const v = split(uhttpd.recv(10240), "&");
                 for (let i = 0; i < length(v); i++) {
                     const kv = split(v[i], "=");
                     const k = uhttpd.urldecode(kv[0]);

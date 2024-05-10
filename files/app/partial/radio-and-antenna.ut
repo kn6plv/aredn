@@ -30,7 +30,7 @@
         </div>
         <div class="cols">
             <div>
-                <div class="t">{{ radio[midx].modes[radios.RADIO_MESH].txpower + radio[midx].modes[radios.RADIO_MESH].txpoweroffset }} dBm</div>
+                <div class="t">{{ radio[midx].modes[radios.RADIO_MESH].txpower + radio[midx].txpoweroffset }} dBm</div>
                 <div class="s">tx power</div>
             </div>
             <div>
@@ -48,8 +48,8 @@
     <div class="section-title">Antenna</div>
     <div class="section">
         {%
-            const antenna = hardware.getAntennaInfo(radio[midx].iface, radio[midx].ant);
-            const antennaAux = hardware.getAntennaAuxInfo(radio[midx].iface, radio[midx].antaux);
+            const antenna = hardware.getAntennaInfo(radio[midx].iface, uci.get("aredn", "@location[0]", "antenna"));
+            const antennaAux = hardware.getAntennaAuxInfo(radio[midx].iface, uci.get("aredn", "@location[0]", "antenna_aux"));
         %}
         <div class="t">{{ (antenna || { description: "-"}).description }}</div>
         <div class="s">antenna</div>
@@ -75,7 +75,7 @@
                 <div class="s">height</div>
             </div>
             <div>
-                {% if (uci.get("aredn", "@location[0]", "elevatin")) { %}
+                {% if (uci.get("aredn", "@location[0]", "elevation")) { %}
                 <div class="t">{{ uci.get("aredn", "@location[0]", "elevation") }}&deg;</div>
                 {% } else { %}
                 <div class="t">-</div>

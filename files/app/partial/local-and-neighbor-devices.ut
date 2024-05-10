@@ -41,7 +41,7 @@
             <div class="cols">
                 <div class="heading" style="flex:0.75"></div>
                 <div class="heading ts cols stats">
-                    <div>lq</div><div>nlq</div><div>snr</div><div>rsnr</div><div>errors</div><div>tx&nbsp;mbps</div><div>{{ units.distanceUnit() }}</div>
+                    <div>lq</div><div>nlq</div><div>snr</div><div>n snr</div><div>errors</div><div>tx&nbsp;mbps</div><div>{{ units.distanceUnit() }}</div>
                 </div>
             </div>
             {%
@@ -115,7 +115,7 @@
                             d = sprintf("%d", d);
                         }
                     }
-                    print(`<div>${lq}</div><div>${nlq}</div><div>${tracker.snr || "-"}</div><div>${tracker.snr || "-"}</div><div>${100 - tracker.quality}%</div><div>${calcBitrate(tracker.tx_bitrate)}</div><div>${d}</div>`);
+                    print(`<div>${lq}</div><div>${nlq}</div><div>${tracker.snr || "-"}</div><div>${tracker.rev_snr || "-"}</div><div>${100 - tracker.quality}%</div><div>${calcBitrate(tracker.tx_bitrate)}</div><div>${d}</div>`);
                     print("</div></div>");
                 }
             }

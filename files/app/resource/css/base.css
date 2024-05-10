@@ -339,12 +339,6 @@ body.authenticated .ctrl:hover
     font-size: 14px;
 }
 
-#general .network
-{
-    min-height: 150px;
-    box-sizing: content-box;
-}
-
 /* -- end general layout -- */
 
 /* -- start location layout -- */
@@ -705,7 +699,7 @@ body.authenticated .ctrl:hover
 #ctrl-modal dialog input[type=text]:invalid,
 #ctrl-modal dialog input[type=password]:invalid
 {
-    border-color: var(--ctrl-modal-border-color-error);
+    border-color: var(--ctrl-modal-border-color-error) !important;
 }
 
 #ctrl-modal dialog select
@@ -1002,6 +996,7 @@ body.authenticated .ctrl:hover
 #ctrl-modal dialog .lease-label div:first-child div:first-child
 {
     width: 155px;
+    border-color: var(--ctrl-modal-textbox-bg-color);
 }
 #ctrl-modal dialog .reservation select:nth-child(2),
 #ctrl-modal dialog .lease input:nth-child(2),
@@ -1009,6 +1004,7 @@ body.authenticated .ctrl:hover
 #ctrl-modal dialog .lease-label div:first-child div:nth-child(2)
 {
     width: 120px;
+    border-color: var(--ctrl-modal-textbox-bg-color);
 }
 #ctrl-modal dialog .reservation input:nth-child(3),
 #ctrl-modal dialog .lease input:nth-child(3),
@@ -1016,6 +1012,7 @@ body.authenticated .ctrl:hover
 #ctrl-modal dialog .lease-label div:first-child div:nth-child(3)
 {
     width: 130px;
+    border-color: var(--ctrl-modal-textbox-bg-color);
 }
 #ctrl-modal dialog .reservation-label div:first-child div:nth-child(4)
 {
@@ -1076,6 +1073,16 @@ body.authenticated .ctrl:hover
 {
     padding-bottom: 16px;
 }
+#ctrl-modal dialog .neighbor a
+{
+    font: inherit;
+    color: inherit;
+    text-decoration: none;
+}
+#ctrl-modal dialog .neighbor a:hover
+{
+    color: var(--section-link-fg-color);
+}
 #ctrl-modal dialog .neighbor .o
 {
     font-size: 20px;
@@ -1086,11 +1093,11 @@ body.authenticated .ctrl:hover
 }
 #ctrl-modal dialog .neighbor > div:not(.o)
 {
-    padding-left: 10px;
+    padding-left: 7px;
 }
 #ctrl-modal dialog .neighbor .i
 {
-    padding-top: 2px;
+    padding-top: 4px;
     font-size: 14px;
 }
 #ctrl-modal dialog .neighbor .i div:last-child
@@ -1100,9 +1107,8 @@ body.authenticated .ctrl:hover
 }
 #ctrl-modal dialog .neighbor select
 {
-    padding: 2px;
+    padding: 2px 4px;
     vertical-align: top;
-    direction: ltr;
     float: right;
     border-color: var(--subtitle-fg-color);
 }

@@ -59,10 +59,12 @@ local ARPING = "/usr/sbin/arping"
 local CURL = "/usr/bin/curl"
 
 local now = 0
+local config = {}
 
-function get_config()
+function update_config()
     local c = uci.cursor() -- each time as /etc/config/aredn may have changed
-    return {
+    config = {
+        enable = c:get("aredn", "@lqm[0]", "enable") == "1",
         margin = tonumber(c:get("aredn", "@lqm[0]", "margin_snr")),
         low = tonumber(c:get("aredn", "@lqm[0]", "min_snr")),
         rts_threshold = tonumber(c:get("aredn", "@lqm[0]", "rts_threshold") or "1"),
@@ -98,6 +100,8 @@ end
 function should_block(track)
     if track.user_allow then
         return false
+    elseif not config.enable then
+        return track.blocks.user
     elseif is_pending(track) then
         return track.blocks.dtd or track.blocks.user
     else
@@ -228,12 +232,6 @@ function iw_set(cmd)
 end
 
 function lqm()
-
-    if uci.cursor():get("aredn", "@lqm[0]", "enable") ~= "1" then
-        exit_app()
-        return
-    end
-
     -- Let things startup for a while before we begin
     wait_for_ticks(math.max(0, 30 - nixio.sysinfo().uptime))
 
@@ -252,7 +250,6 @@ function lqm()
     -- Or any hidden nodes
     iw_set("rts off")
     -- Set the default retries
-    -- 
     iw_set("retry short " .. default_short_retries .. " long " .. default_long_retries)
 
     -- If the channel bandwidth is less than 20, we need to adjust what we report as the values from 'iw' will not
@@ -283,7 +280,7 @@ function lqm()
     do
         now = nixio.sysinfo().uptime
 
-        local config = get_config()
+        update_config()
 
         local cursor = uci.cursor()
         local cursorm = uci.cursor("/etc/config.mesh")
@@ -525,14 +522,18 @@ function lqm()
                         rev_snr = nil,
                         avg_snr = 0,
                         last_tx = nil,
-                        last_tx_total = nil,
                         tx_quality = 100,
                         ping_quality = 100,
                         ping_success_time = 0,
                         tx_bitrate = nil,
                         rx_bitrate = nil,
                         quality = 100,
-                        exposed = false
+                        exposed = false,
+                        last_tx_fail = nil,
+                        last_tx_retries = nil,
+                        avg_tx = nil,
+                        avg_tx_retries = nil,
+                        avg_tx_fail = nil
                     }
                 end
                 local track = tracker[station.mac]
@@ -561,15 +562,26 @@ function lqm()
 
                 -- Running average estimate of link quality
                 local tx = station.tx_packets
-                local tx_total = station.tx_packets + station.tx_fail + station.tx_retries
+                local tx_retries = station.tx_retries
+                local tx_fail = station.tx_fail
+                local tx_total = tx + tx_fail + tx_retries
+                local tx_last_total = track.last_tx and (track.last_tx + track.last_tx_fail + track.last_tx_retries) or 0
                 if not track.last_tx then
                     track.last_tx = tx
-                    track.last_tx_total = tx_total
+                    track.last_tx_retries = tx_retries
+                    track.last_tx_fail = tx_fail
+                    track.avg_tx = tx
+                    track.avg_tx_retries = tx_retries
+                    track.avg_tx_fail = tx_fail
                     track.tx_quality = 100
-                elseif tx_total >= track.last_tx_total + quality_min_packets then
-                    local tx_quality = 100 * (tx - track.last_tx) / (tx_total - track.last_tx_total)
+                elseif tx_total >= tx_last_total + quality_min_packets then
+                    local tx_quality = 100 * (tx - track.last_tx) / (tx_total - tx_last_total)
+                    track.avg_tx = tx_quality_run_avg * track.avg_tx + (1 - tx_quality_run_avg) * (tx - track.last_tx)
+                    track.avg_tx_retries = tx_quality_run_avg * track.avg_tx_retries + (1 - tx_quality_run_avg) * (tx_retries - track.last_tx_retries)
+                    track.avg_tx_fail = tx_quality_run_avg * track.avg_tx_fail + (1 - tx_quality_run_avg) * (tx_fail - track.last_tx_fail)
                     track.last_tx = tx
-                    track.last_tx_total = tx_total
+                    track.last_tx_retries = tx_retries
+                    track.last_tx_fail = tx_fail
                     track.last_quality = tx_quality
                     track.tx_quality = math.min(100, math.max(0, math.ceil(tx_quality_run_avg * track.tx_quality + (1 - tx_quality_run_avg) * tx_quality)))
                 end
@@ -946,7 +958,7 @@ function lqm()
         end
         -- Update the wifi distance
         local coverage = math.min(255, math.floor((distance * 2 * 0.0033) / 3))
-        if coverage ~= last_coverage then
+        if config.enable and coverage ~= last_coverage then
             iw_set("coverage " .. coverage)
             last_coverage = coverage
         end
@@ -980,8 +992,7 @@ function lqm()
         do
             hidden[#hidden + 1] = ninfo
         end
-        -- Don't adjust RTS on ath10k for the moment - appear to be some bug to be worked out here
-        if (#hidden == 0) ~= (#hidden_nodes == 0) and config.rts_threshold >= 0 and config.rts_threshold <= 2347 then
+        if config.enable and (#hidden == 0) ~= (#hidden_nodes == 0) and config.rts_threshold >= 0 and config.rts_threshold <= 2347 then
             if #hidden > 0 then
                 iw_set("rts " .. config.rts_threshold)
             else

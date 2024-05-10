@@ -56,15 +56,14 @@ end
 
 -- Update firmware version information
 if  do_version_update then
-    local uciserver_path = cursor:get("aredn", "@downloads[0]", "firmwarepath")
-    local config_url = uciserver_path:match("^(.*)/firmware") .. "/afs/www/config.js"
+    local config_url = cursor:get("aredn", "@downloads[0]", "firmware_aredn") .. "/afs/www/config.js"
     local release_version
     local nightly_version
     for line in io.popen("/usr/bin/curl -o - " .. config_url .. " 2> /dev/null"):lines()
     do
         local v = line:match("versions: {(.+)}")
         if v then
-            for i in v:gmatch("'(%d[^']+)'")
+            for i in v:gmatch("'(%d+-[^']+)'")
             do
                 nightly_version = i
             end

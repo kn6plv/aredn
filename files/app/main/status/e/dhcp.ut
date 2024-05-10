@@ -10,7 +10,7 @@
                 const o = options[i];
                 if (o.reserved) {
                     const ip = iptoarr(o.ip)[3];
-                    if (length(o.name) > 0 && ip >= base && match(o.mac, /^([0-9a-f][0-9a-f]:){5}[0-9a-f][0-9a-f]$/)) {
+                    if (length(o.name) > 0 && ip >= base && match(o.mac, /^([0-9a-fA-F][0-9a-fA-F]:){5}[0-9a-fA-F][0-9a-fA-F]$/)) {
                         f.write(`${o.mac} ${ip - base + 2} ${o.name}${o.noprop ? " #NOPROP" : ""}\n`);
                     }
                 }
@@ -111,7 +111,7 @@
                             <input name="hostname" type="text" required placeholder="hostname" value="{{ o.name }}">
                             <select class="dhcp-addresses">
                             </select>
-                            <input name="mac" type="text" required placeholder="mac a&zwnj;ddress" pattern="([0-9a-f][0-9a-f]:){5}[0-9a-f][0-9a-f]" value="{{ o.mac }}">
+                            <input name="mac" type="text" required placeholder="mac a&zwnj;ddress" pattern="([0-9a-fA-F][0-9a-fA-F]:){5}[0-9a-fA-F][0-9a-fA-F]" value="{{ o.mac }}">
                             <label><input type="checkbox" {{ o.noprop ? "checked" : "" }}></label>
                         </div>
                         <button>-</button>
@@ -141,9 +141,9 @@
         %}
                     <div class="cols lease" data-ip="{{ o.ip }}">
                         <div style="white-space:nowrap">
-                            <input readonly type="text" placeholder="hostname" value="{{ o.name }}">
-                            <input readonly type="text" placeholder="ip address" value="{{ o.ip }}">
-                            <input readonly type="text" placeholder="mac a&zwnj;ddress" value="{{ o.mac }}">
+                            <input readonly type="text" value="{{ o.name }}">
+                            <input readonly type="text" value="{{ o.ip }}">
+                            <input readonly type="text" value="{{ o.mac }}">
                         </div>
                         <button {{ o.reserved ? "disabled" : "" }}>+</button>
                     </div>
@@ -244,7 +244,7 @@
                                 o.reserved = true;
                                 o.noprop = true;
                                 const item = document.createElement("div");
-                                item.innerHTML = `<div class="cols reservation" data-ip="${o.ip}"><div style="white-space:nowrap"><input name="hostname" type="text" placeholder="hostname" value="${o.name}" required> <select class="dhcp-addresses"></select> <input name="mac" type="text" placeholder="mac a&zwnj;ddress" required pattern="([0-9a-f][0-9a-f]:){5}[0-9a-f][0-9a-f]" value="${o.mac}"><label> <input type="checkbox" ${o.noprop ? "checked" : ""}></label></div><button>-</button></div>`;
+                                item.innerHTML = `<div class="cols reservation" data-ip="${o.ip}"><div style="white-space:nowrap"><input name="hostname" type="text" placeholder="hostname" value="${o.name}" required> <select class="dhcp-addresses"></select> <input name="mac" type="text" placeholder="mac a&zwnj;ddress" required pattern="([0-9a-fA-F][0-9a-fA-F]:){5}[0-9a-fA-F][0-9a-fA-F]" value="${o.mac}"><label> <input type="checkbox" ${o.noprop ? "checked" : ""}></label></div><button>-</button></div>`;
                                 htmx.find("#dhcp-reservations").appendChild(item.firstChild);
                                 update();
                             }
@@ -253,7 +253,7 @@
                                 if (o) {
                                     Object.assign(o, { name: "", mac: "", noprop: true, reserved: true, leased: false });
                                     const item = document.createElement("div");
-                                    item.innerHTML = `<div class="cols reservation" data-ip="${o.ip}"><div style="white-space:nowrap"><input name="hostname" type="text" placeholder="hostname" value="${o.name}" required> <select class="dhcp-addresses"></select> <input name="mac" type="text" placeholder="mac a&zwnj;ddress" required pattern="([0-9a-f][0-9a-f]:){5}[0-9a-f][0-9a-f]" value="${o.mac}"><label> <input type="checkbox" ${o.noprop ? "checked" : ""}></label></div><button>-</button></div>`;
+                                    item.innerHTML = `<div class="cols reservation" data-ip="${o.ip}"><div style="white-space:nowrap"><input name="hostname" type="text" placeholder="hostname" value="${o.name}" required> <select class="dhcp-addresses"></select> <input name="mac" type="text" placeholder="mac a&zwnj;ddress" required pattern="([0-9a-fA-F][0-9a-fA-F]:){5}[0-9a-fA-F][0-9a-fA-F]" value="${o.mac}"><label> <input type="checkbox" ${o.noprop ? "checked" : ""}></label></div><button>-</button></div>`;
                                     htmx.find("#dhcp-reservations").appendChild(item.firstChild);
                                 }
                                 if (!options.find(o => !o.reserved && !o.leased)) {

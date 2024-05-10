@@ -78,12 +78,20 @@
             }
             return "unused";
         }
+        function map(n, v)
+        {
+            const map_url = uci.get("aredn", "@location[0]", "map");
+            if (n.lat && n.lon && map_url) {
+                return `<a href="${replace(replace(map_url, "(lat)", n.lat), "(lon)", n.lon)}" target="_blank">${v}</a>`;
+            }
+            return v;
+        }
         for (let i = 0; i < length(neighbors); i++) {
             const n = neighbors[i].n;
             const l = neighbors[i].l;
         %}
         <div class="neighbor">
-            <div class="o">{{ n.hostname || n.ip }}
+            <div class="o"><a href="{{ n.hostname ? `http://${n.hostname}.local.mesh` : n.ip }}" target="_blank">{{ n.hostname || n.ip }}</a>
                 <select name="{{n.mac}}" hx-put={{ request.env.REQUEST_URI }} hx-swap="none">
                     <option value="available" {{ n.blocks.user ? "" : "selected" }}>{{ n.blocked ? "blocked" : "unblocked" }}</option>
                     <option value="user" {{ n.blocks.user ? "selected" : "" }}>user blocked</option>
@@ -105,28 +113,17 @@
             </div>
             <div class="cols">
                 <div class="i">
-                    <div>{{ n.lat || "-" }}</div>
+                    <div>{{ map(n, n.lat) || "-" }}</div>
                     <div>latitude</div>
                 </div>
                 <div class="i">
-                    <div>{{ n.lon || "-" }}</div>
+                    <div>{{ map(n, n.lon) || "-" }}</div>
                     <div>longitude</div>
                 </div>
                 <div class="i">
-                    <div>{{ "distance" in n ? sprintf("%.1f %s", units.meters2distance(n.distance), units.distanceUnit()) : "-" }}</div>
+                    <div>{{ "distance" in n ? map(n, sprintf("%.1f %s", units.meters2distance(n.distance), units.distanceUnit())) : "-" }}</div>
                     <div>distance</div>
                 </div>
-            </div>
-            <div class="cols">
-                <div class="i">
-                    <div>{{ sprintf("%.1f", n.ping_success_time * 1000) }} ms</div>
-                    <div>ping time</div>
-                </div>
-                <div class="i">
-                    <div>{{ n.ping_quality }}%</div>
-                    <div>ping success</div>
-                </div>
-                <div></div>
             </div>
             {%
                 if (l && l.lossMultiplier) {
@@ -137,11 +134,11 @@
             <div class="cols">
                 <div class="i">
                     <div>{{ lq }}%</div>
-                    <div>lq</div>
+                    <div>lq | rx success</div>
                 </div>
                 <div class="i">
                     <div>{{ nlq }}%</div>
-                    <div>nlq</div>
+                    <div>nlq | tx success</div>
                 </div>
                 <div class="i">
                     <div>{{ sprintf("%.1f", etx) }}</div>
@@ -149,30 +146,44 @@
                 </div>
             </div>
             {% } %}
-            {% if (n.type == "RF") { %}
             <div class="cols">
                 <div class="i">
-                    <div>{{ n.snr }} dB</div>
-                    <div>snr</div>
+                    <div>{{ n.ping_success_time ? sprintf("%.1f ms", n.ping_success_time * 1000) : "-" }}</div>
+                    <div>ping time</div>
                 </div>
                 <div class="i">
-                    <div>{{ n.rev_snr || "-" }} dB</div>
-                    <div>reverse snr</div>
+                    <div>{{ n.ping_quality }}%</div>
+                    <div>ping success</div>
                 </div>
                 <div></div>
             </div>
+            {% if (n.type == "RF") { %}
             <div class="cols">
                 <div class="i">
-                    <div>{{ n.rx_bitrate ? sprintf("%.1f", n.tx_bitrate) : "-" }} mbps</div>
-                    <div>physical tx bitrate</div>
+                    <div>{{ n.snr }}</div>
+                    <div>local snr</div>
                 </div>
                 <div class="i">
-                    <div>{{ n.rx_bitrate ? sprintf("%.1f", n.rx_bitrate) : "-" }} mpbs</div>
+                    <div>{{ n.rev_snr || "-" }}</div>
+                    <div>neighbor snr</div>
+                </div>
+                <div class="i">
+                    <div>{{ n.last_tx ? sprintf("%.1f%", 100 * n.avg_tx_fail / n.avg_tx) : "-" }}</div>
+                    <div>tx failures</div>
+                </div>
+            </div>
+            <div class="cols">
+                <div class="i">
+                    <div>{{ n.rx_bitrate ? sprintf("%.1f Mbps", n.rx_bitrate) : "-" }}</div>
                     <div>physical rx bitrate</div>
                 </div>
                 <div class="i">
-                    <div>{{ sprint("%.1f", 100 * (n.last_tx_total - n.tx_total) / n.tx_total) }}%</div>
-                    <div>retransmissions</div>
+                    <div>{{ n.tx_bitrate ? sprintf("%.1f Mbps", n.tx_bitrate) : "-" }}</div>
+                    <div>physical tx bitrate</div>
+                </div>
+                <div class="i">
+                    <div>{{ n.last_tx ? sprintf("%.1f%", 100 * n.avg_tx_retries / n.avg_tx) : "-" }}</div>
+                    <div>tx retransmissions</div>
                 </div>
             </div>
             {% } %}
