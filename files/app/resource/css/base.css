@@ -460,7 +460,12 @@ body.authenticated .ctrl:hover
 
 /* -- start icons -- */
 
-.icon-logo
+#nav a
+{
+    position: relative;
+    text-decoration: none;
+}
+#icon-logo
 {
     display: table-cell;
     width: 64px;
@@ -469,13 +474,33 @@ body.authenticated .ctrl:hover
     text-align: center;
     vertical-align: bottom;
 }
-.icon-logo span
+#icon-logo + div
 {
+    position: absolute;
+    display: inline-block;
+    bottom: 0;
+    left: 8px;
     font-family: inherit;
     font-size: 13px;
     font-weight: bold;
     color: var(--logo-fg-color);
     background-color: var(--nav-bg-color);
+}
+#icon-logo.animate
+{
+    animation-name: logo-rotate;
+    animation-duration: 1s;
+    xanimation-delay: 2s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+@keyframes logo-rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 .icon
 {
@@ -930,7 +955,7 @@ body.authenticated .ctrl:hover
 .meshpage-help
 {
     display: none;
-    padding: 40px 120px 0 1200px;
+    padding: 40px 120px 0 120px;
 }
 .meshpage-help.visible
 {

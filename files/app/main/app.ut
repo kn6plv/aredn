@@ -1,3 +1,5 @@
+
+{% if (!request.headers["hx-boosted"]) { %}
 <!DOCTYPE>
 <html>
 <head>
@@ -16,7 +18,7 @@
     {% } %}
     <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
 </head>
-<body class="{{ auth.authenticated ? "authenticated" : "" }}">
+<body class="{{ auth.authenticated ? "authenticated" : "" }}" hx-indicator="body">
     {{ _R("ctrls") }}
     <div id="all">
         <div id="nav">
@@ -33,3 +35,13 @@
     </div>
 </body>
 </html>
+{% } else { %}
+<div id="panel" hx-swap-oob="true">
+    <div id="select">
+        {{ _R("selection") }}
+    </div>
+    <div id="main">
+        {{ _R(request.page) }}
+    </div>
+</div>
+{% } %}

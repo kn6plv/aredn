@@ -1,19 +1,22 @@
 {%
 response.headers["Content-Type"] = "application/json";
-const j = json(uhttpd.recv(1024));
-if (request.env.REQUEST_METHOD === "POST" && j.version === 1) {
-    if (j.logout) {
-        auth.deauthenticate();
-        print('{"authenticated":false}');
+if (request.env.REQUEST_METHOD === "POST") {
+    try {
+        const j = json(uhttpd.recv(1024));
+        if (j.version === 1) {
+            if (j.logout) {
+                auth.deauthenticate();
+                print('{"authenticated":false}\n');
+                return;
+            }
+            if (auth.authenticate(j.password)) {
+                print('{"authenticated":true}\n');
+                return;
+            }
+        }
     }
-    else if (auth.authenticate(j.password)) {
-        print('{"authenticated":true}');
-    }
-    else {
-        print('{"authenticated":false}');
+    catch (_) {
     }
 }
-else {
-    print('{"authenticated":false}');
-}
+print('{"authenticated":false}\n');
 %}

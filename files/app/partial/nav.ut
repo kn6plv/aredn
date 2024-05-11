@@ -1,7 +1,27 @@
-<a href="http://arednmesh.org" style="text-decoration:none"><div class="icon-logo"><span>AREDN</span></div></a>
+<a href="http://arednmesh.org"><div id="icon-logo"></div><div>AREDN</div></a>
 <div class="nav-node-name">{{ configuration.getName() || "NOCALL" }} </div>
 <div class="nav-status">{{ request.page }}</div>
 <div style="flex:1">
     {{ _R("changes") }}
 </div>
 {{ _R("login") }}
+<script>
+(function()
+{
+    const logo = htmx.find("#icon-logo");
+    htmx.on("htmx:beforeRequest", function(e) {
+        if (e.detail.requestConfig.triggeringEvent.type === "click") {
+            setTimeout(function() {
+                if (document.body.classList.contains("htmx-request")) {
+                    logo.classList.add("animate");
+                }
+            }, 2000);
+        }
+    });
+    htmx.on(logo, "animationiteration", function() {
+        if (!document.body.classList.contains("htmx-request")) {
+            logo.classList.remove("animate");
+        }
+    });
+})();
+</script>

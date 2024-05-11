@@ -1,4 +1,4 @@
-<div hx-boost="true">
+<div hx-boost="true" hx-swap="none">
     <a title="Node status" href="status">
         <div class="icon status {{ request.page === "status" }}"></div>
     </a>

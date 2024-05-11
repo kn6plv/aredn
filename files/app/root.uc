@@ -11,9 +11,12 @@ import * as network from "network";
 import * as olsr from "olsr";
 import * as units from "units";
 import * as radios from "radios";
+import * as log from "log";
 
 const pageCache = {};
 const resourceVersions = {};
+
+log.openlog("uhttpd.aredn", log.LOG_PID, log.LOG_USER);
 
 if (!config.debug) {
     function cp(path) {
@@ -154,6 +157,9 @@ const auth = {
     age: 315360000, // 10 years
     //age: 120, // 2 minutes
 
+    DAYS: [ "", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" ],
+    MONTHS: [ "", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ],
+
     initKey: function()
     {
         if (!this.key) {
@@ -204,7 +210,10 @@ const auth = {
                 const pwd = rtrim(f.read("all"));
                 f.close();
                 if (index(this.key, `root:${pwd}:`) === 0) {
-                    response.headers["Set-Cookie"] = `authV1=${b64enc(this.key)}; Path=/; Domain=${request.headers.host}; Max-Age=${this.age}`;
+                    const time = clock();
+                    const gm = gmtime(time[0] + this.age);
+                    const tm = `${this.DAYS[gm.wday]}, ${gm.mday} ${this.MONTHS[gm.mon]} ${gm.year} 00:00:00 GMT`;
+                    response.headers["Set-Cookie"] = `authV1=${b64enc(this.key)}; Path=/; Domain=${replace(request.headers.host, /:\d+$/, "")}; Expires=${tm}`;
                     this.authenticated = true;
                 }
             }
@@ -215,7 +224,7 @@ const auth = {
     deauthenticate: function()
     {
         if (this.authenticated) {
-            response.headers["Set-Cookie"] = `authV1=; Path=/; Domain=${request.headers.host}; Max-Age=0;`;
+            response.headers["Set-Cookie"] = `authV1=; Path=/; Domain=${replace(request.headers.host, /:\d+$/, "")}; Max-Age=0;`;
             this.authenticated = false;
         }
     }
@@ -292,6 +301,7 @@ global.handle_request = function(env)
                 });
             }
             catch (e) {
+                log.syslog(log.LOG_ERR, `${e.message}\n${e.stacktrace[0].context}`);
                 res = `<div id="ctrl-modal" hx-on::after-swap="const e = event.target.querySelector('dialog'); if (e) { e.showModal(); }"><dialog style="font-size:12px"><b>ERROR: ${e.message}<b><div><pre>${e.stacktrace[0].context}</pre></dialog></div>`;
             }
             if (config.debug) {
