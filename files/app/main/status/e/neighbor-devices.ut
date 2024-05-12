@@ -1,19 +1,31 @@
 {% if (request.env.REQUEST_METHOD === "PUT") {
     configuration.prepareChanges();
-    const user = split(uciMesh.get("aredn", "@lqm[0]", "user_blocks"), ",");
+    const userb = split(uciMesh.get("aredn", "@lqm[0]", "user_blocks"), ",");
     const blockedmacs = {};
-    for (let i = 0; i < length(user); i++) {
-        blockedmacs[uc(user[i])] = true;
+    for (let i = 0; i < length(userb); i++) {
+        blockedmacs[uc(userb[i])] = true;
+    }
+    const usera = split(uciMesh.get("aredn", "@lqm[0]", "user_allows"), ",");
+    const allowedmacs = {};
+    for (let i = 0; i < length(usera); i++) {
+        allowedmacs[uc(usera[i])] = true;
     }
     for (let mac in request.args) {
-        if (request.args[mac] === "user") {
+        if (request.args[mac] === "always") {
+            delete blockedmacs[uc(mac)];
+            allowedmacs[uc(mac)] = true;
+        }
+        else if (request.args[mac] === "user") {
             blockedmacs[uc(mac)] = true;
+            delete allowedmacs[uc(mac)];
         }
         else {
             delete blockedmacs[uc(mac)];
+            delete allowedmacs[uc(mac)];
         }
     }
     uciMesh.set("aredn", "@lqm[0]", "user_blocks", join(",", keys(blockedmacs)));
+    uciMesh.set("aredn", "@lqm[0]", "user_allows", join(",", keys(allowedmacs)));
     uciMesh.commit("aredn");
 %}
 {{ _R("changes") }}
@@ -26,12 +38,20 @@
     for (let i = 0; i < length(user); i++) {
         blockedmacs[uc(user[i])] = true;
     }
+    const usera = split(uciMesh.get("aredn", "@lqm[0]", "user_allows"), ",");
+    const allowedmacs = {};
+    for (let i = 0; i < length(usera); i++) {
+        allowedmacs[uc(usera[i])] = true;
+    }
     const trackers = lqm.getTrackers();
     for (mac in trackers) {
         const tracker = trackers[mac];
         if (tracker.hostname || (tracker.ip && tracker.routable)) {
             if (tracker.type !== "DtD" || tracker.distance >= 50) {
-                if (blockedmacs[uc(tracker.mac)]) {
+                if (allowedmacs[uc(tracker.mac)]) {
+                    tracker.user_allow = true;
+                }
+                else if (blockedmacs[uc(tracker.mac)]) {
                     tracker.blocks.user = true;
                 }
                 const r = { name: tracker.hostname || `|${tracker.ip}`, n: tracker, l: null };
@@ -93,8 +113,9 @@
         <div class="neighbor">
             <div class="o"><a href="{{ n.hostname ? `http://${n.hostname}.local.mesh` : n.ip }}" target="_blank">{{ n.hostname || n.ip }}</a>
                 <select name="{{n.mac}}" hx-put={{ request.env.REQUEST_URI }} hx-swap="none">
-                    <option value="available" {{ n.blocks.user ? "" : "selected" }}>{{ n.blocked ? "blocked" : "unblocked" }}</option>
-                    <option value="user" {{ n.blocks.user ? "selected" : "" }}>user blocked</option>
+                    <option value="always" {{ n.user_allow ? "selected" : "" }}>never block</option>
+                    <option value="available" {{ n.user_allow || n.blocks.user ? "" : "selected" }}>{{ n.blocked ? "blocked" : "unblocked" }}</option>
+                    <option value="user" {{ n.blocks.user ? "selected" : "" }}>always block</option>
                 </select>
             </div>
             <div class="cols">

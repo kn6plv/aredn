@@ -34,7 +34,7 @@
                 <div class="s">tx power</div>
             </div>
             <div>
-                <div class="t">{{ int(0.5 + units.meters2distance(uci.get("aredn", "@lqm[0]", "max_distance"))) }}</div>
+                <div class="t">{{ int(0.5 + units.meters2distance(uci.get("aredn", "@lqm[0]", "max_distance"))) }} {{ units.distanceUnit() }}</div>
                 <div class="s">maximum distance</div>
             </div>
             <div>
