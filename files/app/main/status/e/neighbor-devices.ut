@@ -168,7 +168,7 @@
                     <div>neighbor snr</div>
                 </div>
                 <div class="i">
-                    <div>{{ n.last_tx ? sprintf("%.1f%", 100 * n.avg_tx_fail / n.avg_tx) : "-" }}</div>
+                    <div>{{ n.avg_tx_fail ? sprintf("%.1f%", 100 * n.avg_tx_fail / n.avg_tx) : "-" }}</div>
                     <div>tx failures</div>
                 </div>
             </div>
@@ -182,7 +182,7 @@
                     <div>physical tx bitrate</div>
                 </div>
                 <div class="i">
-                    <div>{{ n.last_tx ? sprintf("%.1f%", 100 * n.avg_tx_retries / n.avg_tx) : "-" }}</div>
+                    <div>{{ n.avg_tx_retries ? sprintf("%.1f%", 100 * n.avg_tx_retries / n.avg_tx) : "-" }}</div>
                     <div>tx retransmissions</div>
                 </div>
             </div>
