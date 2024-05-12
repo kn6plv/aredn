@@ -29,19 +29,27 @@
             return "excellent";
         }
     };
-    function calcBitrate(bitrate)
+    function calcBitrate(txbitrate, rxbitrate)
     {
-        return bitrate ? int(bitrate * 10 + 0.5) / 10 : "-";
+        if (txbitrate) {
+            if (rxbitrate) {
+                return int((txbitrate + rxbitrate) * 5 + 0.5) / 10;
+            }
+            else {
+                return int(txbitrate * 10 + 0.5) / 10;
+            }
+        }
+        return "-";
     }
 %}
 <div hx-get="local-and-neighbor-devices" hx-swap="outerHTML" hx-trigger="every 60s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
-    <div class="ctrl" hx-get="status/e/local-devices" hx-target="#ctrl-modal" hx-swap="innerHTML">
+    <div class="noctrl">
         <div class="section-title">Local Devices</div>
         <div class="section" style="line-height:18px;margin-top:-16px">
             <div class="cols">
                 <div class="heading" style="flex:0.75"></div>
                 <div class="heading ts cols stats">
-                    <div>lq</div><div>nlq</div><div>snr</div><div>n snr</div><div>errors</div><div>tx&nbsp;mbps</div><div>{{ units.distanceUnit() }}</div>
+                    <div>lq</div><div>nlq</div><div>snr</div><div>n snr</div><div>errors</div><div>mbps</div><div>{{ units.distanceUnit() }}</div>
                 </div>
             </div>
             {%
@@ -115,7 +123,7 @@
                             d = sprintf("%d", d);
                         }
                     }
-                    print(`<div>${lq}</div><div>${nlq}</div><div>${tracker.snr || "-"}</div><div>${tracker.rev_snr || "-"}</div><div>${100 - tracker.quality}%</div><div>${calcBitrate(tracker.tx_bitrate)}</div><div>${d}</div>`);
+                    print(`<div>${lq}</div><div>${nlq}</div><div>${tracker.snr || "-"}</div><div>${tracker.rev_snr || "-"}</div><div>${100 - tracker.quality}%</div><div>${calcBitrate(tracker.tx_bitrate, tracker.rx_bitrate)}</div><div>${d}</div>`);
                     print("</div></div>");
                 }
             }
