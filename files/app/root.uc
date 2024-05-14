@@ -267,7 +267,15 @@ global.handle_request = function(env)
             }
             const args = {};
             if (env.CONTENT_TYPE === "application/x-www-form-urlencoded") {
-                const v = split(uhttpd.recv(10240), "&");
+                let b = "";
+                for (;;) {
+                    const v = uhttpd.recv(10240);
+                    if (!length(v)) {
+                        break;
+                    }
+                    b += v;
+                }
+                const v = split(b, "&");
                 for (let i = 0; i < length(v); i++) {
                     const kv = split(v[i], "=");
                     const k = uhttpd.urldecode(kv[0]);

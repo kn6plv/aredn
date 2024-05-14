@@ -753,6 +753,24 @@ body.authenticated .ctrl:hover
     outline: none;
     resize: none;
 }
+
+#ctrl-modal dialog button
+{
+    margin-top: 4px;
+    min-width: 24px;
+    height: 23px;
+    border-radius: 8px;
+    background-color: var(--ctrl-modal-textbox-bg-color);
+    border: 1px solid var(--ctrl-modal-textbox-border-color);
+}
+#ctrl-modal dialog button:hover
+{
+    background-color: var(--ctrl-modal-bg-secondary-color);
+}
+#ctrl-modal dialog button:disabled
+{
+    border-color: var(--ctrl-modal-fg-help-border-color);
+}
    
 .switch input[type=checkbox]
 {
@@ -1076,19 +1094,6 @@ body.authenticated .ctrl:hover
 {
     display: block;
 }
-#ctrl-modal dialog .dhcp button
-{
-    margin-top: 4px;
-    width: 24px;
-    height: 23px;
-    border-radius: 8px;
-    background-color: var(--ctrl-modal-textbox-bg-color);
-    border: 1px solid var(--ctrl-modal-textbox-border-color);
-}
-#ctrl-modal dialog .dhcp button:disabled
-{
-    border-color: var(--ctrl-modal-fg-help-border-color);
-}
 
 /* dhcp end */
 
@@ -1139,3 +1144,76 @@ body.authenticated .ctrl:hover
 }
 
 /* neighbors end */
+
+/* service start */
+
+#service-templates,
+#host-aliases-add
+{
+    padding-bottom: 10px;
+}
+#local-services:empty::after,
+#host-aliases:empty::after
+{
+    position: relative;
+    top: 6px;
+    left: 10px;
+    content: "None";
+    color: var(--ctrl-modal-fg-subtitle-color);
+}
+#local-services .service
+{
+    padding-top: 20px;
+}
+#local-services .service .cols:first-child input
+{
+    flex: 1;
+    margin-right: 4px;
+}
+#local-services .service .cols:first-child > .cols
+{
+    flex: 1;
+    padding-right: 10px;
+}
+#local-services .service .cols:first-child > div select
+{
+    position: relative;
+    top: 2px;
+}
+#local-services .service .cols:last-child div:nth-child(2)
+{
+    white-space: nowrap;
+    padding-right: 34px;
+    font-size: 10px;
+}
+#local-services .service .cols:last-child input:first-child,
+#local-services .service .cols:last-child input:nth-child(3)
+{
+    width: 50px;
+}
+#ctrl-modal dialog #local-services .service input[type=text],
+#ctrl-modal dialog #local-services .service select
+{
+    border-color: var(--ctrl-modal-textbox-bg-color);
+    text-align: left;
+}
+#ctrl-modal dialog #local-services .service .cols:last-child input[type=text],
+#ctrl-modal dialog #local-services .service .cols:last-child select
+{
+    font-size: 12px;
+}
+#ctrl-modal dialog #host-aliases .cols input
+{
+    flex: 1;
+    margin-right: 6px;
+    text-align: left;
+}
+#ctrl-modal dialog #host-aliases .cols div
+{
+    flex: 0;
+    position: relative;
+    top: 2px;
+    padding-right: 6px;
+}
+
+/* services end */

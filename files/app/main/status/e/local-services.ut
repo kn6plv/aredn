@@ -1,11 +1,342 @@
 {% if (request.env.REQUEST_METHOD === "PUT") {
     configuration.prepareChanges();
+    if (request.args.services) {
+        const services = json(request.args.services);
+        const dhcp = configuration.getDHCP();
+        let f = fs.open(dhcp.services, "w");
+        if (f) {
+            for (let i = 0; i < length(services); i++) {
+                f.write(`${services[i]}\n`);
+            }
+            f.close();
+        }
+    }
+    if (request.args.aliases) {
+        const aliases = json(request.args.aliases);
+        const dhcp = configuration.getDHCP();
+        let f = fs.open(dhcp.aliases, "w");
+        if (f) {
+            for (let i = 0; i < length(aliases); i++) {
+                f.write(`${aliases[i]}\n`);
+            }
+            f.close();
+        }
+        configuration.saveSettings();
+    }
 %}
 {{ _R("changes") }}
 {% return; } %}
+{%
+    const types = {};
+    const templates = [
+        { name: "Generic URL" },
+        { name: "Ubiquiti camera", type: "camera", protocol: "http", port: 80, path: "snap.jpeg" },
+        { name: "Axis camera", type: "camera", protocol: "http", port: 80, path: "jpg/image.jpg" },
+        { name: "NTP Server", type: "time", protocol: "ntp", port: 123 },
+        { name: "Winlink Server", type: "winlink", protocol: "winlink", port: 8772 },
+        { name: "Text", link: false },
+        { name: "Proxmox Server", protocol: "https", port: 8006 },
+        { name: "Generic HTTP", protocol: "http", port: 80 },
+        { name: "Generic HTTPS", protocol: "https", port: 443 },
+    ];
+    const services = [];
+    const dhcp = configuration.getDHCP();
+    const as = iptoarr(dhcp.start);
+    const ae = iptoarr(dhcp.end);
+    let f = fs.open(dhcp.services);
+    if (f) {
+        const reService = regexp("^([^|]+)\\|([01])\\|([^|]+)\\|([^|]+)\\|(\\d+)\\|(.*)$");
+        const reType = regexp("^(.+)\\[([a-z]+)\\]$");
+        for (;;) {
+            const l = f.read("line");
+            if (!length(l)) {
+                break;
+            }
+            const v = match(l, reService);
+            if (v) {
+                let type = null;
+                const v2 = match(v[1], reType);
+                if (v2) {
+                    v[1] = v2[1];
+                    type = v2[2];
+                }
+                push(services, { name: v[1], type: type, link: v[2] === "1", protocol: v[3], hostname: v[4], port: v[5], path: v[6] });
+            }
+        }
+        f.close();
+    }
+    const hosts = [ configuration.getName() ];
+    const aliases = { start: dhcp.start, end: dhcp.end, leases: {}, map: [] };
+    f = fs.open(dhcp.reservations);
+    if (f) {
+        for (;;) {
+            const l = f.read("line");
+            if (!length(l)) {
+                break;
+            }
+            const v = match(trim(l), /^[^ ]+ ([^ ]+) ([^ ]+) ?(.*)/);
+            if (v) {
+                aliases.leases[`${as[0]}.${as[1]}.${as[2]}.${as[3] - 2 + int(v[1])}`] = v[2];
+                if (v[3] !== "#NOPROP") {
+                    push(hosts, v[2]);
+                }
+            }
+        }
+        f.close();
+    }
+    f = fs.open(dhcp.aliases);
+    if (f) {
+        for (;;) {
+            const l = f.read("line");
+            if (!length(l)) {
+                break;
+            }
+            const v = match(trim(l), /^(.+) (.+)$/);
+            if (v) {
+                push(aliases.map, { hostname: v[2], address: v[1] });
+            }
+        }
+        f.close();
+    }
+%}
 <dialog>
     {{ _R("dialog-header", "Local Services") }}
     <div>
+        <div id="service-templates" class="cols">
+            <div>
+                <div class="o">Add service</div>
+                <div class="m">Add a service from a template</div>
+            </div>
+            <div style="flex:0;padding-right:10px">
+                <select style="direction:ltr">
+                    {%
+                        for (let i = 0; i < length(templates); i++) {
+                            print(`<option value="${i}">${templates[i].name}</option>`);
+                            if (templates[i].type) {
+                                types[templates[i].type] = true;
+                            }
+                        }
+                    %}
+                </select>
+            </div>
+            <button>+</button>
+        </div>
+        <div class="o">Services</div>
+        <div id="local-services">{%
+                for (let i = 0; i < length(services); i++) {
+                    const s = services[i];
+            %}
+            <div class="service">
+                <div class="cols">
+                    <div class="cols">
+                        <input name="name" type="text" placeholder="service name" required pattern='[^-:"|<>]+' value="{{ s.name }}">
+                        <div style="flex:0">
+                            <select name="type">
+                                <option value="">-</option>
+                                {%
+                                    for (t in types) {
+                                        print(`<option value="${t}" ${t === s.type ? "selected" : ""}>${t}</option>`);
+                                    }
+                                %}
+                            </select>
+                        </div>
+                    </div>
+                    <button>-</button>
+                </div>
+                <div class="cols">
+                    <div></div>
+                    <div>
+                        <input name="protocol" type="text" placeholder="proto" required pattern="[a-z]+" value="{{ s.protocol }}">
+                        :// <select name="hostname">
+                        {%
+                            for (j = 0; j < length(hosts); j++) {
+                                print(`<option value="${hosts[j]}" ${hosts[j] === s.hostname ? "selected" : ""}>${hosts[j]}</option>`);
+                            }
+                            for (let j = 0; j < length(aliases.map); j++) {
+                                print(`<option value="${aliases.map[j].hostname}" ${aliases.map[j].hostname === s.hostname ? "selected" : ""}>${aliases.map[j].hostname}</option>`);
+                            }
+                        %}
+                        </select>
+                        : <input name="port" type="text" placeholder="port" required pattern="([1-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])" value="{{ s.port }}">
+                        / <input name="path" type="text" placeholder="path" pattern="[\-\/\?\&\._=#a-zA-Z0-9]*" value="{{ s.path }}">
+                    </div>
+                </div>
+            </div>
+        {% } %}</div>
+        <hr>
+        <div id="host-aliases-add" class="cols">
+            <div>
+                <div class="o">Host aliases</div>
+                <div class="m">DNS hostname aliases</div>
+            </div>
+            <button>+</button>
+        </div>
+        <div class="o">Aliases</div>
+        <div id="host-aliases">{%
+            for (let i = 0; i < length(aliases.map); i++) {
+            %}
+                <div class="cols alias">
+                    <input type="text" name="hostname" value="{{ aliases.map[i].hostname }}" required pattern="[a-zA-Z][a-zA-Z0-9_\-]*">
+                    <div>
+                        <select name="address">
+                        {%
+                            for (let j = as[3]; j <= ae[3]; j++) {
+                                const a = `${as[0]}.${as[1]}.${as[2]}.${j}`;
+                                const n = aliases.leases[a];
+                                print(`<option value="${a}" ${a === aliases.map[i].address ? "selected" : ""}>${n ? n : a}</option>`);
+                            }
+                        %}
+                        </select>
+                    </div>
+                    <button>-</button>
+                </div>
+            {%
+            }
+        %}</div>
     </div>
     {{ _R("dialog-footer") }}
+    <script>
+    (function()
+    {
+        const templates = {{ templates }};
+        const hosts = {{ hosts }};
+        function updateServices() {
+            const services = [];
+            const svc = htmx.findAll("#local-services .service");
+            for (let i = 0; i < svc.length; i++) {
+                const s = svc[i];
+                const name = htmx.find(s, "input[name=name]");
+                const type = htmx.find(s, "select[name=type]");
+                const protocol = htmx.find(s, "input[name=protocol]");
+                const host = htmx.find(s, "select[name=hostname]");
+                const port = htmx.find(s, "input[name=port]");
+                const path = htmx.find(s, "input[name=path]");
+                if (name.validity.valid && protocol.validity.valid && port.validity.valid && path.validity.valid) {
+                    services.push(`${name.value}${type.value ? " [" + type.value + "]" : ""}|1|${protocol.value}|${host.value}|${port.value}|${path.value}`);
+                }
+            }
+            htmx.ajax("PUT", "{{ request.env.REQUEST_URI }}", {
+                swap: "none",
+                values: { services: JSON.stringify(services) }
+            });
+        }
+        function updateAliases()
+        {
+            const aliases = [];
+            const al = htmx.findAll("#host-aliases .alias");
+            for (let i = 0; i < al.length; i++) {
+                const s = al[i];
+                const hostname = htmx.find(s, "input[name=hostname]");
+                const address = htmx.find(s, "select[name=address]");
+                if (hostname.validity.valid) {
+                    aliases.push(`${address.value} ${hostname.value}`);
+                }
+            }
+            htmx.ajax("PUT", "{{ request.env.REQUEST_URI }}", {
+                swap: "none",
+                values: { aliases: JSON.stringify(aliases) }
+            });
+        }
+        function refreshHostSelectors()
+        {
+            const selectors = htmx.findAll("#local-services .service .cols:last-child select");
+            for (let i = 0; i < selectors.length; i++) {
+                const s = selectors[i];
+                const v = s.value;
+                let o = "";
+                for (j = 0; j < hosts.length; j++) {
+                    o += `<option value="${hosts[j]}" ${hosts[j] === v ? "selected" : ""}>${hosts[j]}</option>`;
+                }
+                const al = htmx.findAll("#host-aliases .alias");
+                for (let j = 0; j < al.length; j++) {
+                    const hostname = htmx.find(al[j], "input[name=hostname]");
+                    if (hostname.validity.valid) {
+                        o += `<option value="${hostname.value}" ${hostname.value === v ? "selected" : ""}>${hostname.value}</option>`;
+                    }
+                }
+                s.innerHTML = o;
+            }
+        }
+        htmx.on("#service-templates button", "click", _ => {
+            const t = templates[htmx.find("#service-templates select").value];
+            if (t) {
+                const template = `<div class="service">
+    <div class="cols">
+        <div class="cols">
+            <input name="name" type="text" placeholder="service name" required pattern='[^-:"|<>]+' value="${t.name}">
+            <div style="flex:0">
+                <select name="type">
+                    <option value="">-</option>
+                    {%
+                        for (t in types) {
+                            print(`<option value="${t}">${t}</option>`);
+                        }
+                    %}
+                </select>
+            </div>
+        </div>
+        <button>-</button>
+    </div>
+    <div class="cols">
+        <div></div>
+        <div>
+            <input name="protocol" type="text" placeholder="proto" required pattern="[a-z]+" value="${t.protocol || ''}">
+            :// <select name="hostname"></select>
+            : <input name="port" type="text" placeholder="port" required pattern="([1-9]|[1-9]\\d{1,3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])" value="${t.port || ''}">
+            / <input name="path" type="text" placeholder="path" pattern="[\\-\\/\\?\\&\\._=#a-zA-Z0-9]*" value="${t.path || ''}">
+        </div>
+    </div>
+</div>`;
+                const div = document.createElement("div");
+                div.innerHTML = template;
+                htmx.find(div, "select[name=type]").value = t.type || "";
+                htmx.find("#local-services").appendChild(div.firstChild);
+                refreshHostSelectors();
+                updateServices();
+            }
+        });
+        htmx.on("#local-services", "click", event => {
+            const target = event.target;
+            if (target.nodeName === "BUTTON") {
+                const service = target.parentNode.parentNode;
+                htmx.remove(service);
+                updateServices();
+            }
+        });
+        htmx.on("#local-services", "change", updateServices);
+        htmx.on("#local-services", "select", updateServices);
+        htmx.on("#host-aliases-add button", "click", _ => {
+            const div = document.createElement("div");
+            div.innerHTML = `<div class="cols alias">
+                <input type="text" name="hostname" value="" required pattern="[a-zA-Z][a-zA-Z0-9_\-]*">
+                <div>
+                    <select name="address">
+                    {%
+                        for (let j = as[3]; j <= ae[3]; j++) {
+                            const a = `${as[0]}.${as[1]}.${as[2]}.${j}`;
+                            const n = aliases.leases[a];
+                            print(`<option value="${a}">${n ? n : a}</option>`);
+                        }
+                    %}
+                    </select>
+                </div>
+                <button>-</button>
+            </div>`;
+            htmx.find("#host-aliases").appendChild(div.firstChild);
+            refreshHostSelectors();
+            updateAliases();
+        });
+        htmx.on("#host-aliases", "click", event => {
+            const target = event.target;
+            if (target.nodeName === "BUTTON") {
+                const alias = target.parentNode;
+                htmx.remove(alias);
+                refreshHostSelectors();
+                updateAliases();
+            }
+        });
+        htmx.on("#host-aliases", "change", _ => { refreshHostSelectors(); updateAliases(); });
+        htmx.on("#host-aliases", "select", _ => { refreshHostSelectors(); updateAliases(); });
+    })();
+    </script>
 </dialog>

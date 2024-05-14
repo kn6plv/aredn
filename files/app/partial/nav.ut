@@ -10,7 +10,7 @@
 {
     const logo = htmx.find("#icon-logo");
     htmx.on("htmx:beforeRequest", function(e) {
-        if (e.detail.requestConfig.triggeringEvent.type === "click") {
+        if (e.detail.requestConfig.triggeringEvent?.type === "click") {
             setTimeout(function() {
                 if (document.body.classList.contains("htmx-request")) {
                     logo.classList.add("animate");

@@ -111,7 +111,9 @@ export function getDHCP()
             mask: setup.dmz_lan_mask,
             cidr: 32,
             leases: "/tmp/dhcp.leases",
-            reservations: "/etc/config.mesh/_setup.dhcp.dmz"
+            reservations: "/etc/config.mesh/_setup.dhcp.dmz",
+            services: "/etc/config.mesh/_setup.services.dmz",
+            aliases: "/etc/config.mesh/aliases.dmz",
         };
         switch (r.mask)
         {
@@ -143,7 +145,7 @@ export function prepareChanges()
                 if (!entry) {
                     break;
                 }
-                if (entry !== "." && entry !== "..") {
+                if (entry !== "." && entry !== ".." && entry !== "aliases") {
                     fs.writefile(`${currentConfig}/${entry}`, fs.readfile(`/etc/config.mesh/${entry}`));
                 }
             }
