@@ -27,7 +27,12 @@
 {{ _R("changes") }}
 {% return; } %}
 {%
-    const types = {};
+    const types = {
+        mail: true
+        router: true,
+        switch: true
+        radio: true
+    };
     const templates = [
         { name: "Generic URL" },
         { name: "Ubiquiti camera", type: "camera", protocol: "http", port: 80, path: "snap.jpeg" },
@@ -36,13 +41,13 @@
         { name: "Sunba Performance camera", type: "camera", protocol: "http", port: 80, path: "images/snapshot.jpg" },
         { name: "Sunba Smart camera", type: "camera", protocol: "http", port: 80, path: "ISAPI/Custom/snapshot?authInfo=USERNAME:PASSWORD" },
         { name: "NTP Server", type: "time", protocol: "ntp", port: 123 },
+        { name: "Streaming video", type: "video", protocol: "rtsp", port: 554 },
         { name: "Winlink Server", type: "winlink", protocol: "winlink", port: 8772 },
         { name: "Phone info", type: "phone", link: false, text: "xYOUR-PHONE-EXTENSION" },
         { name: "Text message", link: false },
-        { name: "Map Server", type: "map", protocol: "http", port: 80 },
-        { name: "Router", type: "router", protocol: "http", port: 80 },
-        { name: "Switch", type: "switch", protocol: "http", port: 80 },
-        { name: "Proxmox Server", protocol: "https", port: 8006 },
+        { name: "Map", type: "map", protocol: "http", port: 80 },
+        { name: "MeshChat", type: "chat", protocol: "http", port: 80, path: "meshchat" },
+        { name: "Proxmox Server", type: "server", protocol: "https", port: 8006 },
         { name: "Generic HTTP", protocol: "http", port: 80 },
         { name: "Generic HTTPS", protocol: "https", port: 443 },
     ];

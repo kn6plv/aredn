@@ -8,6 +8,9 @@
 <script>
 (function()
 {
+    if (!window.htmx) {
+        return;
+    }
     const logo = htmx.find("#icon-logo");
     htmx.on("htmx:beforeRequest", function(e) {
         if (e.detail.requestConfig.triggeringEvent?.type === "click") {
