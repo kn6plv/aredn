@@ -49,8 +49,8 @@ function serv(ip, hostname)
     if (s) {
         const re = new RegExp(`//${hostname}:`, "i");
         for (let i = 0; i < s.length; i++) {
-            let name = s[i].name;
-            const url = s[i].url;
+            let name = s[i].n;
+            const url = s[i].u;
             if (url.match(re)) {
                 const lname = name.toLowerCase();
                 let type = "";

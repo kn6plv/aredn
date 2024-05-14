@@ -1,45 +1,49 @@
 {%
 
 print("<script>\n");
-print("window.mesh = {");
+print("window.mesh = {hosts:{");
 
-const reHostsOlsr = regexp("^([0-9.]+)[ \t]+([^ \t]+)[ \t]+#[ \t]+([0-9.]+)");
-const reServices = regexp("^([^|]+)\\|(tcp|udp)\\|(.+)[ \t]+#([0-9.]+).*$");
+const reHostsOlsr = regexp("^([0-9.]+)[ \t]+([^ \t]+)[ \t]+#[ \t]+([^ \t]+)");
+const reServices = regexp("^([^|]+)\\|(tcp|udp)\\|(.+)[ \t]+#[ \t]*([^ \t]+).*$");
 
-print("etx:[");
-const routes = olsr.getRoutes();
-for (let i = 0; i < length(routes); i++) {
-    const node = routes[i];
-    if (node.genmask !== 0 && node.etx <= 50) {
-        print(`["${node.destination}",${sprintf("%.1f", node.etx)}],`);
-    }
-}
-print("].sort((a,b)=>a[1]-b[1]),hosts:{");
+let myself = null;
 const h = fs.open("/var/run/hosts_olsr");
 if (h) {
     let originator = null;
+    let first = true;
     for (;;) {
         const line = h.read("line");
         if (!length(line)) {
             break;
         }
-        const v = match(line, reHostsOlsr);
+        const v = match(trim(line), reHostsOlsr);
         if (v) {
             if (originator !== v[3]) {
                 if (originator) {
                     print("],");
                 }
                 originator = v[3];
-                print(`"${v[3]}":[`);
+                if (originator === "myself") {
+                    myself = v[1];
+                    print(`"${myself}":[`);
+                }
+                else {
+                    print(`"${originator}":[`);
+                }
+                first = true;
             }
             const host = v[2];
             if (index(host, "mid") !== 0 && index(host, "dtdlink") !== 0 && index(host, "xlink") !== 0) {
-                if (v[1] === originator) {
-                    print(`["${host}"],`);
+                if (!first) {
+                    print(",");
+                }
+                if (v[1] === originator || (originator == "myself" && v[1] == myself)) {
+                    print(`["${host}"]`);
                 }
                 else {
-                    print(`["${host}","${v[1]}"],`);
+                    print(`["${host}","${v[1]}"]`);
                 }
+                first = false;
             }
         }
     }
@@ -49,28 +53,47 @@ if (h) {
 print("},services:{");
 const s = fs.open("/var/run/services_olsr");
 if (s) {
+    let first = true;
     let ip = null;
     for (;;) {
         const line = s.read("line");
         if (!length(line)) {
             break;
         }
-        const v = match(line, reServices);
+        const v = match(trim(line), reServices);
         if (v) {
             if (ip !== v[4]) {
                 if (ip) {
                     print("],");
                 }
                 ip = v[4];
-                print(`"${v[4]}":[`);
+                if (ip === "my") {
+                    print(`"${myself}":[`);
+                }
+                else {
+                    print(`"${ip}":[`);
+                }
+                first = true;
             }
-            print(`{name:"${v[3]}",url:"${v[1]}"},`);
+            if (!first) {
+                print(",");
+            }
+            print(`{n:"${v[3]}",u:"${v[1]}"}`);
+            first = false;
         }
     }
     print("]");
     s.close();
 }
-print("}};\n");
+print(`},etx:[["${myself}",0.0],`);
+const routes = olsr.getRoutes();
+for (let i = 0; i < length(routes); i++) {
+    const node = routes[i];
+    if (node.genmask > 8 && node.etx <= 50) {
+        print(`["${node.destination}",${sprintf("%.1f", node.etx)}],`);
+    }
+}
+print("].sort((a,b)=>a[1]-b[1])};\n");
 print("</script>\n");
 
 %}

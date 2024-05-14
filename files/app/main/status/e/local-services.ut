@@ -54,7 +54,7 @@
     if (f) {
         const reService = regexp("^([^|]+)\\|1\\|([^|]+)\\|([^|]+)\\|(\\d+)\\|(.*)$");
         const reLink = regexp("^([^|]+)\\|0\\|\\|([^|]+)\\|\\|$");
-        const reType = regexp("^(.+)\\[([a-z]+)\\]$");
+        const reType = regexp("^(.+) \\[([a-z]+)\\]$");
         for (;;) {
             const l = f.read("line");
             if (!length(l)) {
