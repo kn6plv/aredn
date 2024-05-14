@@ -32,9 +32,16 @@
         { name: "Generic URL" },
         { name: "Ubiquiti camera", type: "camera", protocol: "http", port: 80, path: "snap.jpeg" },
         { name: "Axis camera", type: "camera", protocol: "http", port: 80, path: "jpg/image.jpg" },
+        { name: "Sunba Lite camera", type: "camera", protocol: "http", port: 80, path: "webcapture.jpg?command=snap&channel=1&user=USERNAME&password=PASSWORD" },
+        { name: "Sunba Performance camera", type: "camera", protocol: "http", port: 80, path: "images/snapshot.jpg" },
+        { name: "Sunba Smart camera", type: "camera", protocol: "http", port: 80, path: "ISAPI/Custom/snapshot?authInfo=USERNAME:PASSWORD" },
         { name: "NTP Server", type: "time", protocol: "ntp", port: 123 },
         { name: "Winlink Server", type: "winlink", protocol: "winlink", port: 8772 },
-        { name: "Text", link: false },
+        { name: "Phone info", type: "phone", link: false, text: "xYOUR-PHONE-EXTENSION" },
+        { name: "Text message", link: false },
+        { name: "Map Server", type: "map", protocol: "http", port: 80 },
+        { name: "Router", type: "router", protocol: "http", port: 80 },
+        { name: "Switch", type: "switch", protocol: "http", port: 80 },
         { name: "Proxmox Server", protocol: "https", port: 8006 },
         { name: "Generic HTTP", protocol: "http", port: 80 },
         { name: "Generic HTTPS", protocol: "https", port: 443 },
@@ -45,14 +52,15 @@
     const ae = iptoarr(dhcp.end);
     let f = fs.open(dhcp.services);
     if (f) {
-        const reService = regexp("^([^|]+)\\|([01])\\|([^|]+)\\|([^|]+)\\|(\\d+)\\|(.*)$");
+        const reService = regexp("^([^|]+)\\|1\\|([^|]+)\\|([^|]+)\\|(\\d+)\\|(.*)$");
+        const reLink = regexp("^([^|]+)\\|0\\|\\|([^|]+)\\|\\|$");
         const reType = regexp("^(.+)\\[([a-z]+)\\]$");
         for (;;) {
             const l = f.read("line");
             if (!length(l)) {
                 break;
             }
-            const v = match(l, reService);
+            const v = match(trim(l), reService);
             if (v) {
                 let type = null;
                 const v2 = match(v[1], reType);
@@ -60,7 +68,19 @@
                     v[1] = v2[1];
                     type = v2[2];
                 }
-                push(services, { name: v[1], type: type, link: v[2] === "1", protocol: v[3], hostname: v[4], port: v[5], path: v[6] });
+                push(services, { name: v[1], type: type, link: true, protocol: v[2], hostname: v[3], port: v[4], path: v[5] });
+            }
+            else {
+                const k = match(trim(l), reLink);
+                if (k) {
+                    let type = null;
+                    const k2 = match(k[1], reType);
+                    if (k2) {
+                        k[1] = k2[1];
+                        type = k2[2];
+                    }
+                    push(services, { name: k[1], type: type, link: false, hostname: k[2] });
+                }
             }
         }
         f.close();
@@ -100,7 +120,7 @@
     }
 %}
 <dialog>
-    {{ _R("dialog-header", "Local Services") }}
+    {{ _R("dialog-header", "Node Services") }}
     <div>
         <div id="service-templates" class="cols">
             <div>
@@ -129,7 +149,7 @@
             <div class="service">
                 <div class="cols">
                     <div class="cols">
-                        <input name="name" type="text" placeholder="service name" required pattern='[^-:"|<>]+' value="{{ s.name }}">
+                        <input name="name" type="text" placeholder="{{ s.link === false ? 'service information' : 'service name' }}" required pattern='[^-:"|<>]+' value="{{ s.name }}">
                         <div style="flex:0">
                             <select name="type">
                                 <option value="">-</option>
@@ -145,6 +165,20 @@
                 </div>
                 <div class="cols">
                     <div></div>
+                    {% if (s.link === false) { %}
+                    <div class="link">
+                        <select name="hostname">
+                        {%
+                            for (j = 0; j < length(hosts); j++) {
+                                print(`<option value="${hosts[j]}" ${hosts[j] === s.hostname ? "selected" : ""}>${hosts[j]}</option>`);
+                            }
+                            for (let j = 0; j < length(aliases.map); j++) {
+                                print(`<option value="${aliases.map[j].hostname}" ${aliases.map[j].hostname === s.hostname ? "selected" : ""}>${aliases.map[j].hostname}</option>`);
+                            }
+                        %}
+                        </select>
+                    </div>
+                    {% } else { %}
                     <div>
                         <input name="protocol" type="text" placeholder="proto" required pattern="[a-z]+" value="{{ s.protocol }}">
                         :// <select name="hostname">
@@ -160,6 +194,7 @@
                         : <input name="port" type="text" placeholder="port" required pattern="([1-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])" value="{{ s.port }}">
                         / <input name="path" type="text" placeholder="path" pattern="[\-\/\?\&\._=#a-zA-Z0-9]*" value="{{ s.path }}">
                     </div>
+                    {% } %}
                 </div>
             </div>
         {% } %}</div>
@@ -211,8 +246,15 @@
                 const host = htmx.find(s, "select[name=hostname]");
                 const port = htmx.find(s, "input[name=port]");
                 const path = htmx.find(s, "input[name=path]");
-                if (name.validity.valid && protocol.validity.valid && port.validity.valid && path.validity.valid) {
-                    services.push(`${name.value}${type.value ? " [" + type.value + "]" : ""}|1|${protocol.value}|${host.value}|${port.value}|${path.value}`);
+                if (protocol && port && path) {
+                    if (name.validity.valid && protocol.validity.valid && port.validity.valid && path.validity.valid) {
+                        services.push(`${name.value}${type.value ? " [" + type.value + "]" : ""}|1|${protocol.value}|${host.value}|${port.value}|${path.value}`);
+                    }
+                }
+                else {
+                     if (name.validity.valid) {
+                        services.push(`${name.value}${type.value ? " [" + type.value + "]" : ""}|0||${host.value}||`);
+                    }
                 }
             }
             htmx.ajax("PUT", "{{ request.env.REQUEST_URI }}", {
@@ -260,10 +302,38 @@
         htmx.on("#service-templates button", "click", _ => {
             const t = templates[htmx.find("#service-templates select").value];
             if (t) {
-                const template = `<div class="service">
+                let template;
+                if (t.link === false) {
+                    template = `<div class="service">
     <div class="cols">
         <div class="cols">
-            <input name="name" type="text" placeholder="service name" required pattern='[^-:"|<>]+' value="${t.name}">
+            <input name="name" type="text" placeholder="service name" required pattern='[^-:"|<>]+' value="${t.text || t.name}">
+            <div style="flex:0">
+                <select name="type">
+                    <option value="">-</option>
+                    {%
+                        for (t in types) {
+                            print(`<option value="${t}">${t}</option>`);
+                        }
+                    %}
+                </select>
+            </div>
+        </div>
+        <button>-</button>
+    </div>
+    <div class="cols">
+        <div></div>
+        <div class="link">
+            <select name="hostname"></select>
+        </div>
+    </div>
+</div>`;
+                }
+                else {
+                    template = `<div class="service">
+    <div class="cols">
+        <div class="cols">
+            <input name="name" type="text" placeholder="service name" required pattern='[^-:"|<>]+' value="${t.text || t.name}">
             <div style="flex:0">
                 <select name="type">
                     <option value="">-</option>
@@ -287,6 +357,7 @@
         </div>
     </div>
 </div>`;
+                }
                 const div = document.createElement("div");
                 div.innerHTML = template;
                 htmx.find(div, "select[name=type]").value = t.type || "";

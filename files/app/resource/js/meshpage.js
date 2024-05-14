@@ -49,21 +49,27 @@ function serv(ip, hostname)
     if (s) {
         const re = new RegExp(`//${hostname}:`, "i");
         for (let i = 0; i < s.length; i++) {
-            const name = s[i].name;
+            let name = s[i].name;
             const url = s[i].url;
             if (url.match(re)) {
                 const lname = name.toLowerCase();
+                let type = "";
+                const nametype = name.match(/^(.*)\[(.*)\]$/);
+                if (nametype) {
+                    name = nametype[1];
+                    type = `<div class="icon ${nametype[2]}"></div>`;
+                }
                 const r = url.match(/^(.+:\/\/)([^:]+):(\d+)(.*)$/);
                 switch (r[3]) {
                     case "0":
-                        view += `<div class="service" data-search="${lname}"><span>${name}</span></div>`;
+                        view += `<div class="service" data-search="${lname}"><span>${name}</span>${type}</div>`;
                         break;
                     case "80":
                     case "443":
-                        view += `<div class="service" data-search="${lname}"><a target="_blank" href="${r[1]}${r[2]}.local.mesh${r[4]}">${name}</a>&#8288;<div></div></div>`;
+                        view += `<div class="service" data-search="${lname}"><a target="_blank" href="${r[1]}${r[2]}.local.mesh${r[4]}">${name}</a>&#8288;${type ? type : "<div></div>"}</div>`;
                         break;
                     default:
-                        view += `<div class="service" data-search="${lname}"><a target="_blank" href="${r[1]}${r[2]}.local.mesh:${r[3]}${r[4]}">${name}</a>&#8288;<div></div></div>`;
+                        view += `<div class="service" data-search="${lname}"><a target="_blank" href="${r[1]}${r[2]}.local.mesh:${r[3]}${r[4]}">${name}</a>&#8288;${type ? type : "<div></div>"}</div>`;
                         break;
                 }
             }
