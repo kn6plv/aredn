@@ -131,6 +131,7 @@ body.authenticated .ctrl:hover
     flex: 1;
     height: 100%;
     padding-top: 64px;
+    background-color: var(--nav-bg-color);
 }
 #select
 {
@@ -145,8 +146,10 @@ body.authenticated .ctrl:hover
     flex: 1;
     height: 100%;
     padding: 10px;
+    background-color: var(--body-bg-color);
     overflow-y: scroll;
     overscroll-behavior: contain;
+    border-top-left-radius: 20px;
 }
 #c1
 {
@@ -945,7 +948,7 @@ body.authenticated .ctrl:hover
     display: flex;
     flex-flow: wrap;
     padding: 30px 20px;
-    border-radius: 20px;
+    border-radius: 10px;
     margin-bottom: 10px;
     border-width: 2px;
     border-style: solid;
