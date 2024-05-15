@@ -33,10 +33,10 @@
     {
         if (txbitrate) {
             if (rxbitrate) {
-                return int((txbitrate + rxbitrate) * 5 + 0.5) / 10;
+                return sprintf("%.1f", ((txbitrate + rxbitrate) * 5 + 0.5) / 10);
             }
             else {
-                return int(txbitrate * 10 + 0.5) / 10;
+                return sprintf("%.1f", (txbitrate * 10 + 0.5) / 10);
             }
         }
         return "-";
@@ -120,7 +120,7 @@
                             d = "< 1";
                         }
                         else {
-                            d = sprintf("%d", d);
+                            d = sprintf("%.1f", d);
                         }
                     }
                     print(`<div>${lq}</div><div>${nlq}</div><div>${tracker.snr || "-"}</div><div>${tracker.rev_snr || "-"}</div><div>${100 - tracker.quality}%</div><div>${calcBitrate(tracker.tx_bitrate, tracker.rx_bitrate)}</div><div>${d}</div>`);

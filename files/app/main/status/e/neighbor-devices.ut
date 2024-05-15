@@ -169,14 +169,17 @@
             {% } %}
             <div class="cols">
                 <div class="i">
-                    <div>{{ n.ping_success_time ? sprintf("%.1f ms", n.ping_success_time * 1000) : "-" }}</div>
+                    <div>{{ type(n.ping_success_time) ? sprintf("%.1f ms", n.ping_success_time * 1000) : "-" }}</div>
                     <div>ping time</div>
                 </div>
                 <div class="i">
-                    <div>{{ n.ping_quality }}%</div>
+                    <div>{{ type(n.ping_quality) ? sprintf("%d%%", n.ping_quality) : "-" }}</div>
                     <div>ping success</div>
                 </div>
-                <div></div>
+                <div class="i">
+                    <div>{{ type(n.avg_tx) ? sprintf("%.1f pkt/sec", n.avg_tx / 60) : "-" }}</div>
+                    <div>avg tx</div>
+                </div>
             </div>
             {% if (n.type == "RF") { %}
             <div class="cols">
@@ -189,7 +192,7 @@
                     <div>neighbor snr</div>
                 </div>
                 <div class="i">
-                    <div>{{ n.avg_tx_fail ? sprintf("%.1f%", 100 * n.avg_tx_fail / n.avg_tx) : "-" }}</div>
+                    <div>{{ n.avg_tx_fail ? sprintf("%.1f%%", 100 * n.avg_tx_fail / n.avg_tx) : "-" }}</div>
                     <div>tx failures</div>
                 </div>
             </div>
@@ -203,7 +206,7 @@
                     <div>physical tx bitrate</div>
                 </div>
                 <div class="i">
-                    <div>{{ n.avg_tx_retries ? sprintf("%.1f%", 100 * n.avg_tx_retries / n.avg_tx) : "-" }}</div>
+                    <div>{{ n.avg_tx_retries ? sprintf("%.1f%%", 100 * n.avg_tx_retries / n.avg_tx) : "-" }}</div>
                     <div>tx retransmissions</div>
                 </div>
             </div>
