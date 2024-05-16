@@ -97,8 +97,9 @@ for (let i = 0; i < etx.length; i++) {
             for (let j = 0; j < hostlist.length; j++) {
                 const lanhost = hostlist[j];
                 if (lanhost[1] && lanhost[1] !== ip) {
-                    const lan = lanhost[0].replace(/^\*./, "");
-                    lanview += `<div class="lanhost" data-search="${lan.toLowerCase()}"><div class="name">&nbsp;&nbsp;${lan}</div><div class="services">${serv(ip, lanhost[0])}</div></div>`;
+                    if (lanhost[0].indexOf("*.") !== 0) {
+                        lanview += `<div class="lanhost" data-search="${lanhost[0].toLowerCase()}"><div class="name">&nbsp;&nbsp;${lanhost[0]}</div><div class="services">${serv(ip, lanhost[0])}</div></div>`;
+                    }
                 }
             }
             data += `<div class="node"><div class="host" data-search="${hostname.toLowerCase()}"><div class="name"><a href="http://${hostname}.local.mesh">${hostname}</a><span class="etx">${item[1]}</span></div><div class="services">${serv(ip, hostname)}</div></div>${lanview ? '<div class="lanhosts">' + lanview + '</div>' : ''}</div>`;

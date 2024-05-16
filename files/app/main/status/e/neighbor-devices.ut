@@ -150,7 +150,7 @@
                 if (l && l.lossMultiplier) {
                     const lq = int(100 * l.linkQuality * 65536 / l.lossMultiplier);
                     const nlq = int(100 * l.neighborLinkQuality * 65536 / l.lossMultiplier);
-                    const etx = 10000 / (lq * nlq);
+                    const etx = 10000.0 / (lq * nlq);
             %}
             <div class="cols">
                 <div class="i">
