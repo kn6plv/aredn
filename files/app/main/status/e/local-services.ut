@@ -32,6 +32,10 @@
         router: true,
         switch: true,
         radio: true,
+        solar: true,
+        battery: true,
+        power: true,
+        wiki: true,
     };
     const templates = [
         { name: "Generic URL" },

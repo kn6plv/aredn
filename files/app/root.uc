@@ -50,7 +50,8 @@ if (!config.debug) {
         md.close();
         fs.symlink(pathgz, `${path}.${resourceVersions[id]}.gz`);
     }
-    prepareResource("basecss", "css/base.css");
+    prepareResource("usercss", "css/user.css");
+    prepareResource("admincss", "css/admin.css");
     prepareResource("aredncss", "css/aredn.css");
     prepareResource("htmx", "js/htmx.min.js");
     prepareResource("meshpage", "js/meshpage.js");
