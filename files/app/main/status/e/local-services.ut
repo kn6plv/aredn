@@ -28,10 +28,10 @@
 {% return; } %}
 {%
     const types = {
-        mail: true
+        mail: true,
         router: true,
-        switch: true
-        radio: true
+        switch: true,
+        radio: true,
     };
     const templates = [
         { name: "Generic URL" },

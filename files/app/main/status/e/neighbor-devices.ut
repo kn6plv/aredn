@@ -210,6 +210,15 @@
                     <div>tx retransmissions</div>
                 </div>
             </div>
+            {% } else if (type(n.avg_tx_fail)) { %}
+            <div class="cols">
+                <div class="i">
+                    <div>{{ sprintf("%.1f%%", 100 * n.avg_tx_fail / n.avg_tx) }}</div>
+                    <div>tx failures</div>
+                </div>
+                <div></div>
+                <div></div>
+            </div>
             {% } %}
             <div class="cols">
                 <div class="i">
