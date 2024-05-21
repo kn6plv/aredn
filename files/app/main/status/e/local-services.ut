@@ -40,6 +40,7 @@
     const templates = [
         { name: "Generic URL" },
         { name: "Ubiquiti camera", type: "camera", protocol: "http", port: 80, path: "snap.jpeg" },
+        { name: "Reolink camera", type: "camera", protocol: "http", port: 80, path: "cgi-bin/api.cgi?cmd=Snap&channel=0&rs=abcdef&user=USERNAME&password=PASSWORD" },
         { name: "Axis camera", type: "camera", protocol: "http", port: 80, path: "jpg/image.jpg" },
         { name: "Sunba Lite camera", type: "camera", protocol: "http", port: 80, path: "webcapture.jpg?command=snap&channel=1&user=USERNAME&password=PASSWORD" },
         { name: "Sunba Performance camera", type: "camera", protocol: "http", port: 80, path: "images/snapshot.jpg" },
