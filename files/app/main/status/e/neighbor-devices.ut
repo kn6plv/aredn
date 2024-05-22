@@ -225,7 +225,10 @@
                     <div>{{ state(n) }}</div>
                     <div>state</div>
                 </div>
-                <div></div>
+                <div class="i">
+                    <div>{{ n.node_route_count }}</div>
+                    <div>active routes</div>
+                </div>
                 <div></div>
             </div>
         </div>
