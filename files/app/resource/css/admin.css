@@ -470,6 +470,11 @@
     line-height: 70px;
     background-color: rgba(255,255,255,0.6);
 }
+#reboot #icon-logo + div + div span
+{
+    font-size: 10px;
+    line-height: 10px;
+}
 #reboot #icon-logo + div + div + div
 {
     font-size: 15px;
