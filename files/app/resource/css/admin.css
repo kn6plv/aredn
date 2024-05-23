@@ -491,6 +491,7 @@
 #reboot #countdown
 {
     font-size: 24px;
+    font-variant: proportional-nums;
 }
 #reboot progress
 {
