@@ -1,7 +1,7 @@
 {%
     response.reboot = true;
 %}
-<div id="reboot">
+<div id="reboot" class="cols" style="padding:64px;color:black;background-color:white;height:100%">
 <script>
     const TIMEOUT = 5000;
     const COUNTDOWN = 120;
@@ -33,7 +33,7 @@
         const div = document.getElementById("countdown");
         if (div) {
             let t = Math.round(COUNTDOWN - (Date.now() - start) / 1000);
-            div.innerHTML = t <= 0 ? "..." : new Date(1000 * t).toISOString().substring(14, 19);
+            div.innerHTML = t <= 0 ? "&nbsp;" : `Time Remaining: ${new Date(1000 * t).toISOString().substring(14, 19)}`;
             const cdp = document.getElementById("cdprogress");
             if (cdp) {
                 if (t < 0)
@@ -46,5 +46,21 @@
     setInterval(cdown, 1000);
     setTimeout(reload, DELAY * 1000);
 </script>
-Rebooting ...
+<div style="flex:0">
+    <div style="margin-left:20px">
+        <div id="icon-logo" style="transform:scale(4) translate(37%,37%)"></div><div></div>
+    </div>
+    <div style="position:relative;line-height:70px;font-size:82px;font-weight:bold;background-color:rgba(255,255,255,0.6);margin-top:107px;">AREDN</div>
+    <div style="font-weight:bold;font-size:15px;white-space:nowrap">Amateur Radio Emergency Data Network</div>
+</div>
+<div style="padding:64px 172px;font-size:32px;display:flex;flex-direction:column">
+    <div>Rebooting</div>
+    <div style="flex:1;font-size:18px;line-height:32px;padding-top:64px">
+        Your node is rebooting.<br>This browser will automatically reconnect once this is complete.
+    </div>
+    <div>
+        <div><progress id="cdprogress" max="120" style="width:100%"></div>
+        <div id="countdown">&nbsp;</div>
+    </div>
+</div>
 </div>

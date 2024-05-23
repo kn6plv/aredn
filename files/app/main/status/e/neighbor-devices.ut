@@ -75,6 +75,9 @@
         {%
         function state(n)
         {
+            if (n.blocks.user) {
+                return "blocked by user";
+            }
             if (n.blocked) {
                 if (n.blocks.signal) {
                     return "blocked: low snr";
@@ -82,19 +85,20 @@
                 if (n.blocks.distance) {
                     return "blocked: too far away";
                 }
+                if (n.blocks.quality) {
+                    return "blocked: bad data path";
+                }
                 if (n.blocks.dup || n.blocks.dtd) {
                     return "blocked: duplicate link";
                 }
-                if (n.blocks.user) {
-                    return "blocked by user";
-                }
                 return "blocked";
             }
-            if (n.blocks.user) {
-                return "blocked by user";
-            }
             if (n.routable) {
-                return "routing traffic";
+                if ((n.blocks.signal || n.blocks.distance || n.blocks.quality) && (
+                   (n.leaf === "major" && n.rev_leaf === "minor") || (n.leaf === "minor" && n.rev_leaf === "major"))) {
+                    return "routing leaf";
+                }
+                return "routing";
             }
             return "unused";
         }
