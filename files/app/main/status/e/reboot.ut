@@ -1,7 +1,6 @@
 {%
     response.reboot = true;
 %}
-<div id="reboot" class="cols" style="padding:64px;color:black;background-color:white;height:100%">
 <script>
     const TIMEOUT = 5000;
     const COUNTDOWN = 120;
@@ -46,20 +45,18 @@
     setInterval(cdown, 1000);
     setTimeout(reload, DELAY * 1000);
 </script>
-<div style="flex:0">
-    <div style="margin-left:20px">
-        <div id="icon-logo" style="transform:scale(4) translate(37%,37%)"></div><div></div>
-    </div>
-    <div style="position:relative;line-height:70px;font-size:82px;font-weight:bold;background-color:rgba(255,255,255,0.6);margin-top:107px;">AREDN</div>
-    <div style="font-weight:bold;font-size:15px;white-space:nowrap">Amateur Radio Emergency Data Network</div>
+<div id="reboot">
+<div>
+    <div id="icon-logo""></div>
+    <div></div>
+    <div>AREDN</div>
+    <div>Amateur Radio Emergency Data Network</div>
 </div>
-<div style="padding:64px 172px;font-size:32px;display:flex;flex-direction:column">
+<div>
     <div>Rebooting</div>
-    <div style="flex:1;font-size:18px;line-height:32px;padding-top:64px">
-        Your node is rebooting.<br>This browser will automatically reconnect once this is complete.
-    </div>
+    <div>Your node is rebooting.<br>This browser will automatically reconnect once this is complete.</div>
     <div>
-        <div><progress id="cdprogress" max="120" style="width:100%"></div>
+        <div><progress id="cdprogress" max="120"></div>
         <div id="countdown">&nbsp;</div>
     </div>
 </div>
