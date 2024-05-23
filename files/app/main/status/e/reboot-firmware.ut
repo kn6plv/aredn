@@ -1,0 +1,23 @@
+{{ _R("reboot-mon", { delay: 120, countdown: 300, timeout: 5 }) }}
+<div id="reboot">
+    <div>
+        <div id="icon-logo""></div>
+        <div></div>
+        <div>AREDN<span>TM</span></div>
+        <div>Amateur Radio Emergency Data Network</div>
+    </div>
+    <div>
+        <div id="firmware-title">Updating Firmware</div>
+        <div id="firmware-msg">Updating the firmware on your node.<br><b>DO NOT REMOVE POWER UNTIL THIS IS COMPLETE.</b></div>
+        <div>
+            <div><progress id="cdprogress" max="300"></div>
+            <div id="countdown">&nbsp;</div>
+        </div>
+    </div>
+    <script>
+        setTimeout(function() {
+            document.getElementById("firmware-title").innerHTML = "Rebooting";
+            document.getElementById("firmware-msg").innerHTML = "<div>Your node is rebooting.<br>This browser will automatically reconnect once this is complete.</div>";
+        }, 100 * 1000);
+    </script>
+</div>

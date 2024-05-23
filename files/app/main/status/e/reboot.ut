@@ -1,63 +1,20 @@
 {%
     response.reboot = true;
 %}
-<script>
-    const TIMEOUT = 5000;
-    const COUNTDOWN = 120;
-    const DELAY = 20;
-    function reload() {
-        const start = Date.now();
-        const req = new XMLHttpRequest();
-        req.open('GET', window.origin + "/a/status");
-        req.onreadystatechange = function() {
-            if (req.readyState === 4) {
-                if (req.status === 200) {
-                    window.location = window.origin + "/a/status";
-                }
-                else {
-                    const time = Date.now() - start;
-                    setTimeout(reload, time > TIMEOUT ? 0 : TIMEOUT - time);
-                }
-            }
-        }
-        req.timeout = TIMEOUT;
-        try {
-            req.send(null);
-        }
-        catch (_) {
-        }
-    }
-    const start = Date.now()
-    function cdown() {
-        const div = document.getElementById("countdown");
-        if (div) {
-            let t = Math.round(COUNTDOWN - (Date.now() - start) / 1000);
-            div.innerHTML = t <= 0 ? "&nbsp;" : `Time Remaining: ${new Date(1000 * t).toISOString().substring(14, 19)}`;
-            const cdp = document.getElementById("cdprogress");
-            if (cdp) {
-                if (t < 0)
-                    cdp.removeAttribute("value");
-                else
-                    cdp.setAttribute("value", cdp.getAttribute("max") - t);
-            }
-        }
-    }
-    setInterval(cdown, 1000);
-    setTimeout(reload, DELAY * 1000);
-</script>
+{{ _R("reboot-mon", { delay: 20, countdown: 120, timeout: 5 }) }}
 <div id="reboot">
-<div>
-    <div id="icon-logo""></div>
-    <div></div>
-    <div>AREDN<span>TM</span></div>
-    <div>Amateur Radio Emergency Data Network</div>
-</div>
-<div>
-    <div>Rebooting</div>
-    <div>Your node is rebooting.<br>This browser will automatically reconnect once this is complete.</div>
     <div>
-        <div><progress id="cdprogress" max="120"></div>
-        <div id="countdown">&nbsp;</div>
+        <div id="icon-logo""></div>
+        <div></div>
+        <div>AREDN<span>TM</span></div>
+        <div>Amateur Radio Emergency Data Network</div>
     </div>
-</div>
+    <div>
+        <div>Rebooting</div>
+        <div>Your node is rebooting.<br>This browser will automatically reconnect once this is complete.</div>
+        <div>
+            <div><progress id="cdprogress" max="120"></div>
+            <div id="countdown">&nbsp;</div>
+        </div>
+    </div>
 </div>
