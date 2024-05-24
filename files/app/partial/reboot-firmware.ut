@@ -1,4 +1,4 @@
-{{ _R("reboot-mon", { delay: 120, countdown: 300, timeout: 5 }) }}
+{{ _R("reboot-mon", { delay: 120, countdown: 300, timeout: 5, location: `http://${request.env.HTTP_HOST}/a/status` }) }}
 <div id="reboot">
     <div>
         <div id="icon-logo""></div>

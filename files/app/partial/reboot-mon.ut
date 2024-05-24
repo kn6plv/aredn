@@ -2,14 +2,15 @@
     const TIMEOUT = {{ inner.timeout }} * 1000;
     const COUNTDOWN = {{ inner.countdown }};
     const DELAY = {{ inner.delay }} * 1000;
+    const LOCATION = "{{ inner.location }}";
     function reload() {
         const start = Date.now();
         const req = new XMLHttpRequest();
-        req.open('GET', window.origin + "/a/status");
+        req.open('GET', LOCATION);
         req.onreadystatechange = function() {
             if (req.readyState === 4) {
                 if (req.status === 200) {
-                    window.location = window.origin + "/a/status";
+                    window.location = LOCATION;
                 }
                 else {
                     const time = Date.now() - start;

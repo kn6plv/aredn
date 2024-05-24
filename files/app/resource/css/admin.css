@@ -97,7 +97,8 @@
 }
 
 #ctrl-modal dialog input[type=text],
-#ctrl-modal dialog input[type=password]
+#ctrl-modal dialog input[type=password],
+#ctrl-modal dialog input[type=file]
 {
     color: var(--ctrl-modal-textbox-fg-color);
     background-color: var(--ctrl-modal-textbox-bg-color);
@@ -114,6 +115,11 @@
 #ctrl-modal dialog input[type=password]:invalid
 {
     border-color: var(--ctrl-modal-border-color-error) !important;
+}
+#ctrl-modal dialog input[type=file]::file-selector-button
+{
+    background-color: var(--ctrl-modal-textbox-bg-color);
+    border: 1px solid var(--ctrl-modal-textbox-border-color);
 }
 
 #ctrl-modal dialog select
@@ -147,10 +153,12 @@
 {
     margin-top: 4px;
     min-width: 24px;
-    height: 23px;
-    border-radius: 8px;
+    height: 24px;
+    border-radius: 4px;
     background-color: var(--ctrl-modal-textbox-bg-color);
     border: 1px solid var(--ctrl-modal-textbox-border-color);
+    white-space: nowrap;
+    font-size: 14px;
 }
 #ctrl-modal dialog button:hover
 {
@@ -499,3 +507,27 @@
 }
 
 /* reboot end */
+
+/* firmware update start */
+
+#firmware-update
+{
+    display: flex;
+    flex-direction: column;
+}
+#firmware-update hr + div
+{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+#firmware-upload
+{
+    padding: 6px 10px 0 0;
+}
+#firmware-upload progress
+{
+    width: 100%;
+}
+
+/* firmware update end */

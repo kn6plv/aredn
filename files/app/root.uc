@@ -12,6 +12,7 @@ import * as olsr from "olsr";
 import * as units from "units";
 import * as radios from "radios";
 import * as log from "log";
+import * as lucihttp from "lucihttp";
 
 const pageCache = {};
 const resourceVersions = {};
@@ -283,6 +284,74 @@ global.handle_request = function(env)
                     if (!(k in args)) {
                         args[k] = uhttpd.urldecode(kv[1]);
                     }
+                }
+            }
+            if (index(env.CONTENT_TYPE, "multipart/form-data") === 0) {
+                let key;
+                let val;
+                let header;
+                let file;
+                let parser;
+                parser = lucihttp.multipart_parser(env.CONTENT_TYPE, (what, buffer, length) => {
+                    switch (what) {
+                        case parser.PART_INIT:
+                            key = null;
+                            val = null;
+                            break;
+                        case parser.HEADER_NAME:
+                            header = lc(buffer);
+                            break;
+                        case parser.HEADER_VALUE:
+                            if (header === "content-disposition") {
+                                const filename = lucihttp.header_attribute(buffer, "filename");
+                                key = lucihttp.header_attribute(buffer, "name");
+                                file = {
+                                    name: `/tmp/${key}`,
+                                    filename: filename
+                                };
+                                val = filename;
+                            }
+                            break;
+                        case parser.PART_BEGIN:
+                            if (file) {
+                                file.fd = fs.open(file.name, "w");
+                                return false
+                            }
+                            break;
+                        case parser.PART_DATA:
+                            if (file) {
+                                file.fd.write(buffer);
+                            }
+                            else {
+                                val = buffer;
+                            }
+                            break;
+                        case parser.PART_END:
+                            if (file) {
+                                file.fd.close();
+                                file.fd = null;
+                                args[key] = file.name;
+                            }
+                            else if (key) {
+                                args[key] = val;
+                            }
+                            key = null;
+                            val = null;
+                            file = null;
+                            break;
+                        case parser.ERROR:
+                            log.syslog(log.LOG_ERR, `multipart error: ${buffer}`);
+                            break;
+                    }
+                    return true;
+                });
+                for (;;) {
+                    const v = uhttpd.recv(10240);
+                    if (!length(v)) {
+                        parser.parse(null);
+                        break;
+                    }
+                    parser.parse(v);
                 }
             }
             const response = { statusCode: 200, headers: { "Content-Type": "text/html", "Cache-Control": "no-store" } };

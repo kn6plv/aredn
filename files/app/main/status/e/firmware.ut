@@ -1,11 +1,64 @@
-{% if (request.env.REQUEST_METHOD === "PUT") {
-    configuration.prepareChanges();
+{% if (request.env.REQUEST_METHOD === "POST") {
+    if (request.args.firmwarefile) {
+        print(_R("reboot-firmware"));
+    }
 %}
 {{ _R("changes") }}
 {% return; } %}
 <dialog>
     {{ _R("dialog-header", "Firmware") }}
-    <div>
+    <div id="firmware-update">
+        <div class="cols">
+            <div>
+                <div class="o">Firmware</div>
+                <div class="m">Current firmware version</div>
+            </div>
+            <div style="flex:0">
+                <input type="text" disabled size="35" value="{{ configuration.getFirmwareVersion() }}">
+            </div>
+        </div>
+        <hr>
+        <div>
+            <div class="cols">
+                <div>
+                    <div class="o">Keep Configuration</div>
+                    <div class="m">Keep existing configuration after upgrade.</div>
+                </div>
+                <div style="flex:0">
+                    {{ _R("switch", { name: "keepconfig", value: true }) }}
+                </div>
+            </div>
+            <div class="cols">
+                <div>
+                    <div class="o">Upload Firmware</div>
+                    <div class="m">Upload a firmware file from your computer.</div>
+                </div>
+                <div style="flex:0">
+                    <input type="file" accept=".bin,.gz">
+                </div>
+            </div>
+            <div style="flex:1"></div>
+            <div class="cols">
+                <div id="firmware-upload">
+                    <progress value="0" max="100">
+                </div>
+                <div style="flex:0">
+                    <button id="fetch-and-update" hx-trigger="none" hx-encoding="multipart/form-data">Fetch and Update</div>
+                </div>
+            </div>
+        </div>
     </div>
     {{ _R("dialog-footer") }}
+    <script>
+        htmx.on("#fetch-and-update", "click", e => {
+            htmx.on(e.currentTarget, "htmx:xhr:progress", e => htmx.find("#firmware-upload progress").setAttribute("value", e.detail.loaded / e.detail.total * 100));
+            htmx.ajax("POST", "{{ request.env.REQUEST_URI }}", {
+                source: e.currentTarget,
+                values: {
+                    firmwarefile: htmx.find("#firmware-update input[type=file]").files[0]
+                },
+                target: document.body
+            });
+        });
+    </script>
 </dialog>
