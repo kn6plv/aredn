@@ -1,13 +1,92 @@
-{% if (request.env.REQUEST_METHOD === "POST") {
-    if (request.args.firmwarefile) {
-        print(_R("reboot-firmware"));
+{% 
+    if (request.env.REQUEST_METHOD === "PUT") {
+        if (request.args.keepconfig) {
+            if (request.args.keepconfig === "off") {
+                fs.open("/tmp/do-not-keep-configuration", "w").close();
+            }
+            else {
+                fs.unlink("/tmp/do-not-keep-configuration");
+            }
+        }
+        if (request.args.dangerousupgrade) {
+            if (request.args.dangerousupgrade === "on") {
+                fs.open("/tmp/force-upgrade-this-is-dangerous", "w").close();
+            }
+            else {
+                fs.unlink("/tmp/force-upgrade-this-is-dangerous");
+            }
+        }
+        return;
     }
+    else if (request.env.REQUEST_METHOD === "POST") {
+        let error = "Failed";
+        if (request.args.firmwarefile) {
+            const f = fs.popen(`/usr/local/bin/firmwarecheck.sh ${request.args.firmwarefile}`);
+            if (f) {
+                const msg = f.read("all");
+                f.close();
+                if (msg === "") {
+                    error = null;
+                }
+                else {
+                    error = msg;
+                }
+            }
+            else {
+                error = "Failed to verify firmware";
+            }
+        }
+        if (!error) {
+            fs.unlink("/tmp/arednsysupgradebackup.tgz");
+            if (!fs.access("/tmp/do-not-keep-configuration")) {
+                const fi = fs.open("/etc/arednsysupgrade.conf");
+                if (fi) {
+                    const fo = fs.open("/tmp/sysupgradefilelist", "w");
+                    if (fo) {
+                        for (;;) {
+                            const l = fi.read("line");
+                            if (!length(l)) {
+                                break;
+                            }
+                            if (!match(l, "^#") && fs.access(trim(l))) {
+                                fo.write(l);
+                            }
+                        }
+                        fo.close();
+                        configuration.setUpgrade("1");
+                        if (system("tar -czf /tmp/arednsysupgradebackup.tgz -T /tmp/sysupgradefilelist > /dev/null 2>&1") < 0) {
+                            fs.unlink("/tmp/arednsysupgradebackup.tgz");
+                        }
+                        configuration.setUpgrade("0");
+                        fs.unlink("/tmp/sysupgradefilelist");
+                    }
+                    fi.close();
+                }
+                if (!fs.access("/tmp/arednsysupgradebackup.tgz")) {
+                    error = "Failed to create backup.";
+                }
+            }
+            if (!error) {
+                fs.unlink("/tmp/sysupgradefilelist");
+                response.upgrade = `/usr/local/bin/aredn_sysupgrade ${fs.access("/tmp/arednsysupgradebackup.tgz") ? "-f /tmp/arednsysupgradebackup.tgz" : "-n"} -q ${request.args.firmwarefile}`;
+                print(_R("reboot-firmware"));
+                return;
+            }
+        }
+        if (error) {
+            fs.unlink("/tmp/arednsysupgradebackup.tgz");
+            fs.unlink(request.args.firmwarefile);
+            print(`<div id="firmware-error" hx-swap-oob="true">ERROR: ${error}</div>`);
+        }
+        return;
+    }
+    fs.unlink("/tmp/force-upgrade-this-is-dangerous");
+    fs.unlink("/tmp/do-not-keep-configuration");
 %}
-{{ _R("changes") }}
-{% return; } %}
 <dialog>
     {{ _R("dialog-header", "Firmware") }}
     <div id="firmware-update">
+        <div id="firmware-error"></div>
         <div class="cols">
             <div>
                 <div class="o">Firmware</div>
@@ -21,20 +100,32 @@
         <div>
             <div class="cols">
                 <div>
-                    <div class="o">Keep Configuration</div>
-                    <div class="m">Keep existing configuration after upgrade.</div>
-                </div>
-                <div style="flex:0">
-                    {{ _R("switch", { name: "keepconfig", value: true }) }}
-                </div>
-            </div>
-            <div class="cols">
-                <div>
                     <div class="o">Upload Firmware</div>
                     <div class="m">Upload a firmware file from your computer.</div>
                 </div>
                 <div style="flex:0">
                     <input type="file" accept=".bin,.gz">
+                </div>
+            </div>
+            {{ _R("dialog-advanced") }}
+            <div>
+                <div class="cols">
+                    <div>
+                        <div class="o">Keep Configuration</div>
+                        <div class="m">Keep existing configuration after upgrade.</div>
+                    </div>
+                    <div style="flex:0">
+                        {{ _R("switch", { name: "keepconfig", value: true }) }}
+                    </div>
+                </div>
+                <div class="cols">
+                    <div>
+                        <div class="o">Dangerous Upgrade</div>
+                        <div class="m">Force the firmware onto the device, even if it fails the safety checks.</div>
+                    </div>
+                    <div style="flex:0">
+                        {{ _R("switch", { name: "dangerousupgrade", value: false }) }}
+                    </div>
                 </div>
             </div>
             <div style="flex:1"></div>
@@ -51,13 +142,14 @@
     {{ _R("dialog-footer") }}
     <script>
         htmx.on("#fetch-and-update", "click", e => {
+            htmx.find("#firmware-error").innerHTML = "";
             htmx.on(e.currentTarget, "htmx:xhr:progress", e => htmx.find("#firmware-upload progress").setAttribute("value", e.detail.loaded / e.detail.total * 100));
             htmx.ajax("POST", "{{ request.env.REQUEST_URI }}", {
                 source: e.currentTarget,
                 values: {
                     firmwarefile: htmx.find("#firmware-update input[type=file]").files[0]
                 },
-                target: document.body
+                swap: "none"
             });
         });
     </script>

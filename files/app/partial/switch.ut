@@ -1,4 +1,3 @@
 <label class="switch {{ inner.style || "" }}">
-  <input type="checkbox" name="{{ inner.name || "unknown" }}" {{ inner.value ? "checked" : "" }} hx-put="{{ request.env.REQUEST_URI }}" hx-include="[name='{{ inner.name }}']">
-  <input type="hidden" name="{{ inner.name || "unknown" }}" value="off">
+  <input type="checkbox" name="{{ inner.name || "unknown" }}" {{ inner.value ? "checked" : "" }} hx-put="{{ request.env.REQUEST_URI }}" hx-vals='js:{"{{ inner.name }}":htmx.find("[name=\"{{ inner.name }}\"]").checked ? "on" : "off"}'>
 </label>

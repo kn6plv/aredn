@@ -4,15 +4,15 @@ import * as fs from "fs";
 import * as math from "math";
 import * as uci from "uci";
 import * as ubus from "ubus";
-import * as configuration from "configuration";
-import * as hardware from "hardware";
-import * as lqm from "lqm";
-import * as network from "network";
-import * as olsr from "olsr";
-import * as units from "units";
-import * as radios from "radios";
 import * as log from "log";
 import * as lucihttp from "lucihttp";
+import * as configuration from "aredn.configuration";
+import * as hardware from "aredn.hardware";
+import * as lqm from "aredn.lqm";
+import * as network from "aredn.network";
+import * as olsr from "aredn.olsr";
+import * as units from "aredn.units";
+import * as radios from "aredn.radios";
 
 const pageCache = {};
 const resourceVersions = {};
@@ -314,6 +314,7 @@ global.handle_request = function(env)
                             break;
                         case parser.PART_BEGIN:
                             if (file) {
+                                fs.writefile("/proc/sys/vm/drop_caches", "3");
                                 file.fd = fs.open(file.name, "w");
                                 return false
                             }
@@ -412,7 +413,10 @@ global.handle_request = function(env)
                 fs.unlink(datafile);
             }
             if (response.reboot) {
-                fs.popen("exec /sbin/reboot");
+                system("exec /sbin/reboot");
+            }
+            if (response.upgrade) {
+                system(response.upgrade);
             }
             return;
         }
