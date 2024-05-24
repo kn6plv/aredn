@@ -95,6 +95,13 @@ export function getFirmwareVersion()
     return firmwareVersion;
 };
 
+export function setUpgrade(v)
+{
+    initCursor();
+    cursor.set("hsmmmesh", "settings", "nodeupgraded", v);
+    cursor.commit("hsmmmesh");
+};
+
 export function getDHCP()
 {
     initSetup();

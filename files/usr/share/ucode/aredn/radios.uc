@@ -1,4 +1,4 @@
-import * as hardware from "hardware";
+import * as hardware from "aredn.hardware";
 import * as uci from "uci";
 
 export const RADIO_OFF = 0;
