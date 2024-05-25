@@ -1,39 +1,27 @@
-{% 
-    if (request.env.REQUEST_METHOD === "PUT") {
-        if (request.args.keepconfig) {
-            if (request.args.keepconfig === "off") {
-                fs.open("/tmp/do-not-keep-configuration", "w").close();
-            }
-            else {
-                fs.unlink("/tmp/do-not-keep-configuration");
-            }
-        }
-        if (request.args.dangerousupgrade) {
-            if (request.args.dangerousupgrade === "on") {
-                fs.open("/tmp/force-upgrade-this-is-dangerous", "w").close();
-            }
-            else {
-                fs.unlink("/tmp/force-upgrade-this-is-dangerous");
-            }
-        }
-        return;
-    }
-    else if (request.env.REQUEST_METHOD === "POST") {
-        let error = "Failed";
-        if (request.args.firmwarefile) {
-            const f = fs.popen(`/usr/local/bin/firmwarecheck.sh ${request.args.firmwarefile}`);
+{%
+    function prepareUpgrade(firmwarefile)
+    {
+        let error = "Failed.";
+        if (firmwarefile) {
+            const f = fs.popen(`/usr/libexec/validate_firmware_image ${firmwarefile}`);
             if (f) {
-                const msg = f.read("all");
+                const info = json(f.read("all"));
                 f.close();
-                if (msg === "") {
+                if (info.valid) {
                     error = null;
                 }
+                else if (!info.tests.fwtool_device_match) {
+                    error = "Firmware not compatible with this device.";
+                }
+                else if (!info.tests.fwtool_signature) {
+                    error = "Corrupted firmware, bad signature.";
+                }
                 else {
-                    error = msg;
+                    error = "Unknown error validating firmware.";
                 }
             }
             else {
-                error = "Failed to verify firmware";
+                error = "Failed to validate firmware.";
             }
         }
         if (!error) {
@@ -67,16 +55,175 @@
                 }
             }
             if (!error) {
-                fs.unlink("/tmp/sysupgradefilelist");
-                response.upgrade = `/usr/local/bin/aredn_sysupgrade ${fs.access("/tmp/arednsysupgradebackup.tgz") ? "-f /tmp/arednsysupgradebackup.tgz" : "-n"} -q ${request.args.firmwarefile}`;
-                print(_R("reboot-firmware"));
-                return;
+                return { upgrade: `/usr/local/bin/aredn_sysupgrade ${fs.access("/tmp/arednsysupgradebackup.tgz") ? "-f /tmp/arednsysupgradebackup.tgz" : "-n"} -q ${firmwarefile}` };
             }
         }
-        if (error) {
-            fs.unlink("/tmp/arednsysupgradebackup.tgz");
+        return { error: error };
+    };
+    if (request.env.REQUEST_METHOD === "PUT") {
+        if (request.args.keepconfig) {
+            if (request.args.keepconfig === "off") {
+                fs.open("/tmp/do-not-keep-configuration", "w").close();
+            }
+            else {
+                fs.unlink("/tmp/do-not-keep-configuration");
+            }
+        }
+        if (request.args.dangerousupgrade) {
+            if (request.args.dangerousupgrade === "on") {
+                fs.open("/tmp/force-upgrade-this-is-dangerous", "w").close();
+            }
+            else {
+                fs.unlink("/tmp/force-upgrade-this-is-dangerous");
+            }
+        }
+        return;
+    }
+    else if (request.env.REQUEST_METHOD === "POST") {
+        const upgrade = prepareUpgrade(request.args.firmwarefile);
+        if (upgrade.error) {
             fs.unlink(request.args.firmwarefile);
-            print(`<div id="firmware-error" hx-swap-oob="true">ERROR: ${error}</div>`);
+            print(`<div id="firmware-error" hx-swap-oob="true">ERROR: ${upgrade.error}</div>`);
+        }
+        else {
+            response.upgrade = upgrade.upgrade;
+            print(_R("reboot-firmware"));
+        }
+        return;
+    }
+    else if (request.env.REQUEST_METHOD === "GET" && request.env.QUERY_STRING === "v=update") {
+        response.override = true;
+        uhttpd.send("Status: 200 OK\r\nContent-Type: text/event-stream\r\nCache-Control: no-store\r\n\r\n");
+
+        fs.unlink("/tmp/firmware.list");
+        const aredn_firmware = uci.get("aredn", "@downloads[0]", "firmware_aredn");
+        if (!aredn_firmware) {
+            uhttpd.send(`event: error\r\ndata: missing firmware download url\r\n\r\n`);
+            return;
+        }
+        let f = fs.popen(`/usr/bin/curl -o - ${aredn_firmware}/afs/www/config.js 2>/dev/null`);
+        if (!f) {
+            uhttpd.send(`event: error\r\ndata: missing firmware config\r\n\r\n`);
+            return;
+        }
+        let firmware_versions = {};
+        for (;;) {
+            const l = f.read("line");
+            if (!length(l)) {
+                break;
+            }
+            const m = match(l, /versions: \{(.+)\}/);
+            if (m) {
+                const kvs = split(m[1], ", ");
+                for (let i = 0; i < length(kvs); i++) {
+                    const kv = split(kvs[i], ": ");
+                    firmware_versions[trim(kv[0], "'")] = trim(kv[1], "'");
+                }
+                break;
+            }
+        }
+        f.close();
+        if (length(keys(firmware_versions)) === 0) {
+            uhttpd.send(`event: error\r\ndata: failed to load firmware versions\r\n\r\n`);
+            return;
+        }
+        const board_type = replace(hardware.getBoard().model.id, ",", "_");
+        const firmware_list = {};
+        for (let ver in firmware_versions) {
+            const data = firmware_versions[ver];
+            f = fs.popen(`/usr/bin/curl -o - ${aredn_firmware}/afs/www/${data}/overview.json 2>/dev/null`);
+            if (f) {
+                const info = json(f.read("all"));
+                f.close();
+                for (let i = 0; i < length(info.profiles); i++) {
+                    const profile = info.profiles[i];
+                    if (profile.id === board_type || ((board_type === "qemu" || board_type === "vmware") && profile.id == "generic" && profile.target === "x86/64")) {
+                        firmware_list[ver] = {
+                            overview: `${aredn_firmware}/afs/www/${data}/${profile.target}/${profile.id}.json`,
+                            target: replace(info.image_url, "{target}", profile.target)
+                        };
+                    }
+                }
+            }
+        }
+        f = fs.open("/tmp/firmware.list", "w");
+        if (!f) {
+            uhttpd.send(`event: error\r\ndata: failed to create firmware list\r\n\r\n`);
+            return;
+        }
+        f.write(sprintf("%J", firmware_list));
+        f.close();
+
+        let html = `<option value="-">-</option>`;
+        for (let k in firmware_list) {
+            html += `<option value="${k}">${k}${index(k, "-") == -1 ? "" : " (nightly)"}</option>`;
+        }
+        uhttpd.send(`event: close\r\ndata: ${html}\r\n\r\n`);
+        return;
+    }
+    else if (request.env.REQUEST_METHOD === "GET" && index(request.env.QUERY_STRING, "v=") === 0) {
+        response.override = true;
+        const version = substr(request.env.QUERY_STRING, 2);
+        uhttpd.send("Status: 200 OK\r\nContent-Type: text/event-stream\r\nCache-Control: no-store\r\n\r\n");
+        let f = fs.open("/tmp/firmware.list");
+        if (!f) {
+            uhttpd.send(`event: error\r\ndata: missing firmware list\r\n\r\n`);
+            return;
+        }
+        const list = json(f.read("all"));
+        f.close();
+        const inst = list[version];
+        if (!inst) {
+            uhttpd.send(`event: error\r\ndata: bad firmware version\r\n\r\n`);
+            return;
+        }
+        f = fs.popen(`/usr/bin/curl -o - "${inst.overview}" 2> /dev/null`);
+        if (!f) {
+            uhttpd.send(`event: error\r\ndata: could not find firmware\r\n\r\n`);
+            return;
+        }
+        const overview = json(f.read("all"));
+        f.close();
+        let fwimage = null;
+        for (let i = 0; i < length(overview.images); i++) {
+            const image = overview.images[i];
+            if (image.type === "sysupgrade" || image.type === "nand-sysupgrade" || image.type == "combined") {
+                fwimage = {
+                    url: `${inst.target}/${image.name}`,
+                    sha: image.sha256
+                };
+                break;
+            }
+        }
+        if (!fwimage) {
+            uhttpd.send(`event: error\r\ndata: missing firmware\r\n\r\n`);
+            return;
+        }
+        f = fs.popen(`/usr/bin/curl --progress-bar -o /tmp/firmwarefile ${fwimage.url} 2>&1`);
+        if (!f) {
+            uhttpd.send(`event: error\r\ndata: failed to start firmware download\r\n\r\n`);
+            return;
+        }
+        uhttpd.send(`event: progress\r\ndata: 0.0\r\n\r\n`);
+        for (;;) {
+            const l = f.read("\r");
+            if (!length(l)) {
+                break;
+            }
+            const m = match(trim(l), /([0-9\.]+)%$/);
+            if (m) {
+                uhttpd.send(`event: progress\r\ndata: ${m[1]}\r\n\r\n`);
+            }
+        }
+        f.close();
+        const upgrade = prepareUpgrade("/tmp/firmwarefile");
+        if (upgrade.error) {
+            fs.unlink("/tmp/firmwarefile");
+            uhttpd.send(`event: error\r\ndata: ${upgrade.error}\r\n\r\n`);
+        }
+        else {
+            response.upgrade = upgrade.upgrade;
+            uhttpd.send(`event: close\r\ndata: ${sprintf("%J", { v: _R("reboot-firmware") })}\r\n\r\n`);
         }
         return;
     }
@@ -98,6 +245,31 @@
         </div>
         <hr>
         <div>
+            <div class="cols">
+                <div>
+                    <div class="o">Download Firmware</div>
+                    <div class="m">Download firmware from an AREDN server.</div>
+                </div>
+                <div style="flex:0">
+                    <select id="download-firmware">
+                        <option value="-">-</option>
+                        {%
+                            const f = fs.open("/tmp/firmware.list");
+                            if (f) {
+                                const list = json(f.read("all"));
+                                f.close();
+                                for (let k in list) {
+                                    print(`<option value="${k}">${k}${index(k, "-") == -1 ? "" : " (nightly)"}</option>`);
+                                }
+                            }
+                        %}
+                    </select>
+                </div>
+                <div style="flex:0">
+                    <div id="firmware-refresh"><button class="icon refresh"></button></div>
+                </div>
+            </div>
+            <br>
             <div class="cols">
                 <div>
                     <div class="o">Upload Firmware</div>
@@ -134,22 +306,85 @@
                     <progress value="0" max="100">
                 </div>
                 <div style="flex:0">
-                    <button id="fetch-and-update" hx-trigger="none" hx-encoding="multipart/form-data">Fetch and Update</div>
+                    <button id="fetch-and-update" disabled hx-trigger="none" hx-encoding="multipart/form-data">Fetch and Update</div>
                 </div>
             </div>
         </div>
     </div>
     {{ _R("dialog-footer") }}
     <script>
+        htmx.on("#firmware-update input[type='file']", "change", e => {
+            if (e.target.files[0]) {
+                htmx.find("#fetch-and-update").disabled = false;
+            }
+            else {
+                htmx.find("#fetch-and-update").disabled = true;
+            }
+            htmx.find("#download-firmware").value = "-";
+        });
+        htmx.on("#download-firmware", "change", e => {
+            if (e.target.value === "-") {
+                htmx.find("#fetch-and-update").disabled = true;
+            }
+            else {
+                htmx.find("#fetch-and-update").disabled = false;
+            }
+            htmx.find("#firmware-update input[type=file]").value = null;
+        });
         htmx.on("#fetch-and-update", "click", e => {
             htmx.find("#firmware-error").innerHTML = "";
-            htmx.on(e.currentTarget, "htmx:xhr:progress", e => htmx.find("#firmware-upload progress").setAttribute("value", e.detail.loaded / e.detail.total * 100));
-            htmx.ajax("POST", "{{ request.env.REQUEST_URI }}", {
-                source: e.currentTarget,
-                values: {
-                    firmwarefile: htmx.find("#firmware-update input[type=file]").files[0]
-                },
-                swap: "none"
+            const upload = htmx.find("#firmware-update input[type=file]").files[0];
+            const download = htmx.find("#download-firmware").value;
+            if (upload) {
+                htmx.on(e.currentTarget, "htmx:xhr:progress", e => htmx.find("#firmware-upload progress").setAttribute("value", e.detail.loaded / e.detail.total * 100));
+                htmx.ajax("POST", "{{ request.env.REQUEST_URI }}", {
+                    source: e.currentTarget,
+                    values: {
+                        firmwarefile: upload
+                    },
+                    swap: "none"
+                });
+            }
+            else if (download !== "-") {
+                const source = new EventSource(`{{ request.env.REQUEST_URI }}?v=${download}`);
+                source.addEventListener("close", e => {
+                    source.close();
+                    const all = htmx.find("#all");
+                    all.outerHTML = JSON.parse(e.data).v;
+                    const scripts = document.querySelectorAll("#all script");
+                    for (let i = 0; i < scripts.length; i++) {
+                        eval(scripts[i].innerText);
+                    }
+                });
+                source.addEventListener("error", e => {
+                    source.close();
+                    htmx.find("#firmware-error").innerHTML = `ERROR: ${e.data}`;
+                });
+                source.addEventListener("progress", e => {
+                    htmx.find("#firmware-upload progress").setAttribute("value", e.data);
+                });
+            }
+        });
+        htmx.on("#firmware-refresh button", "click", e => {
+            const target = e.target;
+            target.classList.add("rotate");
+            const source = new EventSource("{{ request.env.REQUEST_URI }}?v=update");
+            source.addEventListener("close", e => {
+                source.close();
+                target.classList.remove("rotate");
+                const selector = htmx.find("#download-firmware");
+                selector.innerHTML = e.data;
+                selector.value = "-";
+                htmx.find("#firmware-update input[type=file]").value = null;
+                htmx.find("#fetch-and-update").disabled = true;
+            });
+            source.addEventListener("error", e => {
+                source.close();
+                target.classList.remove("rotate")
+                htmx.find("#firmware-error").innerHTML = `ERROR: ${e.data}`;
+            });
+            source.addEventListener("progress", e => {
+                htmx.find("#firmware-upload progress").setAttribute("value", e.data);
             });
         });
     </script>

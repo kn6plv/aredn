@@ -15,7 +15,7 @@
             </div>
         </div>
         <script>
-            document.getElementById('ctrl-modal').innerHTML = "";
+            document.getElementById("ctrl-modal").innerHTML = "";
             setTimeout(function() {
                 document.getElementById("firmware-title").innerHTML = "Rebooting";
                 document.getElementById("firmware-msg").innerHTML = "<div>Your node is rebooting.<br>This browser will automatically reconnect once this is complete.</div>";

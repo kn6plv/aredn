@@ -383,34 +383,36 @@ global.handle_request = function(env)
                 log.syslog(log.LOG_ERR, `${e.message}\n${e.stacktrace[0].context}`);
                 res = `<div id="ctrl-modal" hx-on::after-swap="const e = event.target.querySelector('dialog'); if (e) { e.showModal(); }"><dialog style="font-size:12px"><b>ERROR: ${e.message}<b><div><pre>${e.stacktrace[0].context}</pre></dialog></div>`;
             }
-            if (config.debug) {
-                uhttpd.send(
-                    `Status: ${response.statusCode} OK\r\n`,
-                    join("", map(keys(response.headers), k => k + ": " + response.headers[k] + "\r\n")),
-                    "\r\n",
-                    res
-                );
-            }
-            else {
-                const datafile = "/tmp/" + time() + math.rand();
-                try {
-                    fs.writefile(datafile, res);
-                    const z = fs.popen("exec /bin/gzip -c " + datafile);
+            if (!response.override) {
+                if (index(env.HTTP_ACCEPT_ENCODING || "", "gzip") === -1 || config.debug) {
+                    uhttpd.send(
+                        `Status: ${response.statusCode} OK\r\n`,
+                        join("", map(keys(response.headers), k => k + ": " + response.headers[k] + "\r\n")),
+                        "\r\n",
+                        res
+                    );
+                }
+                else {
+                    const datafile = `/tmp/uhttpd.${time()}${math.rand()}`;
                     try {
-                        uhttpd.send(
-                            `Status: ${response.statusCode} OK\r\nContent-Encoding: gzip\r\n`,
-                            join("", map(keys(response.headers), k => k + ": " + response.headers[k] + "\r\n")),
-                            "\r\n",
-                            z.read("all")
-                        );
+                        fs.writefile(datafile, res);
+                        const z = fs.popen("exec /bin/gzip -c " + datafile);
+                        try {
+                            uhttpd.send(
+                                `Status: ${response.statusCode} OK\r\nContent-Encoding: gzip\r\n`,
+                                join("", map(keys(response.headers), k => k + ": " + response.headers[k] + "\r\n")),
+                                "\r\n",
+                                z.read("all")
+                            );
+                        }
+                        catch (_) {
+                        }
+                        z.close();
                     }
                     catch (_) {
                     }
-                    z.close();
+                    fs.unlink(datafile);
                 }
-                catch (_) {
-                }
-                fs.unlink(datafile);
             }
             if (response.reboot) {
                 system("exec /sbin/reboot");
