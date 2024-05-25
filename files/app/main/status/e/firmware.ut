@@ -170,7 +170,7 @@
             return;
         }
         const board_type = replace(hardware.getBoard().model.id, ",", "_");
-        const firmware_list = {};
+        const firmware_ulist = {};
         for (let ver in firmware_versions) {
             const data = firmware_versions[ver];
             f = curl(`${aredn_firmware}/afs/www/${data}/overview.json`, null, 10 + 90 / firmware_version_count, 90 / firmware_version_count);
@@ -180,13 +180,39 @@
                 for (let i = 0; i < length(info.profiles); i++) {
                     const profile = info.profiles[i];
                     if (profile.id === board_type || ((board_type === "qemu" || board_type === "vmware") && profile.id == "generic" && profile.target === "x86/64")) {
-                        firmware_list[ver] = {
+                        firmware_ulist[ver] = {
                             overview: `${aredn_firmware}/afs/www/${data}/${profile.target}/${profile.id}.json`,
                             target: replace(info.image_url, "{target}", profile.target)
                         };
                     }
                 }
             }
+        }
+        const firmware_list = {};
+        const firmware_vers = sort(keys(firmware_ulist), function(a, b) {
+            if (index(a, "-") !== -1) {
+                return 1;
+            }
+            if (index(b, "-") !== -1) {
+                return -1;
+            }
+            const av = split(a, ".");
+            const bv = split(b, ".");
+            for (let i = 0; i < 4; i++) {
+                av[i] = int(av[i]);
+                bv[i] = int(bv[i]);
+                if (av[i] < bv[i]) {
+                    return 1
+                }
+                if (av[i] > bv[i]) {
+                    return -1
+                }
+            }
+            return 0;
+        });
+        for (let i = 0; i < length(firmware_vers); i++) {
+            const k = firmware_vers[i];
+            firmware_list[k] = firmware_ulist[k];
         }
         f = fs.open("/tmp/firmware.list", "w");
         if (!f) {
@@ -343,7 +369,7 @@
                 </div>
             </div>
             <div style="flex:1"></div>
-            <div class="cols">
+            <div class="cols" style="padding-top:16px">
                 <div id="firmware-upload">
                     <progress value="0" max="100">
                 </div>
