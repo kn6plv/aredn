@@ -1,4 +1,33 @@
 {%
+    function curl(url, filename, start, len)
+    {
+        const name = filename ? filename : `/tmp/download.${time()}`;
+        const f = fs.popen(`/usr/bin/curl --progress-bar -o ${name} ${url} 2>&1`);
+        if (!f) {
+            return null;
+        }
+        uhttpd.send(`event: progress\r\ndata: ${start}\r\n\r\n`);
+        for (;;) {
+            const l = f.read("\r");
+            if (!length(l)) {
+                break;
+            }
+            const m = match(trim(l), /([0-9\.]+)%$/);
+            if (m) {
+                uhttpd.send(`event: progress\r\ndata: ${start + len * m[1] / 100}\r\n\r\n`);
+            }
+        }
+        f.close();
+        if (!fs.access(name)) {
+            return null;
+        }
+        if (filename === name) {
+            return filename;
+        }
+        const f2 = fs.open(name);
+        fs.unlink(name);
+        return f2;
+    };
     function prepareUpgrade(firmwarefile)
     {
         let error = "Failed.";
@@ -80,14 +109,26 @@
         return;
     }
     else if (request.env.REQUEST_METHOD === "POST") {
-        const upgrade = prepareUpgrade(request.args.firmwarefile);
-        if (upgrade.error) {
-            fs.unlink(request.args.firmwarefile);
-            print(`<div id="firmware-error" hx-swap-oob="true">ERROR: ${upgrade.error}</div>`);
+        if (request.args.sideload) {
+            const upgrade = prepareUpgrade("/tmp/local_firmware");
+            if (upgrade.error) {
+                print(`<div id="firmware-error" hx-swap-oob="true">ERROR: ${upgrade.error}</div>`);
+            }
+            else {
+                response.upgrade = upgrade.upgrade;
+                print(_R("reboot-firmware"));
+            }
         }
         else {
-            response.upgrade = upgrade.upgrade;
-            print(_R("reboot-firmware"));
+            const upgrade = prepareUpgrade(request.args.firmwarefile);
+            if (upgrade.error) {
+                fs.unlink(request.args.firmwarefile);
+                print(`<div id="firmware-error" hx-swap-oob="true">ERROR: ${upgrade.error}</div>`);
+            }
+            else {
+                response.upgrade = upgrade.upgrade;
+                print(_R("reboot-firmware"));
+            }
         }
         return;
     }
@@ -101,7 +142,7 @@
             uhttpd.send(`event: error\r\ndata: missing firmware download url\r\n\r\n`);
             return;
         }
-        let f = fs.popen(`/usr/bin/curl -o - ${aredn_firmware}/afs/www/config.js 2>/dev/null`);
+        let f = curl(`${aredn_firmware}/afs/www/config.js`, null, 0, 10);
         if (!f) {
             uhttpd.send(`event: error\r\ndata: missing firmware config\r\n\r\n`);
             return;
@@ -123,7 +164,8 @@
             }
         }
         f.close();
-        if (length(keys(firmware_versions)) === 0) {
+        const firmware_version_count = length(keys(firmware_versions));
+        if (firmware_version_count === 0) {
             uhttpd.send(`event: error\r\ndata: failed to load firmware versions\r\n\r\n`);
             return;
         }
@@ -131,7 +173,7 @@
         const firmware_list = {};
         for (let ver in firmware_versions) {
             const data = firmware_versions[ver];
-            f = fs.popen(`/usr/bin/curl -o - ${aredn_firmware}/afs/www/${data}/overview.json 2>/dev/null`);
+            f = curl(`${aredn_firmware}/afs/www/${data}/overview.json`, null, 10 + 90 / firmware_version_count, 90 / firmware_version_count);
             if (f) {
                 const info = json(f.read("all"));
                 f.close();
@@ -177,7 +219,7 @@
             uhttpd.send(`event: error\r\ndata: bad firmware version\r\n\r\n`);
             return;
         }
-        f = fs.popen(`/usr/bin/curl -o - "${inst.overview}" 2> /dev/null`);
+        f = curl(inst.overview, null, 0, 5);
         if (!f) {
             uhttpd.send(`event: error\r\ndata: could not find firmware\r\n\r\n`);
             return;
@@ -199,23 +241,11 @@
             uhttpd.send(`event: error\r\ndata: missing firmware\r\n\r\n`);
             return;
         }
-        f = fs.popen(`/usr/bin/curl --progress-bar -o /tmp/firmwarefile ${fwimage.url} 2>&1`);
-        if (!f) {
+        let r = curl(fwimage.url, "/tmp/firmwarefile", 5, 95);
+        if (!r) {
             uhttpd.send(`event: error\r\ndata: failed to start firmware download\r\n\r\n`);
             return;
         }
-        uhttpd.send(`event: progress\r\ndata: 0.0\r\n\r\n`);
-        for (;;) {
-            const l = f.read("\r");
-            if (!length(l)) {
-                break;
-            }
-            const m = match(trim(l), /([0-9\.]+)%$/);
-            if (m) {
-                uhttpd.send(`event: progress\r\ndata: ${m[1]}\r\n\r\n`);
-            }
-        }
-        f.close();
         const upgrade = prepareUpgrade("/tmp/firmwarefile");
         if (upgrade.error) {
             fs.unlink("/tmp/firmwarefile");
@@ -229,6 +259,8 @@
     }
     fs.unlink("/tmp/force-upgrade-this-is-dangerous");
     fs.unlink("/tmp/do-not-keep-configuration");
+
+    const sideload = fs.access("/tmp/local_firmware");
 %}
 <dialog>
     {{ _R("dialog-header", "Firmware") }}
@@ -251,7 +283,7 @@
                     <div class="m">Download firmware from an AREDN server.</div>
                 </div>
                 <div style="flex:0">
-                    <select id="download-firmware">
+                    <select id="download-firmware" {{ sideload ? 'disabled' : '' }}>
                         <option value="-">-</option>
                         {%
                             const f = fs.open("/tmp/firmware.list");
@@ -276,7 +308,17 @@
                     <div class="m">Upload a firmware file from your computer.</div>
                 </div>
                 <div style="flex:0">
-                    <input type="file" accept=".bin,.gz">
+                    <input type="file" accept=".bin,.gz" {{ sideload ? 'disabled' : '' }}>
+                </div>
+            </div>
+            <br>
+            <div class="cols">
+                <div>
+                    <div class="o">Sideload Firmware</div>
+                    <div class="m">Use an alternatve way to load firmware onto the node.</div>
+                </div>
+                <div style="flex:0">
+                    <input id="sideload-firmware" type="text" disabled placeholder="/tmp/local_firmware" value="{{ sideload ? '/tmp/local_firmware' : '' }}">
                 </div>
             </div>
             {{ _R("dialog-advanced") }}
@@ -306,7 +348,7 @@
                     <progress value="0" max="100">
                 </div>
                 <div style="flex:0">
-                    <button id="fetch-and-update" disabled hx-trigger="none" hx-encoding="multipart/form-data">Fetch and Update</div>
+                    <button id="fetch-and-update" {{ sideload ? '' : 'disabled' }} hx-trigger="none" hx-encoding="multipart/form-data">{{ sideload ? 'Update' : 'Fetch and Update' }}</div>
                 </div>
             </div>
         </div>
@@ -335,7 +377,15 @@
             htmx.find("#firmware-error").innerHTML = "";
             const upload = htmx.find("#firmware-update input[type=file]").files[0];
             const download = htmx.find("#download-firmware").value;
-            if (upload) {
+            if ({{ sideload || false }}) {
+                htmx.ajax("POST", "{{ request.env.REQUEST_URI }}", {
+                    values: {
+                        sideload: 1
+                    },
+                    swap: "none"
+                });
+            }
+            else if (upload) {
                 htmx.on(e.currentTarget, "htmx:xhr:progress", e => htmx.find("#firmware-upload progress").setAttribute("value", e.detail.loaded / e.detail.total * 100));
                 htmx.ajax("POST", "{{ request.env.REQUEST_URI }}", {
                     source: e.currentTarget,
@@ -358,7 +408,7 @@
                 });
                 source.addEventListener("error", e => {
                     source.close();
-                    htmx.find("#firmware-error").innerHTML = `ERROR: ${e.data}`;
+                    htmx.find("#firmware-error").innerHTML = `ERROR: ${e.data || "Unknown error"}`;
                 });
                 source.addEventListener("progress", e => {
                     htmx.find("#firmware-upload progress").setAttribute("value", e.data);
@@ -368,6 +418,7 @@
         htmx.on("#firmware-refresh button", "click", e => {
             const target = e.target;
             target.classList.add("rotate");
+            htmx.find("#firmware-error").innerHTML = "";
             const source = new EventSource("{{ request.env.REQUEST_URI }}?v=update");
             source.addEventListener("close", e => {
                 source.close();
@@ -377,11 +428,12 @@
                 selector.value = "-";
                 htmx.find("#firmware-update input[type=file]").value = null;
                 htmx.find("#fetch-and-update").disabled = true;
+                htmx.find("#firmware-upload progress").setAttribute("value", "0");
             });
             source.addEventListener("error", e => {
                 source.close();
                 target.classList.remove("rotate")
-                htmx.find("#firmware-error").innerHTML = `ERROR: ${e.data}`;
+                htmx.find("#firmware-error").innerHTML = `ERROR: ${e.data || "Unknown error"}`;
             });
             source.addEventListener("progress", e => {
                 htmx.find("#firmware-upload progress").setAttribute("value", e.data);

@@ -1,3 +1,6 @@
+{%
+    const firstuse = fs.access("/tmp/do-not-keep-configuration");
+%}
 <div id="all" hx-swap-oob="true">
     <div class="reboot">
         <div>
@@ -18,9 +21,14 @@
             document.getElementById("ctrl-modal").innerHTML = "";
             setTimeout(function() {
                 document.getElementById("firmware-title").innerHTML = "Rebooting";
-                document.getElementById("firmware-msg").innerHTML = "<div>Your node is rebooting.<br>This browser will automatically reconnect once this is complete.</div>";
-            }, 100 * 1000);
+                document.getElementById("firmware-msg").innerHTML =
+                {% if (firstuse) { %}
+                "<div>Your node is rebooting.<br>After this is complete it will have the address <b>192.168.1.1</b> and be ready to setup from scratch.<p>Your browser will attempt to reconnect automatically, but you may need to adjust the network settings on your computer.</div>";
+                {% } else { %}
+                "<div>Your node is rebooting.<br>This browser will reconnect automatically once complete.</div>";
+                {% } %}
+            }, 10 * 1000);
         </script>
-        {{ _R("reboot-mon", { delay: 120, countdown: 300, timeout: 5, location: `http://${request.env.HTTP_HOST}/a/status` }) }}
+        {{ _R("reboot-mon", { delay: 120, countdown: 300, timeout: 5, location: (firstuse ? `http://192.168.1.1/` : `http://${request.env.HTTP_HOST}/a/status`) }) }}
     </div>
 </div>

@@ -132,6 +132,7 @@
     border: 1px solid var(--ctrl-modal-textbox-border-color);
     border-radius: .2em;
     direction: rtl;
+    text-align: right;
 }
 #ctrl-modal dialog select option
 {
@@ -544,6 +545,10 @@
 #download-firmware
 {
     width: 248px;
+}
+#sideload-firmware
+{
+    width: 278px;
 }
 #firmware-refresh
 {
