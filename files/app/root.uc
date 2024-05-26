@@ -13,6 +13,7 @@ import * as network from "aredn.network";
 import * as olsr from "aredn.olsr";
 import * as units from "aredn.units";
 import * as radios from "aredn.radios";
+import * as constants from "./constants.uc";
 
 const pageCache = {};
 const resourceVersions = {};
@@ -361,6 +362,7 @@ global.handle_request = function(env)
             try {
                 res = render(call, fn, null, {
                     config: config,
+                    constants: constants,
                     versions: resourceVersions,
                     request: { env: env, headers: env.headers, args: args, page: page },
                     response: response,
@@ -376,7 +378,8 @@ global.handle_request = function(env)
                     network: network,
                     olsr: olsr,
                     units: units,
-                    radios: radios
+                    radios: radios,
+                    math: math
                 });
             }
             catch (e) {
