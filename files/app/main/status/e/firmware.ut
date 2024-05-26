@@ -106,6 +106,14 @@
                 fs.unlink("/tmp/force-upgrade-this-is-dangerous");
             }
         }
+        if (request.args.firmwareurl) {
+            if (match(request.args.firmwareurl, /^http(s)?:\/\/.+$/)) {
+                configuration.prepareChanges();
+                uciMesh.set("aredn", "@downloads[0]", "firmware_aredn", request.args.firmwareurl);
+                uciMesh.commit("aredn");
+                print(_R("changes"));
+            }
+        }
         return;
     }
     else if (request.env.REQUEST_METHOD === "POST") {
@@ -349,6 +357,7 @@
             </div>
             {{ _R("dialog-advanced") }}
             <div>
+                {% if (fs.access("/rom/etc")) { %}
                 <div class="cols">
                     <div>
                         <div class="o">Keep Configuration</div>
@@ -358,6 +367,7 @@
                         {{ _R("switch", { name: "keepconfig", value: true }) }}
                     </div>
                 </div>
+                {% } %}
                 <div class="cols">
                     <div>
                         <div class="o">Dangerous Upgrade</div>
@@ -367,6 +377,15 @@
                         {{ _R("switch", { name: "dangerousupgrade", value: false }) }}
                     </div>
                 </div>
+                <div class="cols">
+                    <div>
+                        <div class="o">Firmware URL</div>
+                        <div class="m">URL for downloading firmware</div>
+                    </div>
+                    <div style="flex:0">
+                        <input hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="firmwareurl" type="text" size="45" pattern="http(s)?:\/\/.+" value="{{ uciMesh.get("aredn", "@downloads[0]", "firmware_aredn") }}">
+                    </div>
+                </div>
             </div>
             <div style="flex:1"></div>
             <div class="cols" style="padding-top:16px">
@@ -374,7 +393,7 @@
                     <progress value="0" max="100">
                 </div>
                 <div style="flex:0">
-                    <button id="fetch-and-update" {{ sideload ? '' : 'disabled' }} hx-trigger="none" hx-encoding="multipart/form-data">{{ sideload ? 'Update' : 'Fetch and Update' }}</div>
+                    <button id="fetch-and-update" {{ sideload ? '' : 'disabled' }} hx-trigger="none" hx-encoding="multipart/form-data">{{ sideload ? 'Update' : 'Fetch and Update' }}
                 </div>
             </div>
         </div>
