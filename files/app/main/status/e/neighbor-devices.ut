@@ -110,132 +110,136 @@
             }
             return v;
         }
-        for (let i = 0; i < length(neighbors); i++) {
-            const n = neighbors[i].n;
-            const l = neighbors[i].l;
-        %}
-        <div class="neighbor">
-            <div class="o"><a href="{{ n.hostname ? `http://${n.hostname}.local.mesh` : n.ip }}" target="_blank">{{ n.hostname || n.ip }}</a>
-                <select name="{{n.mac}}" hx-put={{ request.env.REQUEST_URI }} hx-swap="none">
-                    <option value="always" {{ n.user_allow ? "selected" : "" }}>never block</option>
-                    <option value="available" {{ n.user_allow || n.blocks.user ? "" : "selected" }}>{{ n.blocked ? "blocked" : "unblocked" }}</option>
-                    <option value="user" {{ n.blocks.user ? "selected" : "" }}>always block</option>
-                </select>
-            </div>
-            <div class="cols">
-                <div class="i">
-                    <div>{{ n.type }}</div>
-                    <div>type</div>
-                </div>
-                <div class="i">
-                    <div>{{ n.mac }}</div>
-                    <div>mac address</div>
-                </div>
-                <div class="i">
-                    <div>{{ n.ip }}</div>
-                    <div>ip address</div>
-                </div>
-            </div>
-            <div class="cols">
-                <div class="i">
-                    <div>{{ map(n, n.lat) || "-" }}</div>
-                    <div>latitude</div>
-                </div>
-                <div class="i">
-                    <div>{{ map(n, n.lon) || "-" }}</div>
-                    <div>longitude</div>
-                </div>
-                <div class="i">
-                    <div>{{ "distance" in n ? map(n, sprintf("%.1f %s", units.meters2distance(n.distance), units.distanceUnit())) : "-" }}</div>
-                    <div>distance</div>
-                </div>
-            </div>
-            {%
-                if (l && l.lossMultiplier) {
-                    const lq = int(100 * l.linkQuality * 65536 / l.lossMultiplier);
-                    const nlq = int(100 * l.neighborLinkQuality * 65536 / l.lossMultiplier);
-                    const etx = 10000.0 / (lq * nlq);
+        if (length(neighbors) > 0) {
+            for (let i = 0; i < length(neighbors); i++) {
+                const n = neighbors[i].n;
+                const l = neighbors[i].l;
             %}
-            <div class="cols">
-                <div class="i">
-                    <div>{{ lq }}%</div>
-                    <div>lq | rx success</div>
+            <div class="neighbor">
+                <div class="o"><a href="{{ n.hostname ? `http://${n.hostname}.local.mesh` : n.ip }}" target="_blank">{{ n.hostname || n.ip }}</a>
+                    <select name="{{n.mac}}" hx-put={{ request.env.REQUEST_URI }} hx-swap="none">
+                        <option value="always" {{ n.user_allow ? "selected" : "" }}>never block</option>
+                        <option value="available" {{ n.user_allow || n.blocks.user ? "" : "selected" }}>{{ n.blocked ? "blocked" : "unblocked" }}</option>
+                        <option value="user" {{ n.blocks.user ? "selected" : "" }}>always block</option>
+                    </select>
                 </div>
-                <div class="i">
-                    <div>{{ nlq }}%</div>
-                    <div>nlq | tx success</div>
+                <div class="cols">
+                    <div class="i">
+                        <div>{{ n.type }}</div>
+                        <div>type</div>
+                    </div>
+                    <div class="i">
+                        <div>{{ n.mac }}</div>
+                        <div>mac address</div>
+                    </div>
+                    <div class="i">
+                        <div>{{ n.ip }}</div>
+                        <div>ip address</div>
+                    </div>
                 </div>
-                <div class="i">
-                    <div>{{ sprintf("%.1f", etx) }}</div>
-                    <div>etx</div>
+                <div class="cols">
+                    <div class="i">
+                        <div>{{ map(n, n.lat) || "-" }}</div>
+                        <div>latitude</div>
+                    </div>
+                    <div class="i">
+                        <div>{{ map(n, n.lon) || "-" }}</div>
+                        <div>longitude</div>
+                    </div>
+                    <div class="i">
+                        <div>{{ "distance" in n ? map(n, sprintf("%.1f %s", units.meters2distance(n.distance), units.distanceUnit())) : "-" }}</div>
+                        <div>distance</div>
+                    </div>
+                </div>
+                {%
+                    if (l && l.lossMultiplier) {
+                        const lq = int(100 * l.linkQuality * 65536 / l.lossMultiplier);
+                        const nlq = int(100 * l.neighborLinkQuality * 65536 / l.lossMultiplier);
+                        const etx = 10000.0 / (lq * nlq);
+                %}
+                <div class="cols">
+                    <div class="i">
+                        <div>{{ lq }}%</div>
+                        <div>lq | rx success</div>
+                    </div>
+                    <div class="i">
+                        <div>{{ nlq }}%</div>
+                        <div>nlq | tx success</div>
+                    </div>
+                    <div class="i">
+                        <div>{{ sprintf("%.1f", etx) }}</div>
+                        <div>etx</div>
+                    </div>
+                </div>
+                {% } %}
+                <div class="cols">
+                    <div class="i">
+                        <div>{{ type(n.ping_success_time) ? sprintf("%.1f ms", n.ping_success_time * 1000) : "-" }}</div>
+                        <div>ping time</div>
+                    </div>
+                    <div class="i">
+                        <div>{{ type(n.ping_quality) ? sprintf("%d%%", n.ping_quality) : "-" }}</div>
+                        <div>ping success</div>
+                    </div>
+                    <div class="i">
+                        <div>{{ type(n.avg_tx) ? sprintf("%.1f pkt/sec", n.avg_tx / 60) : "-" }}</div>
+                        <div>avg tx</div>
+                    </div>
+                </div>
+                {% if (n.type == "RF") { %}
+                <div class="cols">
+                    <div class="i">
+                        <div>{{ n.snr }}</div>
+                        <div>local snr</div>
+                    </div>
+                    <div class="i">
+                        <div>{{ n.rev_snr || "-" }}</div>
+                        <div>neighbor snr</div>
+                    </div>
+                    <div class="i">
+                        <div>{{ n.avg_tx_fail ? sprintf("%.1f%%", 100 * n.avg_tx_fail / n.avg_tx) : "-" }}</div>
+                        <div>tx failures</div>
+                    </div>
+                </div>
+                <div class="cols">
+                    <div class="i">
+                        <div>{{ n.rx_bitrate ? sprintf("%.1f Mbps", n.rx_bitrate) : "-" }}</div>
+                        <div>physical rx bitrate</div>
+                    </div>
+                    <div class="i">
+                        <div>{{ n.tx_bitrate ? sprintf("%.1f Mbps", n.tx_bitrate) : "-" }}</div>
+                        <div>physical tx bitrate</div>
+                    </div>
+                    <div class="i">
+                        <div>{{ n.avg_tx_retries ? sprintf("%.1f%%", 100 * n.avg_tx_retries / n.avg_tx) : "-" }}</div>
+                        <div>tx retransmissions</div>
+                    </div>
+                </div>
+                {% } else if (type(n.avg_tx_fail)) { %}
+                <div class="cols">
+                    <div class="i">
+                        <div>{{ sprintf("%.1f%%", 100 * n.avg_tx_fail / n.avg_tx) }}</div>
+                        <div>tx failures</div>
+                    </div>
+                    <div></div>
+                    <div></div>
+                </div>
+                {% } %}
+                <div class="cols">
+                    <div class="i">
+                        <div>{{ state(n) }}</div>
+                        <div>state</div>
+                    </div>
+                    <div class="i">
+                        <div>{{ n.node_route_count }}</div>
+                        <div>active routes</div>
+                    </div>
+                    <div></div>
                 </div>
             </div>
-            {% } %}
-            <div class="cols">
-                <div class="i">
-                    <div>{{ type(n.ping_success_time) ? sprintf("%.1f ms", n.ping_success_time * 1000) : "-" }}</div>
-                    <div>ping time</div>
-                </div>
-                <div class="i">
-                    <div>{{ type(n.ping_quality) ? sprintf("%d%%", n.ping_quality) : "-" }}</div>
-                    <div>ping success</div>
-                </div>
-                <div class="i">
-                    <div>{{ type(n.avg_tx) ? sprintf("%.1f pkt/sec", n.avg_tx / 60) : "-" }}</div>
-                    <div>avg tx</div>
-                </div>
-            </div>
-            {% if (n.type == "RF") { %}
-            <div class="cols">
-                <div class="i">
-                    <div>{{ n.snr }}</div>
-                    <div>local snr</div>
-                </div>
-                <div class="i">
-                    <div>{{ n.rev_snr || "-" }}</div>
-                    <div>neighbor snr</div>
-                </div>
-                <div class="i">
-                    <div>{{ n.avg_tx_fail ? sprintf("%.1f%%", 100 * n.avg_tx_fail / n.avg_tx) : "-" }}</div>
-                    <div>tx failures</div>
-                </div>
-            </div>
-            <div class="cols">
-                <div class="i">
-                    <div>{{ n.rx_bitrate ? sprintf("%.1f Mbps", n.rx_bitrate) : "-" }}</div>
-                    <div>physical rx bitrate</div>
-                </div>
-                <div class="i">
-                    <div>{{ n.tx_bitrate ? sprintf("%.1f Mbps", n.tx_bitrate) : "-" }}</div>
-                    <div>physical tx bitrate</div>
-                </div>
-                <div class="i">
-                    <div>{{ n.avg_tx_retries ? sprintf("%.1f%%", 100 * n.avg_tx_retries / n.avg_tx) : "-" }}</div>
-                    <div>tx retransmissions</div>
-                </div>
-            </div>
-            {% } else if (type(n.avg_tx_fail)) { %}
-            <div class="cols">
-                <div class="i">
-                    <div>{{ sprintf("%.1f%%", 100 * n.avg_tx_fail / n.avg_tx) }}</div>
-                    <div>tx failures</div>
-                </div>
-                <div></div>
-                <div></div>
-            </div>
-            {% } %}
-            <div class="cols">
-                <div class="i">
-                    <div>{{ state(n) }}</div>
-                    <div>state</div>
-                </div>
-                <div class="i">
-                    <div>{{ n.node_route_count }}</div>
-                    <div>active routes</div>
-                </div>
-                <div></div>
-            </div>
-        </div>
+            {% }
+        } else { %}
+            <div>None</div>
         {% } %}
     </div>
     {{ _R("dialog-footer") }}

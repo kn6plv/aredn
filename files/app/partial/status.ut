@@ -9,7 +9,9 @@
 </div>
 <div id="c2">
     <div id="services">
+        {% if (auth.authenticated) { %}
         {{ _R("internal-services" )}}
+        {% } %}
         {{ _R("local-services") }}
     </div>
     <div id="local-and-neighbor-devices">
