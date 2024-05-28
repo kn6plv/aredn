@@ -9,8 +9,7 @@
         }
     }
 %}
-<div id="changes" {{ request.headers["hx-boosted"] ? "" : "hx-swap-oob='true'" }}>
-    {%
+<div id="changes" {{ request.headers["hx-boosted"] ? "" : "hx-swap-oob='true'" }}>{%
     let changes = 0;
     let reboot = false;
     if (auth.authenticated) {
@@ -41,5 +40,4 @@
             });
         })();
         </script>
-    {% } %}
-</div>
+    {% } %}</div>

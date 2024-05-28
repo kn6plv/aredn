@@ -1,6 +1,6 @@
 <div class="ctrl-modal-footer">
     <hr/>
-    {% if (window.htmx) { %}
+    {% if (auth.authenticated) { %}
     <button hx-get="{{ request.env.REQUEST_URI }}" hx-trigger="click delay:10ms" hx-target="#ctrl-modal" hx-headers='{"Include-Help":"{{ includeHelp ? "0" : "1" }}","Include-Advanced":"{{ request.headers['include-advanced'] === "1" ? "1" : "0" }}"}'>Help</button>
     {% } %}
     <button onclick="document.getElementById('ctrl-modal').innerHTML = ''">Done</button>

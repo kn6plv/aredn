@@ -86,7 +86,17 @@
                     return "blocked: too far away";
                 }
                 if (n.blocks.quality) {
-                    return "blocked: bad data path";
+                    if ("tx_quality" in n) {
+                        if ("ping_quality" in n && n.ping_quality < n.tx_quality) {
+                            return "blocked: poor tx latency";
+                        }
+                        else {
+                            return "blocked: too many tx error";
+                        }
+                    }
+                    else {
+                        return "blocked: poor tx latency";
+                    }
                 }
                 if (n.blocks.dup || n.blocks.dtd) {
                     return "blocked: duplicate link";

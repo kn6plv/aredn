@@ -150,6 +150,7 @@ export function getRfChannels(wifiIface)
                     }
                 }
             }
+            sort(channels, (a, b) => a.frequency - b.frequency);
             f.close();
             channelsCache[wifiIface] = channels;
         }

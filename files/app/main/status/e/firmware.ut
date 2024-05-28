@@ -182,9 +182,10 @@
         }
         const board_type = replace(hardware.getBoard().model.id, ",", "_");
         const firmware_ulist = {};
+        let count = 0;
         for (let ver in firmware_versions) {
             const data = firmware_versions[ver];
-            f = curl(`${aredn_firmware}/afs/www/${data}/overview.json`, null, 10 + 90 / firmware_version_count, 90 / firmware_version_count);
+            f = curl(`${aredn_firmware}/afs/www/${data}/overview.json`, null, 10 + count * 90 / firmware_version_count, 90 / firmware_version_count);
             if (f) {
                 const info = json(f.read("all"));
                 f.close();
@@ -198,6 +199,7 @@
                     }
                 }
             }
+            count++;
         }
         const firmware_list = {};
         const firmware_vers = sort(keys(firmware_ulist), function(a, b) {
