@@ -84,7 +84,8 @@ local config = {
             max_distance = 80467,
             min_quality = 50,
             ping_penalty = 5,
-            margin_quality = 1
+            margin_quality = 1,
+            min_routes = 8
         },
         map = DELETE,
         meshstatus = {

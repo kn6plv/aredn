@@ -48,7 +48,7 @@
     </div>
 </div>
 <script>
-    htmx.on("#logout-icon .menu > div:first-child", "click", function()
+    document.querySelector("#logout-icon .menu > div:first-child").addEventListener("click", function()
     {
         fetch(`${location.origin}/a/authenticate`, {
             method: "POST",
@@ -60,9 +60,9 @@
             location.reload();
         });
     });
-    htmx.on("#logout-icon .menu > div:last-child", "click", function()
+    document.querySelector("#logout-icon .menu > div:last-child").addEventListener("click", function()
     {
-        htmx.ajax("PUT", `${location.origin}/a/status/e/reboot`);
+        fetch(`${location.origin}/a/status/e/reboot`, { method: "PUT" });
     });
 </script>
 {% } %}
