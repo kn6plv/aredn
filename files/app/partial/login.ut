@@ -62,7 +62,7 @@
     });
     document.querySelector("#logout-icon .menu > div:last-child").addEventListener("click", function()
     {
-        fetch(`${location.origin}/a/status/e/reboot`, { method: "PUT" });
+        htmx.ajax("PUT", `${location.origin}/a/status/e/reboot`);
     });
 </script>
 {% } %}

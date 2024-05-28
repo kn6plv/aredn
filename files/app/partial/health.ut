@@ -6,7 +6,7 @@
         uptime = int(up / 86400) + " days, " + uptime;
     }
     else if (up > 86400) {
-        uptime = "1 day, " + update;
+        uptime = "1 day, " + uptime;
     }
     const ld = split(fs.readfile("/proc/loadavg"), " ");
     const ram = int(match(fs.readfile("/proc/meminfo"), /MemFree: +(\d+) kB/)[1]) / 1000.0;

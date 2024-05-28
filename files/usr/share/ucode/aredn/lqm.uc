@@ -12,6 +12,13 @@ function initLQM()
         }
     }
 }
+
+export function get()
+{
+    initLQM();
+    return lqm || { trackers:{}, hidden_nodes:[], now: 0 };
+};
+
 export function getTrackers()
 {
     initLQM();

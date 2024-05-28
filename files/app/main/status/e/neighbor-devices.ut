@@ -43,6 +43,7 @@
     for (let i = 0; i < length(usera); i++) {
         allowedmacs[uc(usera[i])] = true;
     }
+    const lqmInfo = lqm.get();
     const trackers = lqm.getTrackers();
     for (mac in trackers) {
         const tracker = trackers[mac];
@@ -75,6 +76,9 @@
         {%
         function state(n)
         {
+            if (n.lastseen < lqmInfo.now) {
+                return "disconnected";
+            }
             if (n.blocks.user) {
                 return "blocked by user";
             }
