@@ -35,17 +35,31 @@
     <script>
         htmx.on("#tunnel-templates button", "click", _ => {
             const v = htmx.find("#tunnel-templates select").value;
+            const div = document.createElement("div");
             switch (v) {
                 case "wgclient":
-                case "wgserver":
+                    div.innerHTML = `<div>
+<div><input type="text" value="SERVER"></div><div>input type="text" value="KEY"></div><div>input type="text" value="IP"></div><div>ENABLED</div><div>STATUS</div>
+</div>`;
+                    break;
                 case "lgclient":
+                    div.innerHTML = `<div>
+<div><input type="text" value="SERVER"></div><div>input type="text" value="PWD"></div><div>input type="text" value="NET"></div><div>ENABLED</div><div>STATUS</div>
+</div>`;
+                    break;
+                case "wgserver":
+                    div.innerHTML = `<div>
+<div><input type="text" value="NODE"></div><div>KEY</div><div>IP</div><div>COMMENT</div><div>ENABLED</div><div>STATUS</div>
+</div>`;
+                    break;
                 case "lgserver":
+                    div.innerHTML = `<div>
+<div><input type="text" value="NODE"></div><div><input type="text" value="PWD"></div><div>NET</div><div>COMMENT</div><div>ENABLED</div><div>STATUS</div>
+</div>`;
                     break;
                 default:
                     break;
             }
-            const div = document.createElement("div");
-            div.innerHTML = `<div></div>`;
             htmx.find("#tunnels").appendChild(div.firstChild);
         });
     </script>
