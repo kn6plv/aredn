@@ -38,13 +38,23 @@
             const div = document.createElement("div");
             switch (v) {
                 case "wgclient":
-                    div.innerHTML = `<div>
-<div><input type="text" value="SERVER"></div><div>input type="text" value="KEY"></div><div>input type="text" value="IP"></div><div>ENABLED</div><div>STATUS</div>
+                    div.innerHTML = `<div class="cols">
+<div style="flex:0;padding:10px">WG</div>
+<div>
+    <div><input  style="width:100%"type="text" value="SERVER"></div>
+    <div class="cols">
+        <div><input type="text" value="KEY"></div>
+        <div><input type="text" value="IP"></div>
+    </div>
+    <div><input style="width:100%" type="text" value="COMMENT"></div>
+</div>
+<div style="flex:0">{{ _R("switch", { name: "enable", value: true }) }}</div>
+<div style="flex:0">ST</div>
 </div>`;
                     break;
                 case "lgclient":
                     div.innerHTML = `<div>
-<div><input type="text" value="SERVER"></div><div>input type="text" value="PWD"></div><div>input type="text" value="NET"></div><div>ENABLED</div><div>STATUS</div>
+<div><input type="text" value="SERVER"></div><div><input type="text" value="PWD"></div><div><input type="text" value="NET"></div><div>ENABLED</div><div>STATUS</div>
 </div>`;
                     break;
                 case "wgserver":
