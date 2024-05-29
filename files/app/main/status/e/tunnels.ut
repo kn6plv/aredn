@@ -3,9 +3,50 @@
 %}
 {{ _R("changes") }}
 {% return; } %}
+{%
+    const tunnels = [];
+%}
 <dialog>
     {{ _R("dialog-header", "Tunnels") }}
     <div>
+        <div id="tunnel-templates" class="cols">
+            <div>
+                <div class="o">Add tunnel</div>
+                <div class="m">Add a tunnel from a template</div>
+            </div>
+            <div style="flex:0;padding-right:10px">
+                <select style="direction:ltr">
+                    <option value="wgclient">Wireguard Client</option>
+                    <option value="wgserver">Wireguard Server</option>
+                    <option value="lgclient">Legacy Client</option>
+                    <option value="lgserver">Legacy Server</option>
+                </select>
+            </div>
+            <button>+</button>
+        </div>
+        <br>
+        <div class="o">Tunnels</div>
+        <div id="tunnels">{%
+                for (let i = 0; i < length(tunnels); i++) {
+            %}
+        {% } %}</div>
     </div>
     {{ _R("dialog-footer") }}
+    <script>
+        htmx.on("#tunnel-templates button", "click", _ => {
+            const v = htmx.find("#tunnel-templates select").value;
+            switch (v) {
+                case "wgclient":
+                case "wgserver":
+                case "lgclient":
+                case "lgserver":
+                    break;
+                default:
+                    break;
+            }
+            const div = document.createElement("div");
+            div.innerHTML = `<div></div>`;
+            htmx.find("#tunnels").appendChild(div.firstChild);
+        });
+    </script>
 </dialog>
