@@ -5,6 +5,37 @@
 {% return; } %}
 {%
     const tunnels = [];
+
+    uciMesh.foreach("vtun", "server", a => {
+        push(tunnels, {
+            type: index(a.node, ":") === -1 ? "ls" : "ws",
+            name: a.host,
+            enabled: a.enabled === "1",
+            comment: a.comment || "",
+            clientip: a.clientip,
+            passwd: a.passwd
+        });
+    });
+    uciMesh.foreach("vtun", "client", a => {
+        push(tunnels, {
+            type: "lc",
+            name: a.name,
+            enabled: a.enabled === "1",
+            comment: a.comment || "",
+            clientip: a.clientip,
+            passwd: a.passwd
+        });
+    });
+    uciMesh.foreach("wireguard", "client", a => {
+        push(tunnels, {
+            type: "wc",
+            name: a.name,
+            enabled: a.enabled === "1",
+            comment: a.comment || "",
+            clientip: a.clientip,
+            passwd: a.key
+        });
+    });
 %}
 <dialog>
     {{ _R("dialog-header", "Tunnels") }}
@@ -16,10 +47,10 @@
             </div>
             <div style="flex:0;padding-right:10px">
                 <select style="direction:ltr">
-                    <option value="wgclient">Wireguard Client</option>
-                    <option value="wgserver">Wireguard Server</option>
-                    <option value="lgclient">Legacy Client</option>
-                    <option value="lgserver">Legacy Server</option>
+                    <option value="wc">Wireguard Client</option>
+                    <option value="ws">Wireguard Server</option>
+                    <option value="lc">Legacy Client</option>
+                    <option value="ls">Legacy Server</option>
                 </select>
             </div>
             <button>+</button>
@@ -27,9 +58,28 @@
         <br>
         <div class="o">Tunnels</div>
         <div id="tunnels">{%
-                for (let i = 0; i < length(tunnels); i++) {
-            %}
-        {% } %}</div>
+            for (let i = 0; i < length(tunnels); i++) {
+                const t = tunnels[i];
+                %}<div class="tunnel cols">
+                    <div class="cols">
+                        <div>{{ t.type }}</div>
+                        <div>
+                            <div><input style="width:100%" type="text" value="{{ t.name }}"></div>
+                            <div class="cols">
+                                <input type="text" value="{{ t.passwd }}" {{ t.type === "wc" ? "disabled" : "" }}>
+                                <input type="text" value="{{ t.clientip }}" {{ t.type === "wc" || t.type === "lc" ? "disabled" : "" }}>
+                            </div>
+                            <div><input style="width:100%" type="text" placeholder="Notes..." value="{{ t.comment }}"></div>
+                        </div>
+                        <div>
+                            <div class="icon cloud"></div>
+                            {{ _R("switch", { name: "enable", value: t.enabled }) }}
+                        </div>
+                    </div>
+                    <button>-</button>
+                </div>{%
+            }
+        %}</div>
     </div>
     {{ _R("dialog-footer") }}
     <script>
@@ -37,7 +87,7 @@
             const v = htmx.find("#tunnel-templates select").value;
             const div = document.createElement("div");
             switch (v) {
-                case "wgclient":
+                case "wc":
                     div.innerHTML = `<div class="cols" style="padding-bottom:10px">
 <div class="cols">
     <div style="flex:0;padding:10px">WG</div>
@@ -56,17 +106,17 @@
 <button>-</button>
 </div>`;
                     break;
-                case "lgclient":
+                case "lc":
                     div.innerHTML = `<div>
 <div><input type="text" value="SERVER"></div><div><input type="text" value="PWD"></div><div><input type="text" value="NET"></div><div>ENABLED</div><div>STATUS</div>
 </div>`;
                     break;
-                case "wgserver":
+                case "ws":
                     div.innerHTML = `<div>
 <div><input type="text" value="NODE"></div><div>KEY</div><div>IP</div><div>COMMENT</div><div>ENABLED</div><div>STATUS</div>
 </div>`;
                     break;
-                case "lgserver":
+                case "ls":
                     div.innerHTML = `<div>
 <div><input type="text" value="NODE"></div><div><input type="text" value="PWD"></div><div>NET</div><div>COMMENT</div><div>ENABLED</div><div>STATUS</div>
 </div>`;

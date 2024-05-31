@@ -585,3 +585,45 @@
 }
 
 /* firmware update end */
+
+/* tunnel start */
+
+.tunnel
+{
+    padding: 10px 0;
+    border-bottom: 1px solid #d0d0d0;
+}
+.tunnel input[type="text"]
+{
+    border-color: transparent !important;
+    direction: ltr !important;
+    text-align: left !important;
+}
+.tunnel > .cols > div:first-child
+{
+    flex: 0;
+    padding: 10px;
+}
+.tunnel > .cols > div:nth-child(3)
+{
+    flex: 0;
+    padding: 10px 10px 0 10px;
+}
+.tunnel .cols .cols input:first-child
+{
+    width: 50%;
+}
+.tunnel .cols .cols input:last-child
+{
+    width: calc(50% - 4px);
+    margin-left: 4px;
+}
+.tunnel .icon.cloud
+{
+    width: 32px;
+    height: 32px;
+    scale: 0.7;
+    margin-left: 15px;
+}
+
+/* tunnel end */
