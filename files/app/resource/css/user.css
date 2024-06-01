@@ -35,17 +35,17 @@ hr + .section-title,
 .section .t
 {
     color: var(--title-fg-color);
-    font-size: 14px;
+    font-size: 16px;
 }
 .section .s
 {
     color: var(--subtitle-fg-color);
-    font-size: 10px;
+    font-size: 12px;
     padding-bottom: 4px;
 }
 .section .ts
 {
-    font-size: 10px;
+    font-size: 12px;
 }
 .section a
 {
@@ -276,17 +276,18 @@ body.authenticated .ctrl:hover
 }
 #general .t
 {
+    font-size: 16px;
     color: var(--title-fg-color);
 }
 #general .s
 {
     color: var(--subtitle-fg-color);
-    font-size: 10px;
+    font-size: 12px;
     padding-bottom: 6px;
 }
 #general .ts
 {
-    font-size: 10px;
+    font-size: 12px;
 }
 
 .node-description
@@ -295,7 +296,7 @@ body.authenticated .ctrl:hover
 }
 .node-description .t
 {
-    font-size: 14px;
+    font-size: 16px;
 }
 
 #general .firmware
@@ -354,7 +355,7 @@ body.authenticated .ctrl:hover
 #location .s
 {
     color: var(--subtitle-fg-color);
-    font-size: 10px;
+    font-size: 12px;
 }
 #location .location-image
 {
