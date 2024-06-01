@@ -39,7 +39,7 @@
 }
 #ctrl-modal dialog .s
 {
-    font-size: 12px;
+    font-size: 14px;
     color: var(--ctrl-modal-fg-subtitle-color);
 }
 .ctrl-modal-footer button:last-child
@@ -49,7 +49,7 @@
 .ctrl-modal-advanced
 {
     display: flex;
-    padding: 20px 0;
+    padding: 15px 0;
 }
 .ctrl-modal-advanced hr
 {
@@ -86,13 +86,13 @@
 #ctrl-modal dialog .m
 {
     color: var(--ctrl-modal-fg-message-color);
-    font-size: 12px;
+    font-size: 14px;
     padding: 4px 8px 10px 0;
 }
 #ctrl-modal dialog .help
 {
     color: var(--ctrl-modal-fg-help-color);
-    font-size: 12px;
+    font-size: 14px;
     padding: 0px 40px 20px 10px;
 }
 
@@ -142,7 +142,7 @@
 #ctrl-modal dialog textarea
 {
     font: inherit;
-    font-size: 12px;
+    font-size: 14px;
     border: 1px solid var(--ctrl-modal-textbox-border-color);
     background-color: var(--ctrl-modal-textbox-bg-color);
     padding: 5px;
@@ -347,7 +347,7 @@
 }
 #ctrl-modal dialog .neighbor .i div:last-child
 {
-    font-size: 12px;
+    font-size: 14px;
     color: var(--subtitle-fg-color);
 }
 #ctrl-modal dialog .neighbor select
@@ -419,7 +419,7 @@
 #ctrl-modal dialog #local-services .service .cols:last-child input[type=text],
 #ctrl-modal dialog #local-services .service .cols:last-child select
 {
-    font-size: 12px;
+    font-size: 14px;
 }
 #ctrl-modal dialog #local-services .link
 {
