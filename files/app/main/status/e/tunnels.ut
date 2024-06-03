@@ -127,7 +127,7 @@
             name: a.host,
             enabled: a.enabled === "1",
             notes: a.comment || "",
-            network: wireguard ? a.clientip : a.netip,
+            network: a.netip,
             passwd: a.passwd
         });
         delete available.l[a.clientip];
