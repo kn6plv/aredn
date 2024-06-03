@@ -591,6 +591,9 @@
 .tunnel
 {
     padding: 10px 0;
+}
+.tunnel:not(:last-child)
+{
     border-bottom: 1px solid #d0d0d0;
 }
 .tunnel input[type="text"]
@@ -599,35 +602,82 @@
     direction: ltr !important;
     text-align: left !important;
 }
+.tunnel input[type="text"][name="name"]
+{
+    border-color: inherit !important;
+}
 .tunnel > .cols > div:first-child
 {
     flex: 0;
-    padding: 10px;
+    font-size: 12px;
+    padding: 0 0 0 10px;
+    writing-mode: vertical-rl;
+    rotate: 180deg;
+    text-align: center;
 }
 .tunnel > .cols > div:nth-child(3)
 {
     flex: 0;
     padding: 10px 10px 0 10px;
 }
-.tunnel .cols .cols input:first-child
+.tunnel .cols .cols.pwnw input:first-child
 {
     width: 50%;
 }
-.tunnel .cols .cols input:last-child
+.tunnel .cols .cols.pwnw input:last-child
 {
     width: calc(50% - 4px);
     margin-left: 4px;
 }
-.tunnel .icon.cloud
+.tunnel .switch input[type=checkbox]
 {
-    width: 32px;
-    height: 32px;
-    scale: 0.7;
-    margin-left: 15px;
+    top: 2px;
+    height: 28px;
+    margin: 0 2px;
+}
+.tunnel .switch input[type=checkbox]::before
+{
+    height: 1.4em;
+    width: 1.4em;
+    left: calc(1.7em/2 + .3em);
+}
+.tunnel .switch input[type=checkbox]:checked::before
+{
+    left: calc(100% - (1.7em/2 + .3em));
+}
+.tunnel input[name=name]
+{
+    flex: 1;
+}
+.tunnel input[name=password]
+{
+    flex: 1;
+}
+.tunnel input[name=network]
+{
+    width: 115px;
+    margin-right: 3px;
 }
 .tunnel input[name=notes]
 {
-    width: 100%;
+    flex: 1;
+    margin-right: 3px;
+}
+.tunnel button.clipboard
+{
+    margin-right: 3px;
+    transition-duration: 0.2s;
+    transition-property: rotate;
+}
+.tunnel button.clipboard:active
+{
+    rotate: 359deg;
+}
+.tunnel .icon.clipboard
+{
+    width: 16px;
+    height: 16px;
+    pointer-events: none;
 }
 
 /* tunnel end */
