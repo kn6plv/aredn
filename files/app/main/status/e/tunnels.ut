@@ -118,6 +118,36 @@
         }
         p++;
     }
+    const up = { lg: {}, wg: [] };
+    let f = fs.popen("ps -w | grep vtun | grep ' tun '");
+    if (f) {
+        for (;;) {
+            const l = f.read("line");
+            if (!length(l)) {
+                break;
+            }
+            const m = match(l, /.*:.*-(172-.*) tun tun/);
+            if (m) {
+                up.lg[replace(m[1], "-", ".")] = true;
+            }
+        }
+        f.close();
+    }
+    const handshaketime = time();
+    f = fs.popen("/usr/bin/wg show all latest-handshakes");
+    if (f) {
+        for (;;) {
+            const l = f.read("line");
+            if (!length(l)) {
+                break;
+            }
+            const m = split(l, /\t/);
+            if (m && m[2] + 300 > handshaketime) {
+                push(up.wg, m[1]);
+            }
+        }
+        f.close();
+    }
     const tunnels = [];
     uciMesh.foreach("vtun", "server", a => {
         const wireguard = index(a.node, ":") !== -1;
@@ -128,7 +158,8 @@
             enabled: a.enabled === "1",
             notes: a.comment || "",
             network: a.netip,
-            passwd: a.passwd
+            passwd: a.passwd,
+            up: wireguard ? (length(filter(up.wg, v => index(a.key, v) !== -1)) === 0 ? false : true) : (up.lg[a.netip] ? true : false)
         });
         delete available.l[a.clientip];
         delete available.w[a.clientip];
@@ -143,7 +174,8 @@
             enabled: a.enabled === "1",
             notes: a.comment || "",
             network: a.netip,
-            passwd: a.passwd
+            passwd: a.passwd,
+            up: up.lg[a.netip] ? true : false
         });
         delete available.l[a.clientip];
     });
@@ -155,7 +187,8 @@
             enabled: a.enabled === "1",
             notes: a.comment || "",
             network: a.clientip,
-            passwd: a.key
+            passwd: a.key,
+            up: length(filter(up.wg, v => index(a.key, v) !== -1)) === 0 ? false : true
         });
         delete available.w[a.clientip];
     });
@@ -215,7 +248,7 @@
                         <div>
                             <div class="cols">
                                 <input type="text" name="name" required placeholder="{{ client ? 'Server name' : 'Node name' }}" value="{{ t.name }}">
-                                <label class="switch"><input type="checkbox" name="enable" {{ t.enabled ? "checked" : "" }}></label>
+                                <label class="switch {{ t.up ? 'up' : '' }}"><input type="checkbox" name="enable" {{ t.enabled ? "checked" : "" }}></label>
                             </div>
                             <div class="cols pwnw">
                                 <input type="text" name="password" required pattern="{{ wireguard ? '[A-Za-z0-9+/=]+' : '[\w@]+' }}" placeholder="{{ wireguard ? 'Wireguard key' : 'Password' }}" value="{{ t.passwd }}" {{ t.type === "ws" ? "disabled" : "" }}>

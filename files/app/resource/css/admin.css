@@ -644,6 +644,11 @@
 .tunnel .switch input[type=checkbox]:checked::before
 {
     left: calc(100% - (1.7em/2 + .3em));
+    background-color: var(--service-bg-color-status-inactive);
+}
+.tunnel .switch.up input[type=checkbox]:checked::before
+{
+    background-color: var(--service-bg-color-status-active);
 }
 .tunnel input[name=name]
 {
@@ -666,12 +671,6 @@
 .tunnel button.clipboard
 {
     margin-right: 3px;
-    transition-duration: 0.2s;
-    transition-property: rotate;
-}
-.tunnel button.clipboard:active
-{
-    rotate: 359deg;
 }
 .tunnel .icon.clipboard
 {
