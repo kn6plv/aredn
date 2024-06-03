@@ -119,7 +119,7 @@
                         <div class="m">IP address to check periodically</div>
                     </div>
                     <div style="flex:0">
-                        <input hx-put="{{ request.env.REQUEST_URI }}" name="watchdog_ping_address" type="text" size="20" placeholder="None" pattern="((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}" value="{{ uciMesh.get("aredn", "@watchdog[0]", "ping_addresses") || "" }}">
+                        <input hx-put="{{ request.env.REQUEST_URI }}" name="watchdog_ping_address" type="text" size="20" placeholder="None" pattern="{{ constants.patIP }}" value="{{ uciMesh.get("aredn", "@watchdog[0]", "ping_addresses") || "" }}">
                     </div>
                 </div>
                 {{ _H("As part of the watchdog process, the watchdog periodically makes sure it can reach a given IP address. If it can't the node will be rebooted.

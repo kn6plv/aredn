@@ -371,7 +371,8 @@
                 const div = document.createElement("div");
                 div.innerHTML = template;
                 htmx.find(div, "select[name=type]").value = t.type || "";
-                htmx.find("#local-services").appendChild(div.firstChild);
+                const ls = htmx.find("#local-services");
+                ls.insertBefore(div.firstChild, ls.firstChild);
                 refreshHostSelectors();
                 updateServices();
             }
@@ -403,7 +404,8 @@
                 </div>
                 <button>-</button>
             </div>`;
-            htmx.find("#host-aliases").appendChild(div.firstChild);
+            const ha = htmx.find("#host-aliases");
+            ha.insertBefore(div.firstChild, ha.firstChild);
             refreshHostSelectors();
             updateAliases();
         });

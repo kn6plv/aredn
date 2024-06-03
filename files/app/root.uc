@@ -82,30 +82,41 @@ global._H = function(str)
 
 const uciMethods =
 {
-    get: function(a, b, c)
+    init: function()
     {
         if (!cursor)
         {
             cursor = uci.cursor();
         }
+    },
+
+    add: function(a, b)
+    {
+        this.init();
+        cursor.load(a);
+        return cursor.add(a, b);
+    },
+
+    get: function(a, b, c)
+    {
+        this.init();
         return cursor.get(a, b, c);
     },
 
     set: function(a, b, c, d)
     {
-        if (!cursor)
-        {
-            cursor = uci.cursor();
+        this.init();
+        if (d === undefined) {
+            cursor.set(a, b, c);
         }
-        cursor.set(a, b, c, d);
+        else {
+            cursor.set(a, b, c, d);
+        }
     },
 
     foreach: function(a, b, fn)
     {
-        if (!cursor)
-        {
-            cursor = uci.cursor();
-        }
+        this.init();
         cursor.foreach(a, b, fn);
     },
 
@@ -114,35 +125,59 @@ const uciMethods =
         if (cursor) {
             cursor.commit(a);
         }
+    },
+
+    "delete": function(a, b)
+    {
+        this.init();
+        cursor.delete(a, b);
+    },
+
+    error: function()
+    {
+        if (cursor) {
+            return cursor.error();
+        }
     }
 };
 
 const uciMeshMethods =
 {
-    get: function(a, b, c)
+    init: function()
     {
         if (!cursorm)
         {
             cursorm = uci.cursor("/etc/config.mesh");
         }
+    },
+
+    add: function(a, b)
+    {
+        this.init();
+        cursorm.load(a);
+        return cursorm.add(a, b);
+    },
+
+    get: function(a, b, c)
+    {
+        this.init();
         return cursorm.get(a, b, c);
     },
 
     set: function(a, b, c, d)
     {
-        if (!cursorm)
-        {
-            cursorm = uci.cursor("/etc/config.mesh");
+        this.init();
+        if (d === undefined) {
+            cursorm.set(a, b, c);
         }
-        cursorm.set(a, b, c, d);
+        else {
+            cursorm.set(a, b, c, d);
+        }
     },
 
     foreach: function(a, b, fn)
     {
-        if (!cursorm)
-        {
-            cursorm = uci.cursor("/etc/config.mesh");
-        }
+        this.init();
         cursorm.foreach(a, b, fn);
     },
 
@@ -150,6 +185,19 @@ const uciMeshMethods =
     {
         if (cursorm) {
             cursorm.commit(a);
+        }
+    },
+
+    "delete": function(a, b)
+    {
+        this.init();
+        cursorm.delete(a, b);
+    },
+
+    error: function()
+    {
+        if (cursorm) {
+            return cursorm.error();
         }
     }
 };

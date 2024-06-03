@@ -625,5 +625,9 @@
     scale: 0.7;
     margin-left: 15px;
 }
+.tunnel input[name=notes]
+{
+    width: 100%;
+}
 
 /* tunnel end */
