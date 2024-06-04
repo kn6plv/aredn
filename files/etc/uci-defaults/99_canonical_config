@@ -126,11 +126,12 @@ local config = {
     },
     dhcp = {},
     dropbear = {},
-    firewall = {},
     olsrd = {},
     snmpd = {},
     uhttpd = {},
     vtun = {
+        defaults = {},
+        options = {},
         network = {
             start = vtun_network()
         }
@@ -147,6 +148,19 @@ do
     else
         cursor:add(fn, "__dummy__")
         cursor:delete(fn, "@__dummy__[0]")
+        for k, v in pairs(cursor:get_all(fn))
+        do
+            local c = 0
+            for k1, _ in pairs(v)
+            do
+                if not k1:match("^%.") then
+                    c = c + 1
+                end
+            end
+            if c == 0 then
+                cursor:delete(fn, k)
+            end
+        end
     end
     for sn, s in pairs(f)
     do

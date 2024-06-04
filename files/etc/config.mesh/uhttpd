@@ -1,5 +1,5 @@
-# Server configuration
-config uhttpd main
+
+config uhttpd 'main'
 	list listen_http '0.0.0.0:8080'
 	list listen_http '0.0.0.0:80'
 	option home '/www'
