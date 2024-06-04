@@ -6,7 +6,7 @@
     flex-direction: column;
     font: inherit;
     font-size: 16px;
-    height: 80%;
+    height: 90%;
     width: 600px;
     padding: 40px;
     border: 1px solid var(--ctrl-modal-border-color);
@@ -610,10 +610,30 @@
 {
     flex: 0;
     font-size: 12px;
-    padding: 0 0 0 10px;
+    margin: 0 10px 0 0;
+    padding: 0 4px;
+    border-radius: 6px;;
     writing-mode: vertical-rl;
     rotate: 180deg;
     text-align: center;
+    color: var(--tunnel-fg-color);
+    cursor: default;
+}
+.tunnel > .cols > div:first-child[data-type=ws]
+{
+    background-color: var(--tunnel-bg-wireguard-server-color);
+}
+.tunnel > .cols > div:first-child[data-type=wc]
+{
+    background-color: var(--tunnel-bg-wireguard-client-color);
+}
+.tunnel > .cols > div:first-child[data-type=ls]
+{
+    background-color: var(--tunnel-bg-legacy-server-color);
+}
+.tunnel > .cols > div:first-child[data-type=lc]
+{
+    background-color: var(--tunnel-bg-legacy-client-color);
 }
 .tunnel > .cols > div:nth-child(3)
 {

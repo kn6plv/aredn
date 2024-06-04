@@ -49,7 +49,7 @@
                 break;
             }
             const v = split(l, /\t/);
-            if (v && v[2] + 300 > time()) {
+            if (v && int(v[2]) + 300 > time()) {
                 if (index(v[1], "wgc") === 0) {
                     wac++;
                 }

@@ -8,6 +8,10 @@
         uciMesh.set("vtun", "@network[0]", "start", request.args.tunnel_range_start);
         uciMesh.commit("vtun");
     }
+    if ("tunnel_weight" in request.args) {
+        uciMesh.set("aredn", "@tunnel[0]", "weight", request.args.tunnel_weight);
+        uciMesh.commit("aredn");
+    }
     if ("tunnels" in request.args) {
         const tunnels = json(request.args.tunnels);
         const found = { ls: {}, lc: {}, ws: {}, wc: {} };
@@ -15,7 +19,7 @@
             const t = tunnels[i];
             found[t.type][t.index] = true;
             switch (t.type) {
-                case "ws":
+                case "wc":
                 {
                     if (!uciMesh.get("vtun", t.index)) {
                         uciMesh.set("vtun", t.index, "server");
@@ -25,13 +29,13 @@
                     uciMesh.set("vtun", t.index, "passwd", t.passwd);
                     const np = split(t.network, ":");
                     const n = iptoarr(np[0]);
-                    uciMesh.set("vtun", t.index, "node", `${uc(configuration.getName())}-${n[0]}-${n[1]}-${n[2]}-${n[3]}:${np[1]}`);
+                    uciMesh.set("vtun", t.index, "node", `${uc(substr(configuration.getName(), 0, 23))}-${n[0]}-${n[1]}-${n[2]}-${n[3]}:${np[1]}`);
                     uciMesh.set("vtun", t.index, "clientip", `${n[0]}.${n[1]}.${n[2]}.${n[3] + 1}`);
                     uciMesh.set("vtun", t.index, "serverip", `${n[0]}.${n[1]}.${n[2]}.${n[3] + 2}`);
                     uciMesh.set("vtun", t.index, "netip", t.network);
                     break;
                 }
-                case "ls":
+                case "lc":
                 {
                     if (!uciMesh.get("vtun", t.index)) {
                         uciMesh.set("vtun", t.index, "server");
@@ -40,13 +44,13 @@
                     uciMesh.set("vtun", t.index, "host", t.name);
                     uciMesh.set("vtun", t.index, "passwd", t.passwd);
                     const n = iptoarr(t.network);
-                    uciMesh.set("vtun", t.index, "node", `${uc(configuration.getName())}-${n[0]}-${n[1]}-${n[2]}-${n[3]}`);
+                    uciMesh.set("vtun", t.index, "node", `${uc(substr(configuration.getName(), 0, 23))}-${n[0]}-${n[1]}-${n[2]}-${n[3]}`);
                     uciMesh.set("vtun", t.index, "clientip", `${n[0]}.${n[1]}.${n[2]}.${n[3] + 1}`);
                     uciMesh.set("vtun", t.index, "serverip", `${n[0]}.${n[1]}.${n[2]}.${n[3] + 2}`);
                     uciMesh.set("vtun", t.index, "netip", t.network);
                     break;
                 }
-                case "wc":
+                case "ws":
                 {
                     if (!uciMesh.get("wireguard", t.index)) {
                         uciMesh.set("wireguard", t.index, "client");
@@ -57,7 +61,7 @@
                     uciMesh.set("wireguard", t.index, "clientip", t.network);
                     break;
                 }
-                case "lc":
+                case "ls":
                 {
                     if (!uciMesh.get("vtun", t.index)) {
                         uciMesh.set("vtun", t.index, "client");
@@ -65,7 +69,7 @@
                     uciMesh.set("vtun", t.index, "enabled", t.enabled ? "1" : "0");
                     uciMesh.set("vtun", t.index, "passwd", t.passwd);
                     const n = iptoarr(t.network);
-                    uciMesh.set("vtun", t.index, "node", `${uc(t.name)}-${n[0]}-${n[1]}-${n[2]}-${n[3]}`);
+                    uciMesh.set("vtun", t.index, "node", `${uc(substr(t.name, 0, 23))}-${n[0]}-${n[1]}-${n[2]}-${n[3]}`);
                     uciMesh.set("vtun", t.index, "clientip", `${n[0]}.${n[1]}.${n[2]}.${n[3] + 1}`);
                     uciMesh.set("vtun", t.index, "serverip", `${n[0]}.${n[1]}.${n[2]}.${n[3] + 2}`);
                     uciMesh.set("vtun", t.index, "netip", t.network);
@@ -76,23 +80,23 @@
             }
         }
         uciMesh.foreach("vtun", "server", a => {
-            if (!found.ls[a[".name"]] && !found.ws[a[".name"]]) {
+            if (!found.lc[a[".name"]] && !found.wc[a[".name"]]) {
                 uciMesh.delete("vtun", a[".name"]);
             }
         });
         uciMesh.foreach("vtun", "client", a => {
-            if (!found.lc[a[".name"]]) {
+            if (!found.ls[a[".name"]]) {
                 uciMesh.delete("vtun", a[".name"]);
             }
         });
         uciMesh.foreach("wireguard", "client", a => {
-            if (!found.wc[a[".name"]]) {
+            if (!found.ws[a[".name"]]) {
                 uciMesh.delete("wireguard", a[".name"]);
             }
         });
         uciMesh.commit("vtun");
         uciMesh.commit("wireguard");
-}
+    }
 %}
 {{ _R("changes") }}
 {% return; } %}
@@ -142,7 +146,7 @@
                 break;
             }
             const m = split(l, /\t/);
-            if (m && m[2] + 300 > handshaketime) {
+            if (m && int(m[2]) + 300 > handshaketime) {
                 push(up.wg, m[1]);
             }
         }
@@ -153,7 +157,7 @@
         const wireguard = index(a.node, ":") !== -1;
         push(tunnels, {
             index: a[".name"],
-            type: wireguard ? "ws" : "ls",
+            type: wireguard ? "wc" : "lc",
             name: a.host,
             enabled: a.enabled === "1",
             notes: a.comment || "",
@@ -169,7 +173,7 @@
         const remove = `-${n[0]}-${n[1]}-${n[2]}-${n[3]}`;
         push(tunnels, {
             index: a[".name"],
-            type: "lc",
+            type: "ls",
             name: replace(a.name, remove, ""),
             enabled: a.enabled === "1",
             notes: a.comment || "",
@@ -182,7 +186,7 @@
     uciMesh.foreach("wireguard", "client", a => {
         push(tunnels, {
             index: a[".name"],
-            type: "wc",
+            type: "ws",
             name: a.name,
             enabled: a.enabled === "1",
             notes: a.comment || "",
@@ -251,12 +255,12 @@
                                 <label class="switch {{ t.up ? 'up' : '' }}"><input type="checkbox" name="enable" {{ t.enabled ? "checked" : "" }}></label>
                             </div>
                             <div class="cols pwnw">
-                                <input type="text" name="password" required pattern="{{ wireguard ? '[A-Za-z0-9+/=]+' : '[\w@]+' }}" placeholder="{{ wireguard ? 'Wireguard key' : 'Password' }}" value="{{ t.passwd }}" {{ t.type === "ws" ? "disabled" : "" }}>
+                                <input type="text" name="password" required pattern="{{ wireguard ? '[A-Za-z0-9+\/=]+' : '[\\w@]+' }}" placeholder="{{ wireguard ? 'Wireguard key' : 'Password' }}" value="{{ t.passwd }}" {{ t.type === "ws" ? "disabled" : "" }}>
                                 <input type="text" name="network" required pattern="{{ constants.patIP }}{{ wireguard ? ':' + constants.patPort : '' }}" placeholder="{{ wireguard ? 'Network:Port' : 'Network' }}" value="{{ t.network }}" {{ client ? "" : "disabled" }}>
                             </div>
                             <div class="cols">
                                 <input type="text" name="notes" placeholder="Notes..." value="{{ t.notes }}">
-                                <button class="clipboard"><div class="icon clipboard"></div></button>
+                                {{ client ? '' : '<button class="clipboard"><div class="icon clipboard"></div></button>' }}
                             </div>
                         </div>
                     </div>
@@ -273,6 +277,15 @@
                 </div>
                 <div style="flex:0">
                     <input hx-put="{{ request.env.REQUEST_URI }}" name="tunnel_range_start" type="text" size="14" placeholder="172.31.X.X" pattern="172\.31\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.([4-9]|[1-9]\d|1\d{2}|2[0-3]\d|24[0-8])" value="{{ uciMesh.get("vtun", "@network[0]", "start") }}">
+                </div>
+            </div>
+            <div class="cols">
+                <div>
+                    <div class="o">Tunnel Weight</div>
+                    <div class="m">Cost of using a tunnel</div>
+                </div>
+                <div style="flex:0">
+                    <input hx-put="{{ request.env.REQUEST_URI }}" name="tunnel_weight" type="text" size="4" placeholder="1" pattern="\d+" value="{{ uciMesh.get("aredn", "@tunnel[0]", "weight") }}">
                 </div>
             </div>
         </div>
@@ -379,7 +392,7 @@
             <label class="switch"><input type="checkbox" name="enable" checked></label>
         </div>
         <div class="cols pwnw">
-            <input type="text" name="password" required pattern="${wireguard ? '[A-Za-z0-9+/=]+' : '[\\w@]+'}" placeholder="${wireguard ? 'Wireguard key' : 'Password'}" ${type === "ws" ? "disabled" : ""} value="${password}">
+            <input type="text" name="password" required pattern="${wireguard ? '[A-Za-z0-9+\/=]+' : '[\\w@]+'}" placeholder="${wireguard ? 'Wireguard key' : 'Password'}" ${type === "ws" ? "disabled" : ""} value="${password}">
             <input type="text" name="network" required pattern="((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])\\.?\\b){4}${wireguard ? ':{{ constants.patPort }}' : ''}" placeholder="${wireguard ? 'Network:Port' : 'Network'}" ${client ? "" : "disabled"} value="${network}">
         </div>
         <div class="cols">
