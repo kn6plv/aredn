@@ -3,23 +3,8 @@
     <div class="t">{{ uci.get("network", "wifi", "ipaddr") }} <span class="ts">{{ uci.get("network", "wifi", "netmask") == "255.255.255.255" ? "/ 32" : "/ 8" }}<span></div>
     <div class="s">mesh address</div>
     <div class="t">{{ uci.get("network", "lan", "ipaddr") }}
-    <span class="ts">{%
-        switch (uci.get("network", "lan", "netmask"))
-        {
-            case "255.255.255.252":
-                print("/ 30");
-                break;
-            case "255.255.255.248":
-                print("/ 29");
-                break;
-            case "255.255.255.240":
-                print("/ 28");
-                break;
-            case "255.255.255.224":
-                print("/ 27");
-                break;
-        }
-    %}<span></div>
+        <span class="ts">{{ `/ ${network.netmaskToCIDR(uci.get("network", "lan", "netmask"))} `}}<span>
+    </div>
     <div class="s">lan address</div>
     {%
         let validWan = false;

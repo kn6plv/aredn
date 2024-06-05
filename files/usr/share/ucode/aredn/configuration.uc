@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as uci from "uci";
 import * as math from "math";
+import * as network from "aredn.network";
 
 let cursor;
 let setup;
@@ -102,42 +103,40 @@ export function setUpgrade(v)
     cursor.commit("hsmmmesh");
 };
 
-export function getDHCP()
+export function getDHCP(mode)
 {
     initSetup();
-    if (setup.dmz_mode === "0") {
-
+    if (mode === "nat" || (setup.dmz_mode === "0" && !mode)) {
+        const root = replace(setup.lan_ip, /\d+$/, "");
+        return {
+            enabled: setup.lan_dhcp ? true : false,
+            mode: 0,
+            start: `${root}${setup.dhcp_start}`,
+            end: `${root}${setup.dhcp_end}`,
+            gateway: setup.lan_ip,
+            mask: setup.lan_mask,
+            cidr: network.netmaskToCIDR(setup.lan_mask),
+            leases: "/tmp/dhcp.leases",
+            reservations: "/etc/config.mesh/_setup.dhcp.nat",
+            services: "/etc/config.mesh/_setup.services.nat",
+            aliases: "/etc/config.mesh/aliases.nat"
+        };
     }
     else {
         const root = replace(setup.dmz_lan_ip, /\d+$/, "");
-        const r = {
+        return {
             enabled: setup.lan_dhcp ? true : false,
+            mode: int(setup.dmz_mode),
             start: `${root}${setup.dmz_dhcp_start}`,
             end: `${root}${setup.dmz_dhcp_end}`,
             gateway: setup.dmz_lan_ip,
             mask: setup.dmz_lan_mask,
-            cidr: 32,
+            cidr: network.netmaskToCIDR(setup.dmz_lan_mask),
             leases: "/tmp/dhcp.leases",
             reservations: "/etc/config.mesh/_setup.dhcp.dmz",
             services: "/etc/config.mesh/_setup.services.dmz",
-            aliases: "/etc/config.mesh/aliases.dmz",
+            aliases: "/etc/config.mesh/aliases.dmz"
         };
-        switch (r.mask)
-        {
-            case "255.255.255.252":
-                r.cidr = 30;
-                break;
-            case "255.255.255.248":
-                r.cidr = 29;
-                break;
-            case "255.255.255.240":
-                r.cidr = 28;
-                break;
-            case "255.255.255.224":
-                r.cidr = 27;
-                break;
-        }
-        return r;
     }
 };
 

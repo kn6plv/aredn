@@ -1,14 +1,38 @@
 {% if (request.env.REQUEST_METHOD === "PUT") {
     configuration.prepareChanges();
     if ("mesh_ip" in request.args) {
-        if (match(request.args.mesh_ip, /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/)) {
+        if (match(request.args.mesh_ip, constants.reIP)) {
             configuration.setSetting("wifi_ip", request.args.mesh_ip);
         }
     }
     if ("dhcp_mode" in request.args) {
         const mode = int(request.args.dhcp_mode || 3);
-        if (mode >= 0 && mode <= 5 && mode !== 1) {
+        if (mode === -1) {
+            configuration.setSetting("lan_dhcp", 0);
+        }
+        else if (mode >= 0 && mode <= 5 && mode !== 1) {
+            configuration.setSetting("lan_dhcp", 1);
             configuration.setSetting("dmz_mode", mode);
+        }
+    }
+    if ("lan_dhcp_ip" in request.args) {
+        if (match(request.args.lan_dhcp_ip, constants.reIP)) {
+            configuration.setSetting("lan_ip", request.args.lan_dhcp_ip);
+        }
+    }
+    if ("lan_dhcp_netmask" in request.args) {
+        if (match(request.args.lan_dhcp_netmask, constants.reNetmask)) {
+            configuration.setSetting("lan_mask", request.args.lan_dhcp_mask);
+        }
+    }
+    if ("lan_dhcp_start" in request.args) {
+        if (match(request.args.lan_dhcp_start, /^([2-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-4])$/)) {
+            configuration.setSetting("dhcp_start", request.args.lan_dhcp_start);
+        }
+    }
+    if ("lan_dhcp_end" in request.args) {
+        if (match(request.args.lan_dhcp_end, /^([2-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-4])$/)) {
+            configuration.setSetting("dhcp_end", request.args.lan_dhcp_end);
         }
     }
     if ("wan_enable" in request.args) {
@@ -78,6 +102,7 @@
 {% return; } %}
 {%
     const dmz_mode = configuration.getSettingAsInt("dmz_mode", 3);
+    const dhcp = configuration.getDHCP("nat");
     const wan_proto = configuration.getSettingAsString("wan_proto", "disabled");
     const wan_iface = split(configuration.getSettingAsString("wan_intf", ""), ".");
     const wan_vlan = wan_iface[1] ? wan_iface[1] : "";
@@ -97,24 +122,65 @@
         {{ _H("The primary address of this AREDN node. This will always be of the form 10.X.X.X. The address is generated automatically based on hardware information so it will
         always be the same even if you reinstall this node from scratch. You shouldn't have to change it.") }}
         <hr>
-        <div class="cols">
-            <div>
-                <div class="o">LAN Size</div>
-                <div class="m">Size of LAN subnet</div>
+        <div class="hideable">
+            <div class="cols">
+                <div>
+                    <div class="o">LAN Size</div>
+                    <div class="m">Size of LAN subnet</div>
+                </div>
+                <div style="flex:0">
+                    <select hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="dhcp_mode">
+                        <option value="-1" {{ !dhcp.enabled ? "selected" : ""}}>Disabled</option>
+                        <option value="0" {{ dhcp.enabled && dmz_mode == 0 ? "selected" : ""}}>NAT</option>
+                        <option value="2" {{ dhcp.enabled && dmz_mode == 2 ? "selected" : ""}}>1 host</option>
+                        <option value="3" {{ dhcp.enabled && dmz_mode == 3 ? "selected" : ""}}>5 hosts</option>
+                        <option value="4" {{ dhcp.enabled && dmz_mode == 4 ? "selected" : ""}}>13 hosts</option>
+                        <option value="5" {{ dhcp.enabled && dmz_mode == 5 ? "selected" : ""}}>29 hosts</option>
+                    </select>
+                </div>
             </div>
-            <div style="flex:0">
-                <select hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="dhcp_mode">
-                    <option value="0" {{ dmz_mode == 0 ? "selected" : ""}}>NAT</option>
-                    <option value="2" {{ dmz_mode == 2 ? "selected" : ""}}>1 host</option>
-                    <option value="3" {{ dmz_mode == 3 ? "selected" : ""}}>5 hosts</option>
-                    <option value="4" {{ dmz_mode == 4 ? "selected" : ""}}>13 hosts</option>
-                    <option value="5" {{ dmz_mode == 5 ? "selected" : ""}}>29 hosts</option>
-                </select>
+            {{ _H("Select how many hosts you want to support on this nodes LAN network. This determines the size of the netmask associated with that network.
+            You can also select NAT which allows more hosts, firewalls your LAN hosts from the Mesh network, but requires explicity ports to be forwarded when
+            creating services.") }}
+            <div class="hideable0">
+                <div class="cols">
+                    <div>
+                        <div class="o">IP Address</div>
+                        <div class="m">Gateway IP address for this LAN network</div>
+                    </div>
+                    <div style="flex:0">
+                        <input hx-put="{{ request.env.REQUEST_URI }}" name="lan_dhcp_ip" type="text" size="15" required pattern="{{ constants.patIP }}" value="{{ dhcp.gateway }}">
+                    </div>
+                </div>
+                <div class="cols">
+                    <div>
+                        <div class="o">Netmask</div>
+                        <div class="m">Netmask for this LAN network</div>
+                    </div>
+                    <div style="flex:0">
+                        <input hx-put="{{ request.env.REQUEST_URI }}" name="lan_dhcp_netmask" type="text" size="15" required pattern="{{ constants.patNetmask }}" value="{{ dhcp.mask }}">
+                    </div>
+                </div>
+                <div class="cols">
+                    <div>
+                        <div class="o">DHCP Start</div>
+                        <div class="m">Start of the DHCP range for addresses allocate</div>
+                    </div>
+                    <div style="flex:0">
+                        <input hx-put="{{ request.env.REQUEST_URI }}" name="lan_dhcp_start" type="text" size="4" required pattern="([2-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-4])" value="{{ split(dhcp.start, ".")[3] }}">
+                    </div>
+                </div>
+                <div class="cols">
+                    <div>
+                        <div class="o">DHCP End</div>
+                        <div class="m">Last address of the DHCP range for addresses allocated</div>
+                    </div>
+                    <div style="flex:0">
+                        <input hx-put="{{ request.env.REQUEST_URI }}" name="lan_dhcp_end" type="text" size="4" required pattern="([2-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-4])" value="{{ split(dhcp.end, ".")[3] }}">
+                    </div>
+                </div>
             </div>
         </div>
-        {{ _H("Select how many hosts you want to support on this nodes LAN network. This determines the size of the netmask associated with that network.
-        You can also select NAT which allows more hosts, firewalls your LAN hosts from the Mesh network, but requires explicity ports to be forwarded when
-        creating services.") }}
         <hr>
         <div class="hideable">
             <div class="cols">

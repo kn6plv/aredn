@@ -26,3 +26,34 @@ export function getIPAddressFromHostname(hostname)
     }
     return null;
 };
+
+export function netmaskToCIDR(mask)
+{
+    const m = iptoarr(mask);
+    let cidr = 32;
+    for (let i = 3; i >= 0; i--) {
+        switch (m[i]) {
+            default:
+            case 255:
+                return cidr - 0;
+            case 254:
+                return cidr - 1;
+            case 252:
+                return cidr - 2;
+            case 248:
+                return cidr - 3;
+            case 240:
+                return cidr - 4;
+            case 224:
+                return cidr - 5;
+            case 192:
+                return cidr - 6;
+            case 128:
+                return cidr - 7;
+            case 0:
+                cidr -= 8;
+                break;
+        }
+    }
+    return 0;
+};
