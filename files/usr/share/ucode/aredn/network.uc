@@ -57,3 +57,21 @@ export function netmaskToCIDR(mask)
     }
     return 0;
 };
+
+export function CIDRToNetmask(cidr)
+{
+    const v = (0xFF00 >> (cidr % 8)) & 0xFF;
+    switch (int(cidr / 8)) {
+        case 0:
+            return `${v}.0.0.0`;
+        case 1:
+            return `255.${v}.0.0`;
+        case 2:
+            return `255.255.${v}.0`;
+        case 3:
+            return `255.255.255.${v}`;
+        default:
+            return "255.255.255.255";
+    }
+};
+

@@ -264,7 +264,7 @@ const auth = {
                     const time = clock();
                     const gm = gmtime(time[0] + this.age);
                     const tm = `${this.DAYS[gm.wday]}, ${gm.mday} ${this.MONTHS[gm.mon]} ${gm.year} 00:00:00 GMT`;
-                    response.headers["Set-Cookie"] = `authV1=${b64enc(this.key)}; Path=/; Domain=${replace(request.headers.host, /:\d+$/, "")}; Expires=${tm}`;
+                    response.headers["Set-Cookie"] = `authV1=${b64enc(this.key)}; Path=/; Domain=${replace(request.headers.host, /:\d+$/, "")}; Expires=${tm}; SameSite=Strict`;
                     this.authenticated = true;
                 }
             }
@@ -427,7 +427,8 @@ global.handle_request = function(env)
                     olsr: olsr,
                     units: units,
                     radios: radios,
-                    math: math
+                    math: math,
+                    log: log
                 });
             }
             catch (e) {

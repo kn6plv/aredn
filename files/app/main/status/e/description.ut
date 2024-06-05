@@ -12,7 +12,7 @@
     <div>
         <div class="cols">
             <div>
-                <div class="o">Descrition</div>
+                <div class="o">Description</div>
                 <div class="m">Information about this node</div>
             </div>
             <div style="flex:0">
