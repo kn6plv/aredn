@@ -31,6 +31,12 @@
         <hr>
         {{ _R("dhcp") }}
     </div>
+    {% if (length(hardware.getEthernetPorts()) > 0) { %}
+    <div id="ports-and-xlinks">
+        <hr>
+        {{ _R("ports-and-xlinks") }}
+    </div>
+    {% } %}
     <div id="tunnels">
         <hr>
         {{ _R("tunnels") }}

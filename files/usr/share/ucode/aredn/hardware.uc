@@ -343,3 +343,62 @@ export function getTxPowerOffset(wifiIface)
     }
     return 0;
 };
+
+export function supportsXLink()
+{
+    switch (getBoard().model.id) {
+        case "mikrotik,hap-ac2":
+        case "mikrotik,hap-ac3":
+        case "glinet,gl-b1300":
+        case "qemu":
+        case "vmware":
+            return true;
+        default:
+            return false;
+    }
+};
+
+const default5PortLayout = [ "wan", "lan1", "lan2", "lan3", "lan4" ];
+const default3PortLayout = [ "lan2", "lan1", "wan" ];
+const defaultNPortLayout = [];
+
+export function getEthernetPorts()
+{
+    switch (getBoard().model.id) {
+        case "mikrotik,hap-ac2":
+        case "mikrotik,hap-ac3":
+            return default5PortLayout;
+        case "glinet,gl-b1300":
+            return default3PortLayout;
+        case "qemu":
+        case "vmware":
+            if (length(defaultNPortLayout) === 0) {
+                const dir = fs.opendir("/sys/class/net");
+                if (dir) {
+                    for (;;) {
+                        const file = dir.read();
+                        if (!file) {
+                            break;
+                        }
+                        if (match(file, /^eth\d+$/)) {
+                            push(defaultNPortLayout, file);
+                        }
+                    }
+                    dir.close();
+                    sort(defaultNPortLayout);
+                }
+            }
+            return defaultNPortLayout;
+        default:
+            return [];
+    }
+};
+
+export function getEthernetPortInfo(port)
+{
+    const s = { active: false };
+    if (fs.readfile(`/sys/class/net/${port}/carrier`, 1) === "1") {
+        s.active = true;
+    }
+    return s;
+};
