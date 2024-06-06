@@ -13,6 +13,7 @@ import * as network from "aredn.network";
 import * as olsr from "aredn.olsr";
 import * as units from "aredn.units";
 import * as radios from "aredn.radios";
+import * as messages from "aredn.messages";
 import * as constants from "./constants.uc";
 
 const pageCache = {};
@@ -428,7 +429,8 @@ global.handle_request = function(env)
                     units: units,
                     radios: radios,
                     math: math,
-                    log: log
+                    log: log,
+                    messages: messages
                 });
             }
             catch (e) {

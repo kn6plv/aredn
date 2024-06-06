@@ -10,8 +10,45 @@ let setupChanged = false;
 let firmwareVersion = null;
 
 const currentConfig = "/tmp/config.current";
-const currentArednInclude = "/tmp/aredn_include.current";
-const arednIncludes = [ "dtdlink.network.user", "lan.network.user", "wan.network.user" ];
+const configDirs = [
+    "/etc",
+    "/etc/config.mesh",
+    "/etc/local",
+    "/etc/local/uci",
+    "/etc/aredn_include"
+];
+const configFiles = [
+    "/etc/config.mesh/_setup",
+    "/etc/config.mesh/_setup.dhcp.dmz",
+    "/etc/config.mesh/_setup.dhcp.nat",
+    "/etc/config.mesh/_setup.dhcpoptions.dmz",
+    "/etc/config.mesh/_setup.dhcpoptions.nat",
+    "/etc/config.mesh/.dhcptags.dmz",
+    "/etc/config.mesh/_setup.dhcptags.nat",
+    "/etc/config.mesh/_setup.ports.dmz",
+    "/etc/config.mesh/_setup.ports.nat",
+    "/etc/config.mesh/_setup.services.dmz",
+    "/etc/config.mesh/_setup.services.nat",
+    "/etc/config.mesh/aliases.dmz",
+    "/etc/config.mesh/aliases.nat",
+    "/etc/config.mesh/aredn",
+    "/etc/config.mesh/dhcp",
+    "/etc/config.mesh/dropbear",
+    "/etc/config.mesh/firewall",
+    "/etc/config.mesh/firewall.user",
+    "/etc/config.mesh/network",
+    "/etc/config.mesh/olsrd",
+    "/etc/config.mesh/snmpd",
+    "/etc/config.mesh/system",
+    "/etc/config.mesh/uhttpd",
+    "/etc/config.mesh/vtun",
+    "/etc/config.mesh/wireguard",
+    "/etc/config.mesh/xlink",
+    "/etc/local/uci/hsmmmesh",
+    "/etc/aredn_include/dtdlink.network.user",
+    "/etc/aredn_include/lan.network.user",
+    "/etc/aredn_include/wan.network.user"
+];
 
 function initCursor()
 {
@@ -90,6 +127,13 @@ export function getName()
     return cursor.get("hsmmmesh", "settings", "node");
 };
 
+export function setName(name)
+{
+    initCursor();
+    cursor.set("hsmmmesh", "settings", "node", name);
+    cursor.commit("hsmmmesh");
+};
+
 export function getFirmwareVersion()
 {
     if (firmwareVersion === null) {
@@ -144,60 +188,39 @@ export function getDHCP(mode)
 
 export function prepareChanges()
 {
-    fs.mkdir(currentConfig);
-    fs.mkdir(currentArednInclude);
-    if (!fs.access(`${currentConfig}/_setup`)) {
-        const d = fs.opendir("/etc/config.mesh");
-        if (d) {
-            for (;;) {
-                const entry = d.read();
-                if (!entry) {
-                    break;
-                }
-                if (entry !== "." && entry !== ".." && entry !== "aliases") {
-                    fs.writefile(`${currentConfig}/${entry}`, fs.readfile(`/etc/config.mesh/${entry}`));
-                }
-            }
-            d.close();
+    if (!fs.access(`${currentConfig}/etc/config.mesh/_setup`)) {
+        fs.mkdir(currentConfig);
+        for (let i = 0; i < length(configDirs); i++) {
+            fs.mkdir(`${currentConfig}${configDirs[i]}`);
         }
-        map(arednIncludes, entry => {
-            if (fs.access(`/etc/aredn_include/${entry}`)) {
-                fs.writefile(`${currentArednInclude}/${entry}`, fs.readfile(`/etc/aredn_include/${entry}`));
+        for (let i = 0; i < length(configFiles); i++) {
+            const entry = configFiles[i];
+            if (fs.access(entry)) {
+                fs.writefile(`${currentConfig}${entry}`, fs.readfile(entry));
             }
-        });
+        }
     }
 };
 
 export function commitChanges()
 {
     const status = {};
-    if (fs.access(`${currentConfig}/_setup`)) {
-        const d = fs.opendir(currentConfig);
-        if (d) {
-            for (;;) {
-                const entry = d.read();
-                if (!entry) {
-                    break;
-                }
-                if (entry !== "." && entry !== "..") {
-                    fs.unlink(`${currentConfig}/${entry}`);
-                }
-            }
-            d.close();
-            map(arednIncludes, entry => {
-                fs.unlink(`${currentArednInclude}/${entry}`);
-            });
-            fs.rmdir(currentConfig);
-            fs.rmdir(currentArednInclude);
-            const n = fs.popen("exec /usr/local/bin/node-setup");
-            if (n) {
-                status.setup = n.read("all");
-                n.close();
-                const c = fs.popen("exec /usr/local/bin/restart-services.sh");
-                if (c) {
-                    status.restart = c.read("all");
-                    c.close();
-                }
+    if (fs.access(`${currentConfig}/etc/config.mesh/_setup`)) {
+        for (let i = 0; i < length(configFiles); i++) {
+            fs.unlink(`${currentConfig}${configFiles[i]}`);
+        }
+        for (let i = length(configDirs) - 1; i >= 0; i--) {
+            fs.rmdir(`${currentConfig}${configDirs[i]}`);
+        }
+        fs.rmdir(currentConfig);
+        const n = fs.popen("exec /usr/local/bin/node-setup");
+        if (n) {
+            status.setup = n.read("all");
+            n.close();
+            const c = fs.popen("exec /usr/local/bin/restart-services.sh");
+            if (c) {
+                status.restart = c.read("all");
+                c.close();
             }
         }
     }
@@ -206,34 +229,22 @@ export function commitChanges()
 
 export function revertChanges()
 {
-    if (fs.access(`${currentConfig}/_setup`)) {
-        const d = fs.opendir(currentConfig);
-        if (d) {
-            for (;;) {
-                const entry = d.read();
-                if (!entry) {
-                    break;
-                }
-                if (entry !== "." && entry !== "..") {
-                    const from = `${currentConfig}/${entry}`;
-                    fs.writefile(`/etc/config.mesh/${entry}`, fs.readfile(from));
-                    fs.unlink(from);
-                }
+    if (fs.access(`${currentConfig}/etc/config.mesh/_setup`)) {
+        for (let i = 0; i < length(configFiles); i++) {
+            const to = configFiles[i];
+            const from = `${currentConfig}${to}`;
+            if (fs.access(from)) {
+                fs.writefile(to, fs.readfile(from));
+                fs.unlink(from);
             }
-            d.close();
-            map(arednIncludes, entry => {
-                const from = `${currentArednInclude}/${entry}`;
-                if (fs.access(from)) {
-                    fs.writefile(`/etc/aredn_include/${entry}`, fs.readfile(from));
-                    fs.unlink(from);
-                }
-                else {
-                    fs.unlink(`/etc/aredn_include/${entry}`);
-                }
-            });
-            fs.rmdir(currentConfig);
-            fs.rmdir(currentArednInclude);
+            else {
+                fs.unlink(to);
+            }
         }
+        for (let i = length(configDirs) - 1; i >= 0; i--) {
+            fs.rmdir(`${currentConfig}${configDirs[i]}`);
+        }
+        fs.rmdir(currentConfig);
     }
 };
 
@@ -257,27 +268,14 @@ function fileChanges(from, to)
         p.close();
     }
     return count;
-}
+};
 
 export function countChanges()
 {
     let count = 0;
-    if (fs.access(`${currentConfig}/_setup`)) {
-        const d = fs.opendir(currentConfig);
-        if (d) {
-            for (;;) {
-                const entry = d.read();
-                if (!entry) {
-                    break;
-                }
-                if (entry !== "." && entry !== "..") {
-                    count += fileChanges(`${currentConfig}/${entry}`, `/etc/config.mesh/${entry}`);
-                }
-            }
-            d.close();
-            map(arednIncludes, entry => {
-                count += fileChanges(`${currentArednInclude}/${entry}`, `/etc/aredn_include/${entry}`);
-            });
+    if (fs.access(`${currentConfig}/etc/config.mesh/_setup`)) {
+        for (let i = 0; i < length(configFiles); i++) {
+            count += fileChanges(`${currentConfig}${configFiles[i]}`, configFiles[i]);
         }
     }
     return count;

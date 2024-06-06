@@ -1,0 +1,53 @@
+{%
+    const allmsgs = messages.getMessages();
+%}
+<div class="ctrl" hx-get="status/e/messages" hx-target="#ctrl-modal">
+    {% if (allmsgs.system) { %}
+    <div class="section-title">System Messages</div>
+    <div class="section">
+    {%
+        const msgs = allmsgs.system;
+        for (let i = 0; i < length(msgs); i++) {
+            print(`<div>${msgs[i]}</div>`);
+        }
+        delete allmsgs.system;
+    %}
+    </div>
+    {% }
+    if (allmsgs.yournode) { %}
+    <div class="section-title">Your Messages</div>
+    <div class="section">
+    {%
+        const msgs = allmsgs.yournode;
+        for (let i = 0; i < length(msgs); i++) {
+            print(`<div>${msgs[i]}</div>`);
+        }
+        delete allmsgs.yournode;
+    %}
+    </div>
+    {% }
+    if (allmsgs["all nodes"]) { %}
+    <div class="section-title">All Node Messages</div>
+    <div class="section">
+    {%
+        const msgs = allmsgs["all nodes"];
+        for (let i = 0; i < length(msgs); i++) {
+            print(`<div>${msgs[i]}</div>`);
+        }
+        delete allmsgs["all nodes"];
+    %}
+    </div>
+    {% }
+    for (let _ in allmsgs) {
+        %}<div class="section-title">Other Messages</div>
+        <div class="section">{%
+        for (let k in allmsgs) {
+            const msgs = allmsgs[k];
+            for (let i = 0; i < length(msgs); i++) {
+                print(`<div>${msgs[i]}</div>`);
+            }
+        }
+        %}</div>{%
+    }
+    %}
+</div>

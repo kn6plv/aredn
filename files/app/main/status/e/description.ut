@@ -3,6 +3,9 @@
     if ("description_node" in request.args) {
         configuration.setSetting("description_node", request.args.description_node || "");
     }
+    if ("node_name" in request.args) {
+        configuration.setName(request.args.node_name);
+    }
     configuration.saveSettings();
 %}
 {{ _R("changes") }}
@@ -10,6 +13,15 @@
 <dialog>
     {{ _R("dialog-header", "Description") }}
     <div>
+        <div class="cols">
+            <div>
+                <div class="o">Node Name</div>
+                <div class="m">This node's unique name</div>
+            </div>
+            <div style="flex:0">
+                <input hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="node_name" type="text" minlength="4" maxlength="63" required value="{{ configuration.getName() }}">
+            </div>
+        </div>
         <div class="cols">
             <div>
                 <div class="o">Description</div>
