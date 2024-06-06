@@ -255,6 +255,7 @@
         {{ _H("For hosts not on the Mesh, use these DNS servers to resolve names to IP addresses.") }}
         {{ _R("dialog-advanced") }}
         <div>
+            {% if (length(hardware.getEthernetPorts()) < 2) { %}
             <div class="cols">
                 <div>
                     <div class="o">WAN VLAN</div>
@@ -266,6 +267,7 @@
             </div>
             {{ _H("By default, the WAN uses an untagged VLAN on multi-port devices, and VLAN 1 on single port devices. This can be changed here if your setup requires something different.
             Enter the VLAN number required, or leave blank for untagged.") }}
+            {% } %}
             <div class="cols">
                 <div>
                     <div class="o">Mesh to WAN</div>

@@ -10,6 +10,8 @@ let setupChanged = false;
 let firmwareVersion = null;
 
 const currentConfig = "/tmp/config.current";
+const currentArednInclude = "/tmp/aredn_include.current";
+const arednIncludes = [ "dtdlink.network.user", "lan.network.user", "wan.network.user" ];
 
 function initCursor()
 {
@@ -143,6 +145,7 @@ export function getDHCP(mode)
 export function prepareChanges()
 {
     fs.mkdir(currentConfig);
+    fs.mkdir(currentArednInclude);
     if (!fs.access(`${currentConfig}/_setup`)) {
         const d = fs.opendir("/etc/config.mesh");
         if (d) {
@@ -157,6 +160,11 @@ export function prepareChanges()
             }
             d.close();
         }
+        map(arednIncludes, entry => {
+            if (fs.access(`/etc/aredn_include/${entry}`)) {
+                fs.writefile(`${currentArednInclude}/${entry}`, fs.readfile(`/etc/aredn_include/${entry}`));
+            }
+        });
     }
 };
 
@@ -176,7 +184,11 @@ export function commitChanges()
                 }
             }
             d.close();
+            map(arednIncludes, entry => {
+                fs.unlink(`${currentArednInclude}/${entry}`);
+            });
             fs.rmdir(currentConfig);
+            fs.rmdir(currentArednInclude);
             const n = fs.popen("exec /usr/local/bin/node-setup");
             if (n) {
                 status.setup = n.read("all");
@@ -209,10 +221,43 @@ export function revertChanges()
                 }
             }
             d.close();
+            map(arednIncludes, entry => {
+                const from = `${currentArednInclude}/${entry}`;
+                if (fs.access(from)) {
+                    fs.writefile(`/etc/aredn_include/${entry}`, fs.readfile(from));
+                    fs.unlink(from);
+                }
+                else {
+                    fs.unlink(`/etc/aredn_include/${entry}`);
+                }
+            });
             fs.rmdir(currentConfig);
+            fs.rmdir(currentArednInclude);
         }
     }
 };
+
+function fileChanges(from, to)
+{
+    let count = 0;
+    const p = fs.popen(`exec /usr/bin/diff -NBbdiU0 ${from} ${to}`);
+    if (p) {
+        for (;;) {
+            const l = rtrim(p.read("line"));
+            if (!l) {
+                break;
+            }
+            if (index(l, "@@") === 0) {
+                const v = match(l, /^@@ [+-]\d+,?(\d*) [+-]\d+,?(\d*) @@$/);
+                if (v) {
+                    count += max(math.abs(int(v[1] === "" ? 1 : v[1])), math.abs(int(v[2] === "" ? 1 : v[2])));
+                }
+            }
+        }
+        p.close();
+    }
+    return count;
+}
 
 export function countChanges()
 {
@@ -226,27 +271,13 @@ export function countChanges()
                     break;
                 }
                 if (entry !== "." && entry !== "..") {
-                    const from = `${currentConfig}/${entry}`;
-                    const to = `/etc/config.mesh/${entry}`;
-                    const p = fs.popen(`exec /usr/bin/diff -BbdiU0 ${from} ${to}`);
-                    if (p) {
-                        for (;;) {
-                            const l = rtrim(p.read("line"));
-                            if (!l) {
-                                break;
-                            }
-                            if (index(l, "@@") === 0) {
-                                const v = match(l, /^@@ [+-]\d+,?(\d*) [+-]\d+,?(\d*) @@$/);
-                                if (v) {
-                                    count += max(math.abs(int(v[1] === "" ? 1 : v[1])), math.abs(int(v[2] === "" ? 1 : v[2])));
-                                }
-                            }
-                        }
-                        p.close();
-                    }
+                    count += fileChanges(`${currentConfig}/${entry}`, `/etc/config.mesh/${entry}`);
                 }
             }
             d.close();
+            map(arednIncludes, entry => {
+                count += fileChanges(`${currentArednInclude}/${entry}`, `/etc/aredn_include/${entry}`);
+            });
         }
     }
     return count;

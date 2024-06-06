@@ -14,6 +14,7 @@
 %}
 <div class="ctrl" hx-get="status/e/ports-and-xlinks" hx-target="#ctrl-modal">
     <div class="cols">
+        {% if (length(ports) > 1) { %}
         <div>
             <div class="section-title">Ethernet Ports</div>
             <div class="section cols">
@@ -27,6 +28,7 @@
                 </div>
             </div>
         </div>
+        {% } %}
         <div>
             <div class="section-title">XLinks</div>
             <div class="section">

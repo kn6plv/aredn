@@ -40,7 +40,7 @@
     --ctrl-modal-backdrop-color: rgba(0,0,0,0.7);
     --ctrl-modal-bg-color: #f0f0f0;
     --ctrl-modal-border-color: #202020;
-    --ctrl-modal-border-color-error: #bb0000;
+    --ctrl-modal-border-color-error: hsl(0, 100%, 37%);
     --ctrl-modal-fg-title-color: #404040;
     --ctrl-modal-fg-subtitle-color: #c0c0c0;
     --ctrl-modal-fg-option-color: #404040;
@@ -53,6 +53,7 @@
     --ctrl-modal-advance-options-color: #a0a0a0;
     --ctrl-modal-checkbox-color: #1010c0;
     --ctrl-modal-bg-secondary-color: #e0e0e0;
+    --ctrl-modal-bg-tertiary-color: #d0d0d0;
     --meshpage-input-border-color: #808080;
     --meshpage-node-bg-color-hover: rgba(0,0,0,0.05);
     --meshpage-etx-fg-color: #808080;

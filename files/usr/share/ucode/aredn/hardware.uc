@@ -402,3 +402,27 @@ export function getEthernetPortInfo(port)
     }
     return s;
 };
+
+export function getDefaultNetworkConfiguration()
+{
+    const c = {
+        dtdlink: { vlan: 2, ports: { eth0: true } },
+        lan: { vlan: 0, ports: { eth0: true } },
+        wan: { vlan: 1, ports: { eth0: true } },
+    };
+    const board = getBoard();
+    const network = board.network;
+    for (let k in network) {
+        if (c[k]) {
+            const devices = split(network[k].device, " ");
+            for (let i = 0; i < length(devices); i++) {
+                const m = match(devices[i], /^([^\.])\.?(\d*)$/);
+                if (m) {
+                    c[k].ports[m[1]] = true;
+                    c[k].vlan = int(m[2] || 0);
+                }
+            }
+        }
+    }
+    return c;
+};
