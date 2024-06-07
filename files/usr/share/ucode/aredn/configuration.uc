@@ -206,6 +206,10 @@ export function commitChanges()
 {
     const status = {};
     if (fs.access(`${currentConfig}/etc/config.mesh/_setup`)) {
+        if (fileChanges(`${currentConfig}/etc/local/uci/hsmmmesh`, "/etc/local/uci/hsmmmesh") > 0) {
+            fs.mkdir("/tmp/reboot-required");
+            fs.writefile("/tmp/reboot-required/reboot", "");
+        }
         for (let i = 0; i < length(configFiles); i++) {
             fs.unlink(`${currentConfig}${configFiles[i]}`);
         }

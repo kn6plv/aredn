@@ -770,11 +770,12 @@
 /* xlink start */
 
 #ctrl-modal dialog .xlink-label div:first-child div:first-child,
-#ctrl-modal dialog .xlink-label div:first-child div:nth-child(4),
+#ctrl-modal dialog .xlink-label div:first-child div:nth-child(5),
 #ctrl-modal dialog .xlink input:first-child,
-#ctrl-modal dialog .xlink input:nth-child(4)
+#ctrl-modal dialog .xlink select:first-child,
+#ctrl-modal dialog .xlink select[name=port]
 {
-    width: 60px;
+    width: 55px;
 }
 #ctrl-modal dialog .xlink-label div:first-child div:nth-child(2),
 #ctrl-modal dialog .xlink-label div:first-child div:nth-child(3),
@@ -783,8 +784,10 @@
 {
     width: 125px;
 }
+#ctrl-modal dialog .xlink-label div:first-child div:nth-child(4),
 #ctrl-modal dialog .xlink-label div:first-child div:last-child,
-#ctrl-modal dialog .xlink select
+#ctrl-modal dialog .xlink input:nth-child(4),
+#ctrl-modal dialog .xlink select[name=cidr]
 {
     width: 40px;
 }

@@ -152,6 +152,12 @@ const uciMeshMethods =
         }
     },
 
+    load: function(a)
+    {
+        this.init();
+        cursorm.load(a);
+    },
+
     add: function(a, b)
     {
         this.init();
