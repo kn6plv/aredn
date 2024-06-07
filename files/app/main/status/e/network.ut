@@ -142,7 +142,7 @@
             {{ _H("Select how many hosts you want to support on this nodes LAN network. This determines the size of the netmask associated with that network.
             You can also select NAT which allows more hosts, firewalls your LAN hosts from the Mesh network, but requires explicity ports to be forwarded when
             creating services.") }}
-            <div class="hideable0">
+            <div class="compact hideable0">
                 <div class="cols">
                     <div>
                         <div class="o">IP Address</div>
@@ -193,7 +193,7 @@
                 </div>
             </div>
             {{ _H("Enable the WAN interface on this node, to allow it to access the Internet directly.") }}
-            <div class="hideable hideable0">
+            <div class="compact hideable hideable0">
                 <div class="cols">
                     <div>
                         <div class="o">Mode</div>
@@ -254,7 +254,7 @@
         </div>
         {{ _H("For hosts not on the Mesh, use these DNS servers to resolve names to IP addresses.") }}
         {{ _R("dialog-advanced") }}
-        <div>
+        <div class="compact">
             {% if (length(hardware.getEthernetPorts()) < 2) { %}
             <div class="cols">
                 <div>

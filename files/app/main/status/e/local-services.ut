@@ -151,7 +151,6 @@
             </div>
             <button>+</button>
         </div>
-        <div class="o">Services</div>
         <div id="local-services">{%
                 for (let i = 0; i < length(services); i++) {
                     const s = services[i];
@@ -216,7 +215,6 @@
             </div>
             <button>+</button>
         </div>
-        <div class="o">Aliases</div>
         <div id="host-aliases">{%
             for (let i = 0; i < length(aliases.map); i++) {
             %}

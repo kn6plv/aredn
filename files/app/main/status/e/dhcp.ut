@@ -120,7 +120,6 @@
             }
         } %}
         </div>
-        <div>&nbsp;None</div>
         <hr>
         <div class="o">Active Leases</div>
         <div class="m">Addresses currently in use</div>
@@ -149,10 +148,7 @@
                     </div>
         {%      }
             }
-        }
-        else { %}
-        <div>&nbsp;None</div>
-        {% } %}
+        } %}
     </div>
     {{ _R("dialog-footer") }}
     <script>

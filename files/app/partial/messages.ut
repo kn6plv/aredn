@@ -1,7 +1,7 @@
 {%
     const allmsgs = messages.getMessages();
 %}
-<div class="ctrl" hx-get="status/e/messages" hx-target="#ctrl-modal">
+<div class="noctrl">
     {% if (allmsgs.system) { %}
     <div class="section-title">System Messages</div>
     <div class="section">
@@ -44,10 +44,11 @@
         for (let k in allmsgs) {
             const msgs = allmsgs[k];
             for (let i = 0; i < length(msgs); i++) {
-                print(`<div>${msgs[i]}</div>`);
+                print(`<div><b>${k}: </b>${msgs[i]}</div>`);
             }
         }
         %}</div>{%
+        break;
     }
     %}
 </div>

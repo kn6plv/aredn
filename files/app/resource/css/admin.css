@@ -87,7 +87,11 @@
 {
     color: var(--ctrl-modal-fg-message-color);
     font-size: 14px;
-    padding: 4px 8px 10px 0;
+    padding: 4px 8px 16px 0;
+}
+#ctrl-modal dialog .compact .m
+{
+    padding-bottom: 10px;
 }
 #ctrl-modal dialog .help
 {
@@ -245,9 +249,12 @@
 
 /* dialog customization end */
 
-
 /* dhcp start */
 
+#ctrl-modal dialog #dhcp-reservations:not(:has(.reservation)) .reservation-label
+{
+    display: none;
+}
 #ctrl-modal dialog .reservation input[type=text]:first-child,
 #ctrl-modal dialog .lease input:first-child,
 #ctrl-modal dialog .reservation-label div:first-child div:first-child,
@@ -293,22 +300,6 @@
     font-size: 10px;
     text-align: right;
     color: var(--ctrl-modal-fg-message-color);
-}
-#dhcp-reservations + div
-{
-    display: none;
-}
-#dhcp-reservations:has(> :last-child:nth-child(1)) + div
-{
-    display: block;
-}
-#dhcp-reservations:has(> :last-child:nth-child(1))
-{
-    display: none;
-}
-#dhcp-reservations
-{
-    display: block;
 }
 
 /* dhcp end */
@@ -363,19 +354,9 @@
 
 /* service start */
 
-#service-templates,
-#host-aliases-add
+#service-templates
 {
     padding-bottom: 10px;
-}
-#local-services:empty::after,
-#host-aliases:empty::after
-{
-    position: relative;
-    top: 6px;
-    left: 10px;
-    content: "None";
-    color: var(--ctrl-modal-fg-subtitle-color);
 }
 #host-aliases
 {
@@ -406,10 +387,14 @@
     padding-right: 34px;
     font-size: 10px;
 }
-#local-services .service .cols:last-child input:first-child,
-#local-services .service .cols:last-child input:nth-child(3)
+#local-services .service .cols:last-child input[name=protocol],
+#local-services .service .cols:last-child input[name=port]
 {
     width: 50px;
+}
+#local-services .service .cols:last-child select[name=hostname]
+{
+    width: 171.5px;
 }
 #ctrl-modal dialog #local-services .service input[type=text],
 #ctrl-modal dialog #local-services .service select
