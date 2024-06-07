@@ -25,6 +25,4 @@
     {% } %}
 </div>
 <div style="flex:1"></div>
-<div>
-    <div title="Node tools" class="icon tools"></div>
-</div>
+{{ _R("tools") }}

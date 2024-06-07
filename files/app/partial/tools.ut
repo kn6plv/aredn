@@ -1,0 +1,16 @@
+<div id="tools" class="popup-menu">
+    <label>
+        <input type="checkbox">
+        <div title="Node tools" class="icon tools"></div>
+    </label>
+    <div class="menu">
+        {% if (hardware.getRadioCount() > 0) { %}
+        <div><div class="icon signal"></div>WiFi Scan</div>
+        <div><div class="icon wifi"></div>WiFi Chart</div>
+        {% } %}
+        <div><div class="icon bolt"></div>Ping</div>
+        <div><div class="icon plane"></div>Traceroute</div>
+        <div><div class="icon twoarrow"></div>iPerf3</div>
+        <div hx-trigger="click" hx-put="tools/e/supportdata" hx-swap="none"><div class="icon download"></div>Support Data</div>
+    </div>
+</div>

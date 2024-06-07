@@ -33,7 +33,7 @@
                 <div class="m">This node's unique name</div>
             </div>
             <div style="flex:0">
-                <input hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="node_name" type="text" minlength="4" maxlength="63" size="30" required value="{{ configuration.getName() }}">
+                <input name="node_name" hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" type="text" minlength="4" maxlength="63" size="30" required pattern="[^']" value="{{ configuration.getName() }}">
             </div>
         </div>
         <div class="cols">
@@ -42,7 +42,7 @@
                 <div class="m">Information about this node</div>
             </div>
             <div style="flex:0">
-                <textarea style="width:340px" rows="2" columns="80" hx-put="{{ request.env.REQUEST_URI }}" name="description_node">{{ configuration.getSettingAsString("description_node", "") }}</textarea>
+                <textarea name="description_node" style="width:340px" rows="2" columns="80" hx-put="{{ request.env.REQUEST_URI }}" pattern="[^']">{{ configuration.getSettingAsString("description_node", "") }}</textarea>
             </div>
         </div>
         {{ _H("Some optional descriptive text about this node. This can be anything you think relevant.

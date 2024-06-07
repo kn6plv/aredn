@@ -35,6 +35,20 @@
             </div>
         </div>
     </div>
+    {% if (auth.authenticated) { %}
+    <script>
+        (function(){
+            htmx.on("#all", "click", e => {
+                const a = htmx.findAll(".popup-menu input[type=checkbox]");
+                for (let i = 0; i < a.length; i++) {
+                    if (a[i] !== e.target) {
+                        a[i].checked = false;
+                    }
+                }
+            });
+        })();
+    </script>
+    {% } %}
 </body>
 </html>
 {% } else { %}

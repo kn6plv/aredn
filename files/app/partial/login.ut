@@ -2,8 +2,11 @@
 <dialog id="login">
     Password <input type="password"><button>OK</button>
 </dialog>
-<div id="login-icon">
-    <div class="icon login"></div>
+<div id="login-icon" class="popup-menu">
+    <label>
+        <input type="checkbox">
+        <div class="icon login"></div>
+    </label>
     <div class="menu">
         <div>Login</div>
     </div>
@@ -40,8 +43,11 @@
     loginDialog.querySelector('input').addEventListener("change", doAuth);
 </script>
 {% } else { %}
-<div id="logout-icon">
-    <div class="icon login authenticated"></div>
+<div id="logout-icon" class="popup-menu">
+    <label>
+        <input type="checkbox">
+        <div class="icon login authenticated"></div>
+    </label>
     <div class="menu">
         <div>Logout</div>
         <div>Reboot</div>
