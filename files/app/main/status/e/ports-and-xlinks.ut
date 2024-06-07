@@ -277,7 +277,7 @@ ${type === "wan" ? "\toption gateway '<wan_gw>'" : ""}${type === "lan" ? "\topti
                             <input name="vlan" type="text" size="5" required pattern="([4-9]|[1-9][0-9]{1,2}|[1-3][0-9]{3}|40[0-8][0-9]|409[0-5])" placeholder="VLan" value="{{ x.vlan }}">
                             <input name="ipaddr" type="text" size="25" required pattern="{{ constants.patIP }}" placeholder="IP A&zwnj;ddress" value="{{ x.ipaddr }}">
                             <input name="peer" type="text" size="25" pattern="{{ constants.patIP }}" placeholder="IP A&zwnj;ddress" value="{{ x.peer }}">
-                            <input name="weight" type="text" size="2" required pattern="([0-9]|[1-9][0-9]|100)" placeholder="Weight" value="{{ x.weight }}">
+                            <input name="weight" type="text" size="2" required pattern="([0-9]|[1-9][0-9]|100)" placeholder="Wt" value="{{ x.weight }}">
                             {% if (haveports) { %}
                             <select name="port">
                             {%
@@ -379,7 +379,7 @@ ${type === "wan" ? "\toption gateway '<wan_gw>'" : ""}${type === "lan" ? "\topti
     <input name="vlan" type="text" size="5" required pattern="([4-9]|[1-9][0-9]{1,2}|[1-3][0-9]{3}|40[0-8][0-9]|409[0-5])" placeholder="VLan">
     <input name="ipaddr" type="text" size="25" required pattern="${patIP}" placeholder="IP A&zwnj;ddress">
     <input name="peer" type="text" size="25" pattern="${patIP}" placeholder="IP A&zwnj;ddress">
-    <input name="weight" type="text" size="2" required pattern="([0-9]|[1-9][0-9]|100)" placeholder="Weight">
+    <input name="weight" type="text" size="2" required pattern="([0-9]|[1-9][0-9]|100)" placeholder="Wt">
     {% if (haveports) { %}<select name="port">
     {%
         for (let i = 0; i < length(ports); i++) {
