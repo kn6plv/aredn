@@ -151,7 +151,7 @@
                         print("<hr>");
                     }
         %}
-        <div id="radio{{w}}" class="hideable">
+        <div id="radio{{w}}" class="hideable compact">
             <div class="cols">
                 <div>
                     <div class="o" {{ length(wlan) > 1 ? "style='font-weight:bold'" : "" }}>Radio {{ wlan[w].def.band }}</div>

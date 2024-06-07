@@ -354,17 +354,13 @@
 
 /* service start */
 
-#service-templates
-{
-    padding-bottom: 10px;
-}
 #host-aliases
 {
     padding-bottom: 20px;
 }
 #local-services .service
 {
-    padding-top: 20px;
+    padding-top: 10px;
 }
 #local-services .service .cols:first-child input
 {
