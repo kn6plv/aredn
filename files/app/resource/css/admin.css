@@ -225,6 +225,12 @@
 {
     opacity: 0;
 }
+#tools label
+{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
 #tools .menu
 {
     display: none;

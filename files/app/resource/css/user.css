@@ -547,6 +547,14 @@ body.authenticated .ctrl:hover
 {
     position: absolute;
     top: 0;
+    pointer-events: none;
+}
+#login-icon label,
+#logout-icon label
+{
+    position: absolute;
+    top: 0;
+    right: 0;
 }
 #login-icon input,
 #logout-icon input
