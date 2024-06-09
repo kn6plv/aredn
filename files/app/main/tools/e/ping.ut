@@ -1,10 +1,10 @@
 {%
-if (request.env.REQUEST_METHOD === "GET" && substr(request.env.QUERY_STRING, 0, 2) === "p=") {
+if (request.env.REQUEST_METHOD === "GET" && substr(request.env.QUERY_STRING, 0, 2) === "h=") {
     const target = substr(request.env.QUERY_STRING, 2);
     response.override = true;
     uhttpd.send("Status: 200 OK\r\nContent-Type: text/event-stream\r\nCache-Control: no-store\r\n\r\n");
     uhttpd.send(`event: line\r\ndata: ping -c 5 -w 10 ${target}\r\n\r\n`);
-    const f = fs.popen(`/bin/ping -c 5 -w 10 ${target}`);
+    const f = fs.popen(`/bin/ping -c 5 -w 10 ${target} 2>&1`);
     if (!f) {
         uhttpd.send(`event: close\r\ndata: ping failed\r\n\r\n`);
         return;
@@ -30,7 +30,7 @@ const nodes = mesh.getNodeList(true);
                 <div class="m">IP Address, Hostname or Node</div>
             </div>
             <div>
-                <input id="tool-target" type="text" size="30" required>
+                <input id="tool-target" type="text" size="40" required>
                 <select id="tool-select">
                     <option value="">&#x25BC;</option>
                     {%
@@ -63,9 +63,12 @@ const nodes = mesh.getNodeList(true);
             if (target) {
                 const con = htmx.find(".tool-console pre");
                 con.innerText = "";
-                const source = new EventSource(`{{ request.env.REQUEST_URI }}?p=${target}`);
+                const source = new EventSource(`{{ request.env.REQUEST_URI }}?h=${target}`);
                 source.addEventListener("close", e => {
                     source.close();
+                    if (e.data) {
+                        con.innerText += `Error: ${e.data}\n`;
+                    }
                 });
                 source.addEventListener("line", e => {
                     con.innerText += `${e.data}\n`;
