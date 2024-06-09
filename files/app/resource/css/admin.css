@@ -900,13 +900,13 @@
     height: 30px;
     flex: 0;
 }
-.simple-tool .cols:nth-child(2)
+.simple-tool .cols:last-child
 {
     position: relative;
     flex: 1;
     align-items: flex-end;
 }
-.simple-tool .cols:nth-child(2) div:nth-child(2)
+.simple-tool .cols:last-child div:nth-child(2)
 {
     text-align: right;
 }
