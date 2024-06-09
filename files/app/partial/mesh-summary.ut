@@ -1,33 +1,16 @@
 {%
-    let nodes = 0;
-    let devices = 0;
-    const f = fs.open("/var/run/hosts_olsr");
-    if (f) {
-        for (;;) {
-            const l = f.read("line");
-            if (!length(l)) {
-                break;
-            }
-            if (substr(l, 0, 3) == "10." && index(l, "\tmid") === -1) {                                                       
-                devices++;                                                                                                    
-                if (index(l, "\tdtdlink.") !== -1) {                                                                          
-                    nodes++;                                                                                                  
-                }                                                                                                             
-            }  
-        }
-        f.close();
-    }
+    const counts = mesh.getNodeCounts();
 %}
 <div class="noctrl">
     <div class="section-title">Mesh</div>
     <div class="section">
         <div class="cols">
             <div>
-                <div class="t">{{ nodes }}</div>
+                <div class="t">{{ counts.nodes }}</div>
                 <div class="s">nodes</div>
             </div>
             <div>
-                <div class="t">{{ devices }}</div>
+                <div class="t">{{ counts.devices }}</div>
                 <div class="s">devices</div>
             </div>
             <div></div>

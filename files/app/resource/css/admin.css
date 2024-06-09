@@ -17,6 +17,10 @@
 {
     background-color: var(--ctrl-modal-backdrop-color);
 }
+#ctrl-modal dialog.wide
+{
+    width: 800px;
+}
 #ctrl-modal dialog > div:first-child
 {
     flex: 0;
@@ -223,6 +227,9 @@
 }
 #tools input
 {
+    width: 64px;
+    height: 64px;
+    margin: 0;
     opacity: 0;
 }
 #tools label
@@ -230,6 +237,16 @@
     position: absolute;
     bottom: 0;
     left: 0;
+}
+#tools label .icon
+{
+    position: absolute;
+    bottom: 0;
+    pointer-events: none;
+}
+#tools:hover label .icon
+{
+    filter: var(--icon-filter-select);
 }
 #tools .menu
 {
@@ -240,6 +257,7 @@
     padding: 10px;
     color: var(--login-menu-fg-color);
     background-color: var(--nav-bg-color);
+    border-top-right-radius: 10px;
 }
 #tools:has(input:checked) .menu
 {
@@ -251,9 +269,13 @@
     color: var(--login-menu-fg-color);
     background-color: var(--nav-bg-color);
 }
-#tools .menu > div:hover
+#tools .menu > div[hx-target]:hover
 {
     color: var(--login-menu-fg-select-color);
+}
+#tools .menu > div[hx-trigger]:hover .icon
+{
+    filter: var(--icon-filter-select);
 }
 #tools .menu > div > div
 {
@@ -839,3 +861,60 @@
 }
 
 /* xlink end */
+
+/* tools start */
+
+.tool-console
+{
+    position: absolute;
+    top: 0;
+    right: 60px;
+    bottom: 0;
+    left: 0;
+    font-size: 12px;
+    padding: 10px;
+    color: var(--console-fg-color);
+    background-color: var(--console-bg-color);
+    border-radius: 10px;
+}
+.tool-console pre
+{
+    height: 100%;
+    margin: 0;
+    overflow: hidden scroll;
+}
+.simple-tool
+{
+    display: flex;
+    flex-direction: column;
+}
+.simple-tool select
+{
+    width: 30px;
+    height: 28px;
+    margin: 2px 0 0 2px;
+}
+.simple-tool .cols:first-child > div:nth-child(2)
+{
+    display: flex;
+    height: 30px;
+    flex: 0;
+}
+.simple-tool .cols:nth-child(2)
+{
+    position: relative;
+    flex: 1;
+    align-items: flex-end;
+}
+.simple-tool .cols:nth-child(2) div:nth-child(2)
+{
+    text-align: right;
+}
+.simple-tool button
+{
+    width: 40px;
+    height: 30px;
+    margin-left: 10px;
+}
+
+/* tools end */

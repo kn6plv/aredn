@@ -1,0 +1,79 @@
+{%
+if (request.env.REQUEST_METHOD === "GET" && substr(request.env.QUERY_STRING, 0, 2) === "p=") {
+    const target = substr(request.env.QUERY_STRING, 2);
+    response.override = true;
+    uhttpd.send("Status: 200 OK\r\nContent-Type: text/event-stream\r\nCache-Control: no-store\r\n\r\n");
+    uhttpd.send(`event: line\r\ndata: traceroute -q 1 ${target}\r\n\r\n`);
+    const f = fs.popen(`/bin/traceroute -q 1 ${target}`);
+    if (!f) {
+        uhttpd.send(`event: close\r\ndata: ping failed\r\n\r\n`);
+        return;
+    }
+    for (;;) {
+        const l = f.read("line");
+        if (!length(l)) {
+            f.close();
+            uhttpd.send(`event: line\r\ndata: Done\r\n\r\n`);
+            uhttpd.send(`event: close\r\ndata:\r\n\r\n`);
+        }
+        uhttpd.send(`event: line\r\ndata: ${trim(l)}\r\n\r\n`);
+    }
+    return;
+}
+const nodes = mesh.getNodeList(true);
+%}
+<dialog class="wide">
+    {{ _R("tool-header", "Traceroute") }}
+    <div class="simple-tool">
+        <div class="cols">
+            <div>
+                <div class="o">Network Address</div>
+                <div class="m">IP Address, Hostname or Node</div>
+            </div>
+            <div>
+                <input id="tool-target" type="text" size="30" required>
+                <select id="tool-select">
+                    <option value="">&#x25BC;</option>
+                    {%
+                        for (let i = 0; i < length(nodes); i++) {
+                            print(`<option value="${nodes[i]}">${nodes[i]}</option>`);
+                        }
+                    %}
+                </select>
+            </div>
+        </div>
+        <div class="cols">
+            <div class="tool-console">
+                <pre></pre>
+            </div>
+            <div>
+                <button id="tool-start">Go</button>
+            </div>
+        </div>
+    </div>
+    <script>
+    (function(){
+        htmx.on("#tool-select", "change", e => {
+            if (e.target.value !== "") {
+                htmx.find("#tool-target").value = e.target.value;
+                e.target.value = "";
+            }
+        });
+        htmx.on("#tool-start", "click", _ => {
+            const target = htmx.find("#tool-target").value;
+            if (target) {
+                const con = htmx.find(".tool-console pre");
+                con.innerText = "";
+                const source = new EventSource(`{{ request.env.REQUEST_URI }}?p=${target}`);
+                source.addEventListener("close", e => {
+                    source.close();
+                });
+                source.addEventListener("line", e => {
+                    con.innerText += `${e.data}\n`;
+                });
+            }
+        });
+    })();
+    </script>
+    {{ _R("tool-footer") }}
+</dialog>

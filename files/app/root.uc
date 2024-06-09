@@ -14,6 +14,7 @@ import * as olsr from "aredn.olsr";
 import * as units from "aredn.units";
 import * as radios from "aredn.radios";
 import * as messages from "aredn.messages";
+import * as mesh from "aredn.mesh";
 import * as constants from "./constants.uc";
 
 const pageCache = {};
@@ -436,7 +437,8 @@ global.handle_request = function(env)
                     radios: radios,
                     math: math,
                     log: log,
-                    messages: messages
+                    messages: messages,
+                    mesh: mesh
                 });
             }
             catch (e) {

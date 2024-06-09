@@ -2,9 +2,8 @@
 {
     --font-family:  sans-serif;
     --body-bg-color: #f8f8f8;
-    --logo-fg-color: #606060;
-    --nav-bg-color: #f0f0f0;
-    --select-bg-color: #f0f0f0;
+    --logo-fg-color: hsl(0, 0%, 38%);
+    --nav-bg-color: #e8e8e8;
     --title-fg-color: #202020;
     --subtitle-fg-color: #a0a0a0;
     --hr-color: #e0e0e0;
@@ -71,4 +70,6 @@
     --tunnel-bg-legacy-server-color: #101080;
     --tunnel-bg-legacy-client-color: #1010c0;
     --message-bg-color: #ffff85;
+    --console-bg-color: #000000;
+    --console-fg-color: #ffffff;
 }
