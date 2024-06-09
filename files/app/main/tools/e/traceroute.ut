@@ -53,6 +53,7 @@ const nodes = mesh.getNodeList(true);
     </div>
     <script>
     (function(){
+        let source = null;
         htmx.on("#tool-select", "change", e => {
             if (e.target.value !== "") {
                 htmx.find("#tool-target").value = e.target.value;
@@ -64,9 +65,13 @@ const nodes = mesh.getNodeList(true);
             if (target) {
                 const con = htmx.find(".tool-console pre");
                 con.innerText = "";
-                const source = new EventSource(`{{ request.env.REQUEST_URI }}?h=${target}`);
+                if (source) {
+                    source.close();
+                }
+                source = new EventSource(`{{ request.env.REQUEST_URI }}?h=${target}`);
                 source.addEventListener("close", e => {
                     source.close();
+                    source = null;
                     if (e.data) {
                         con.innerText += `Error: ${e.data}\n`;
                     }
