@@ -917,4 +917,21 @@
     margin-left: 10px;
 }
 
+#wifi-scan table
+{
+    width: 100%;
+    font-size: 12px;
+}
+#wifi-scan table thead tr
+{
+    font-weight: bold;
+}
+#wifi-scan table thead tr td {
+    padding-bottom: 4px;
+}
+#wifi-scan + div button
+{
+    text-align: left;
+}
+
 /* tools end */

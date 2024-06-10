@@ -1,5 +1,7 @@
 {%
+const last_scan_file = "/tmp/last-scan.json";
 let last_scan = [];
+let scan_time = "Unknown";
 
 if (request.env.REQUEST_METHOD === "PUT") {
     const config = radios.getActiveConfiguration();
@@ -152,21 +154,38 @@ if (request.env.REQUEST_METHOD === "PUT") {
         (a, b) => b.signal - a.signal
     );
 
-    fs.writefile("/tmp/last-scan.json", sprintf("%J", last_scan));
+    fs.writefile(last_scan_file, sprintf("%J", last_scan));
+    scan_time = "0 seconds ago";
 }
 else {
-    const d = fs.readfile("/tmp/last-scan.json");
+    const d = fs.readfile(last_scan_file);
     if (d) {
         last_scan = json(d);
+        const last = time() - fs.stat(last_scan_file).mtime;
+        if (last === 1) {
+            scan_time = "1 second ago";
+        }
+        else if (last < 60) {
+            scan_time = `${last} seconds ago`;
+        }
+        else if (last < 120) {
+            scan_time = `1 minute ago`;
+        }
+        else if (last < 3600) {
+            scan_time = `${int(last / 60)} minutes ago`;
+        }
+        else {
+            scan_time = "a long time ago";
+        }
     }
 }
 %}
 <dialog class="wide">
     {{ _R("tool-header", "WiFi Scan") }}
     <div id="wifi-scan">
-        <table style="width:100%;font-size:12px">
+        <table>
             <thead>
-                <tr style="font-weight:bold">
+                <tr>
                 <td>SNR</td><td>Signal</td><td>Chan</td><td>Enc</td><td>SSID</td><td>Hostname</td><td>MAC/BSSID</td><td>802.11 Mode</td>
                 </tr>
             </thead>
@@ -179,12 +198,22 @@ else {
             </tbody>
         </table>
     </div>
-    <div style="text-align:right">
+    <div class="cols">
+        <div>Last Scan: {{scan_time}}</div>
         <button hx-put="{{ request.env.REQUEST_URI }}" hx-target="#ctrl-modal">Scan</button>
         <script>
         (function(){
             htmx.on("#wifi-scan + div button", "click", e => {
-                e.target.innerText = "Scanning ...";
+                e.target.style.width="90px";
+                e.target.innerText = "Scanning ";
+                let dots = ".";
+                setInterval(_ => {
+                    e.target.innerText = "Scanning " + dots;
+                    dots += ".";
+                    if (dots.length > 3) {
+                        dots = "";
+                    }
+                }, 300);
             });
         })();
         </script>
