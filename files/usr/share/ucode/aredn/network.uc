@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import * as resolv from "resolv";
 
 export function hasInternet()
 {
@@ -75,3 +76,19 @@ export function CIDRToNetmask(cidr)
     }
 };
 
+export function nslookup(aorh)
+{
+    const r = resolv.query([aorh]);
+    if (r) {
+        for (let k in r) {
+            const v = r[k];
+            if (v.PTR) {
+                return v.PTR;
+            }
+            if (v.A) {
+                return v.A;
+            }
+        }
+    }
+    return null;
+};

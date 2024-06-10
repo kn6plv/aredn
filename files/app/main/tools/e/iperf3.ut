@@ -62,6 +62,8 @@ const nodes = mesh.getNodeList(true);
                 const test = htmx.find("#iperf-test").value;
                 const client = test === "download" ? mynode : target;
                 const server = test === "download" ? target : mynode;
+                out("iPerf3 test started");
+                out("");
                 const r = await fetch(`http://${client}.local.mesh/cgi-bin/iperf?server=${server}.local.mesh&kill=1&protocol=tcp`);
                 const reader = r.body.getReader();
                 let state = "BEGIN";
@@ -83,8 +85,6 @@ const nodes = mesh.getNodeList(true);
                                 if (m) {
                                     if (m[1] === "SUCCESS") {
                                         state = "CONNECTING";
-                                        out("iPerf3 test started");
-                                        out("");
                                         out(`Client: ${client}`);
                                         out(`Server: ${server}`);
                                         out("");

@@ -283,6 +283,20 @@ export function getAntennaAuxInfo(wifiIface, antenna)
     return null;
 };
 
+export function getChannelFrequency(wifiIface, channel)
+{
+    const rfchans = getRfChannels(wifiIface);
+    if (rfchans[0]) {
+        for (let i = 0; i < length(rfchans); i++) {
+            const c = rfchans[i];
+            if (c.number === channel) {
+                return c.frequency;
+            }
+        }
+    }
+    return null;
+};
+
 export function getChannelFrequencyRange(wifiIface, channel, bandwidth)
 {
     const rfchans = getRfChannels(wifiIface);
@@ -295,6 +309,34 @@ export function getChannelFrequencyRange(wifiIface, channel, bandwidth)
         }
     }
     return null;
+};
+
+export function getChannelFromFrequency(freq)
+{
+    if (freq < 256) {
+        return null;
+    }
+    if (freq === 2484) {
+        return 14;
+    }
+    if (freq === 2407) {
+        return 0;
+    }
+    if (freq < 2484) {
+        return (freq - 2407) / 5;
+    }
+    if (freq < 5000) {
+        return null;
+    }
+    if (freq < 5380) {
+        return (freq - 5000) / 5;
+    }
+    if (freq < 5500) {
+        return freq - 2000;
+    }
+    if (freq < 6000) {
+        return (freq - 5000) / 5;
+    }
 };
 
 export function getMaxTxPower(wifiIface, channel)

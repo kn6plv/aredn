@@ -1,4 +1,5 @@
 import * as hardware from "aredn.hardware";
+import * as configuration from "aredn.configuration";
 import * as uci from "uci";
 
 export const RADIO_OFF = 0;
@@ -62,7 +63,7 @@ export function getActiveConfiguration()
                     return false;
                 }
             });
-            radio[widx[1]].mode = 1;
+            radio[widx[1]].mode = RADIO_MESH;
             radio[widx[1]].modes = [ null, mode, null, null ];
         }
     }
