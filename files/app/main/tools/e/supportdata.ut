@@ -8,31 +8,23 @@ if (request.env.REQUEST_METHOD === "PUT") {
 const wifiiface = uci.get("network", "wifi", "device");
 
 const files = [
+    "/etc/board.json",
     "/etc/config/",
     "/etc/config.mesh/",
     "/etc/local/",
     "/etc/mesh-release",
     "/etc/os-release",
-    "/tmp/etc/",
     "/var/run/hosts_olsr",
     "/var/run/services_olsr",
-    "/tmp/rssi.dat",
-    "/tmp/rssi.log",
-    "/tmp/rssi_ath10k.log",
-    "/tmp/station_monitor.log",
-    "/tmp/olsrd.log",
+    "/tmp/etc/",
     "/tmp/dnsmasq.d/",
     "/tmp/AutoDistReset.log",
     "/tmp/lqm.info",
     "/tmp/wireless_monitor.info",
-    "/tmp/sysinfo/board_name",
-    "/tmp/sysinfo/boardid",
-    "/tmp/sysinfo/hardware_mfg",
-    "/tmp/sysinfo/hardware_type",
-    "/tmp/sysinfo/model",
+    "/tmp/service-validation-state",
+    "/tmp/sysinfo/",
     "/sys/kernel/debug/ieee80211/phy0/ath9k/ack_to",
-    "/sys/kernel/debug/ieee80211/phy1/ath9k/ack_to",
-    "/etc/board.json"
+    "/sys/kernel/debug/ieee80211/phy1/ath9k/ack_to"
 ];
 const sensitive = [
     "/etc/config/vtun",
