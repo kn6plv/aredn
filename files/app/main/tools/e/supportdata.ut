@@ -18,7 +18,6 @@ const files = [
     "/var/run/services_olsr",
     "/tmp/etc/",
     "/tmp/dnsmasq.d/",
-    "/tmp/AutoDistReset.log",
     "/tmp/lqm.info",
     "/tmp/wireless_monitor.info",
     "/tmp/service-validation-state",
