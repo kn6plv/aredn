@@ -950,7 +950,8 @@
 }
 #wifi-bar > div:first-child
 {
-    padding: 0 0 10px 10px;
+    text-align: center;
+    font-size: 18px;
 }
 #wifi-bar .bars
 {
