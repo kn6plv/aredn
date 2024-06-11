@@ -4,7 +4,7 @@ const mynode = configuration.getName();
 %}
 <dialog class="wide">
     {{ _R("tool-header", "iPerf3") }}
-    <div class="simple-tool compact">
+    <div class="simple-tool compact iperf3">
         <div class="cols">
             <div>
                 <div class="o">Server Address</div>

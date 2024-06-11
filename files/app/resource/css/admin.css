@@ -895,7 +895,7 @@
     margin: 2px 0 0 2px;
 }
 .simple-tool .cols:first-child > div:nth-child(2),
-.simple-tool .cols:nth-child(2) > div:nth-child(2)
+.simple-tool.iperf3 .cols:nth-child(2) > div:nth-child(2)
 {
     display: flex;
     height: 30px;
