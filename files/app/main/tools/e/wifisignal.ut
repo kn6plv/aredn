@@ -37,7 +37,7 @@ for (let i = 0; i < length(stations); i++) {
 }
 %}
 <dialog class="wide">
-    {{ _R("tool-header", "WiFi Chart") }}
+    {{ _R("tool-header", "WiFi Signal") }}
     <div id="wifi-chart">
         <div class="cols">
             <div>
@@ -81,7 +81,7 @@ for (let i = 0; i < length(stations); i++) {
                         <text x="8" y="63">-80</text>
                         <text x="8" y="77">-100</text>
                         <text x="8" y="90">-120</text>
-                        <text x="105" y="96">5 minutes</text>
+                        <text x="105" y="96">Last 5 minutes</text>
                         <polyline class="signal" />
                     </svg>
                 </div>
@@ -174,18 +174,20 @@ for (let i = 0; i < length(stations); i++) {
             }
             let s = j[last];
             if (!s) {
-                if (last !== "average") {
-                    return;
+                if (last === "average") {
+                    s = Object.values(j).reduce((t, v, a) => t + v / a.length);
                 }
-                s = Object.values(j).reduce((t, v, a) => t + v / a.length);
+                if (!s) {
+                    s = -120;
+                }
             }
             if (s > smax) {
                 smax = s;
             }
-            if (s < smin) {
+            if (s >= sf && s < smin) {
                 smin = s;
             }
-            bart.innerText = `${s} dBm`;
+            bart.innerText = `${s >= sf ? s : "-"} dBm`;
             bar1.style.height = p(smax);
             bar2.style.height = p(s);
             bar3.style.height = p(smin);

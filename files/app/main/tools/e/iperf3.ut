@@ -1,36 +1,50 @@
 {%
 const nodes = mesh.getNodeList(true);
+const mynode = configuration.getName();
 %}
 <dialog class="wide">
     {{ _R("tool-header", "iPerf3") }}
-    <div class="simple-tool">
+    <div class="simple-tool compact">
         <div class="cols">
             <div>
-                <div class="o">Network Address</div>
+                <div class="o">Server Address</div>
                 <div class="m">IP Address, Hostname or Node</div>
             </div>
             <div>
                 <input id="tool-target" type="text" size="40" required>
                 <select id="tool-select">
                     <option value="">&#x25BC;</option>
+                    <option value="{{ mynode }}">{{ mynode }}</option>
                     {%
                         for (let i = 0; i < length(nodes); i++) {
-                            print(`<option value="${nodes[i]}">${nodes[i]}</option>`);
+                            if (nodes[i] !== mynode) {
+                                print(`<option value="${nodes[i]}">${nodes[i]}</option>`);
+                            }
                         }
                     %}
                 </select>
+                <button id="target-swap"><div class="icon updownarrow"></div></button>
             </div>
         </div>
         <div class="cols">
-        <div>
-                <div class="o">Bandwidth Test</div>
-                <div class="m">Upload or download test</div>
+            <div>
+                <div class="o">Client Address</div>
+                <div class="m">IP Address, Hostname or Node</div>
             </div>
-            <div style="flex:0">
-                <select id="iperf-test" style="width:initial">
-                    <option value="download">Download</option>
-                    <option value="upload">Upload</option>
+            <div>
+                <input id="tool-client" type="text" size="40" required value="{{ mynode }}">
+                <select id="tool-client-select">
+                    <option value="">&#x25BC;</option>
+                    <option value="{{ mynode }}">{{ mynode }}</option>
+                    {%
+                        for (let i = 0; i < length(nodes); i++) {
+                            if (nodes[i] !== mynode) {
+                                print(`<option value="${nodes[i]}">${nodes[i]}</option>`);
+                            }
+                        }
+                    %}
                 </select>
+                <div style="width:42px"></div>
             </div>
         </div>
         <div class="cols">
@@ -44,24 +58,33 @@ const nodes = mesh.getNodeList(true);
     </div>
     <script>
     (function(){
-        const mynode = "{{ configuration.getName() }}";
+        const mynode = "{{ mynode }}";
         htmx.on("#tool-select", "change", e => {
             if (e.target.value !== "") {
                 htmx.find("#tool-target").value = e.target.value;
                 e.target.value = "";
             }
         });
+         htmx.on("#tool-client-select", "change", e => {
+            if (e.target.value !== "") {
+                htmx.find("#tool-client").value = e.target.value;
+                e.target.value = "";
+            }
+        });
+        htmx.on("#target-swap", "click", _ => {
+            const v = htmx.find("#tool-target").value;
+            htmx.find("#tool-target").value = htmx.find("#tool-client").value;
+            htmx.find("#tool-client").value = v;
+        });
         htmx.on("#tool-start", "click", async _ => {
-            const target = htmx.find("#tool-target").value;
-            if (target) {
+            const server = htmx.find("#tool-target").value;
+            const client = htmx.find("#tool-client").value;
+            if (server && client) {
                 const con = htmx.find(".tool-console pre");
                 con.innerText = "";
                 function out(line) {
                     con.innerText += `${line}\n`;
                 }
-                const test = htmx.find("#iperf-test").value;
-                const client = test === "download" ? mynode : target;
-                const server = test === "download" ? target : mynode;
                 out("iPerf3 test started");
                 out("");
                 const r = await fetch(`http://${client}.local.mesh/cgi-bin/iperf?server=${server}.local.mesh&kill=1&protocol=tcp`);
