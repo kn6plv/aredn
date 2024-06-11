@@ -9,15 +9,12 @@ if (request.env.REQUEST_METHOD === "GET" && substr(request.env.QUERY_STRING, 0, 
         uhttpd.send(`event: close\r\ndata: ping failed\r\n\r\n`);
         return;
     }
-    for (;;) {
-        const l = f.read("line");
-        if (!length(l)) {
-            f.close();
-            uhttpd.send(`event: line\r\ndata: Done\r\n\r\n`);
-            uhttpd.send(`event: close\r\ndata:\r\n\r\n`);
-        }
+    for (let l = f.read("line"); length(l); l = f.read("line")) {
         uhttpd.send(`event: line\r\ndata: ${trim(l)}\r\n\r\n`);
     }
+    f.close();
+    uhttpd.send(`event: line\r\ndata: Done\r\n\r\n`);
+    uhttpd.send(`event: close\r\ndata:\r\n\r\n`);
     return;
 }
 const nodes = mesh.getNodeList(true);

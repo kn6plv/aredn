@@ -926,12 +926,97 @@
 {
     font-weight: bold;
 }
-#wifi-scan table thead tr td {
+#wifi-scan table thead tr td
+{
     padding-bottom: 4px;
 }
 #wifi-scan + div button
 {
     text-align: left;
+}
+
+#wifi-char > .cols
+{
+    padding-bottom: 10px;
+}
+#wifi-bar
+{
+    height: 300px;
+    width: 120px;
+    padding: 10px 0;
+    background-color: var(--ctrl-modal-bg-secondary-color);
+    border-radius: 10px;
+    font-size: 14px;
+}
+#wifi-bar > div:first-child
+{
+    padding: 0 0 10px 10px;
+}
+#wifi-bar .bars
+{
+    position: relative;
+    height: calc(100% - 30px);
+}
+#wifi-bar .bars > div
+{
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    left: 10px;
+    transition: height 1s linear;
+
+}
+#wifi-bar .bars div div
+{
+    display: inline-block;
+    vertical-align: top;
+    padding-right: 5px;
+}
+#wifi-bar .bars div div:nth-child(2)
+{
+    border-radius: 10px;
+    width: 50px;
+    height: 100%;
+}
+#wifi-chart .cols .cols:nth-child(2) .o,
+#wifi-chart .cols .cols:nth-child(3) .o
+{
+    text-align: right;
+    padding-right: 10px;
+}
+#wifi-chart .chart
+{
+    padding-left: 10px;
+}
+#wifi-chart .chart > div
+{
+    height: 300px;
+    padding: 10px;
+    background-color: var(--ctrl-modal-bg-secondary-color);
+    border-radius: 10px;
+}
+#wifi-chart svg
+{
+    width: 100%;
+    height: 100%;
+}
+#wifi-chart .frame
+{
+    fill: none;
+    stroke: var(--title-fg-color);
+    stroke-width: 0.5px;
+}
+#wifi-chart .signal
+{
+    fill: none;
+    stroke: var(--conn-fg-color-good);
+    stroke-width: 0.5px;
+}
+#wifi-chart text
+{
+    fill: var(--title-fg-color);
+    font-size: 4px;
+    text-anchor: end;
 }
 
 /* tools end */

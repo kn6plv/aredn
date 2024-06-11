@@ -208,11 +208,15 @@ else {
         <script>
         (function(){
             htmx.on("#wifi-scan + div button", "click", e => {
-                e.target.style.width="90px";
-                e.target.innerText = "Scanning ";
+                const target = e.target;
+                target.style.width="100px";
+                target.innerText = "Scanning ";
                 let dots = ".";
-                setInterval(_ => {
-                    e.target.innerText = "Scanning " + dots;
+                const timer = setInterval(_ => {
+                    if (!document.contains(target)) {
+                        clearInterval(timer);
+                    }
+                    target.innerText = "Scanning " + dots;
                     dots += ".";
                     if (dots.length > 3) {
                         dots = "";
