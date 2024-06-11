@@ -77,10 +77,10 @@
                         const lq = link.lossMultiplier ? (int(100 * link.linkQuality * 65536 / link.lossMultiplier) + "%"): "-";
                         const nlq = link.lossMultiplier ? (int(100 * link.neighborLinkQuality * 65536 / link.lossMultiplier) + "%") : "-";
                         if (tracker.hostname) {
-                            print(`<div style='flex:0.75'><a title='link status: ${status}' href='http://${tracker.hostname}.local.mesh'>${tracker.hostname}</a></div>`);
+                            print(`<div style='flex:0.75'><a title='Link status: ${status}' href='http://${tracker.hostname}.local.mesh'>${tracker.hostname}</a></div>`);
                         }
                         else {
-                            print(`<div style='flex:0.75'><a title='link status: ${status}' href='http://${tracker.ip}'>${tracker.ip}</a></div>`);
+                            print(`<div style='flex:0.75'><a title='Link status: ${status}' href='http://${tracker.ip}'>${tracker.ip}</a></div>`);
                         }
                         print("<div class='ts cols stats'>");
                         print(`<div>${lq}</div><div>${nlq}</div><div></div><div></div><div>${100 - tracker.quality}%</div><div></div><div></div>`);
@@ -106,11 +106,37 @@
                     const link = links[tracker.ip] || {};
                     const lq = link.lossMultiplier ? (int(100 * link.linkQuality * 65536 / link.lossMultiplier) + "%"): "-";
                     const nlq = link.lossMultiplier ? (int(100 * link.neighborLinkQuality * 65536 / link.lossMultiplier) + "%") : "-";
+                    let icon = "";
+                    let title = "";
+                    switch (tracker.type) {
+                        case "RF":
+                            title = "RF ";
+                            icon = "wifi";
+                            break;
+                        case "DtD":
+                            title = "DtD ";
+                            icon = "twoarrow";
+                            break;
+                        case "Xlink":
+                            title = "Xlink ";
+                            icon = "plane";
+                            break;
+                        case "Tunnel":
+                            title = "Legacy tunnel ";
+                            icon = "globe";
+                            break;
+                        case "Wireguard":
+                            title = "Wireguard tunnel ";
+                            icon = "globe";
+                            break;
+                        default:
+                            break;
+                    }
                     if (tracker.hostname) {
-                        print(`<div style='flex:0.75'><a title='link status: ${status}' href='http://${tracker.hostname}.local.mesh'>${tracker.hostname}</a></div>`);
+                        print(`<div style='flex:0.75'><a title='${title}status: ${status}' href='http://${tracker.hostname}.local.mesh'>${tracker.hostname}<div class="icon ${icon}"></div></a></div>`);
                     }
                     else {
-                        print(`<div style='flex:0.75'><a title='link status: ${status}' href='http://${tracker.ip}'>${tracker.ip}</a></div>`);
+                        print(`<div style='flex:0.75'><a title='${title}status: ${status}' href='http://${tracker.ip}'>${tracker.ip}<div class="icon ${icon}"></div></a></div>`);
                     }
                     print("<div class='ts cols stats'>");
                     let d = "-";
