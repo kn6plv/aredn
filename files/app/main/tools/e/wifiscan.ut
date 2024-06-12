@@ -11,7 +11,7 @@ if (request.env.REQUEST_METHOD === "PUT") {
     }
     const radiomode = radio.modes[radios.RADIO_MESH];
     const wifiiface = radio.iface;
-    const myssid = `${radiomode.ssid}-${radiomode.bandwidth}-v3`;
+    const myssid = radiomode.ssid;
     const mychan = radiomode.channel;
     const myfreq = hardware.getChannelFrequency(wifiiface, radiomode.channel);
     const nodename = configuration.getName();
@@ -38,10 +38,11 @@ if (request.env.REQUEST_METHOD === "PUT") {
     
     f = fs.popen(`/usr/sbin/iw dev ${wifiiface} station dump`);
     if (f) {
-        const re = regexp(`^Station ([0-9a-fA-F:]+) \(on ${wifiiface}\)`);
+        const re = regexp(`^Station ([0-9a-fA-F:]+) \\(on ${wifiiface}\\)`);
+        const reSi = /signal:[ \t]+(-[0-9]+)/;
         let station;
         for (let l = f.read("line"); length(l); l = f.read("line")) {
-            const m = match(l, re);
+            let m = match(l, re);
             if (m) {
                 station = scan[m[1]];
                 if (!station) {
@@ -60,6 +61,10 @@ if (request.env.REQUEST_METHOD === "PUT") {
                     };
                     scan[m[1]] = station;
                 }
+            }
+            m = match(l, reSi);
+            if (m) {
+                station.signal = int(m[1]);
             }
         }
         f.close();
@@ -151,6 +156,7 @@ if (request.env.REQUEST_METHOD === "PUT") {
 
     for (let k in scan) {
         scan[k].chan = join(" ", sort(keys(scan[k].chan)));
+        scan[k].hostname = scan[k].hostname ? replace(scan[k].hostname, ".local.mesh", "") : null;
     }
 
     last_scan = sort(

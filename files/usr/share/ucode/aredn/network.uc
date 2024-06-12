@@ -83,10 +83,10 @@ export function nslookup(aorh)
         for (let k in r) {
             const v = r[k];
             if (v.PTR) {
-                return v.PTR;
+                return v.PTR[0];
             }
             if (v.A) {
-                return v.A;
+                return v.A[0];
             }
         }
     }
