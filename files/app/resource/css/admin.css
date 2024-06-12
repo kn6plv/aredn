@@ -1025,7 +1025,7 @@
 {
     fill: none;
     stroke: var(--conn-fg-color-good);
-    stroke-width: 0.5px;
+    stroke-width: 1px;
 }
 #wifi-chart text
 {

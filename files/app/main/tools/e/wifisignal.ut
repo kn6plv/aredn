@@ -147,7 +147,9 @@ for (let i = 0; i < length(stations); i++) {
         let last = null;
         const maxpoints = 300;
         function p(v) {
-            return `${Math.min(100, 100 * ((v - sf) / (smax - sf + 2)))}%`;
+            const low = Math.max(sf, 1.05 * smin);
+            const range = 0.98 * smax - low;
+            return `${Math.min(100, 100 * (v - low) / range)}%`;
         }
         function reset() {
             last = device.value;
@@ -175,25 +177,32 @@ for (let i = 0; i < length(stations); i++) {
             let s = j[last];
             if (!s) {
                 if (last === "average") {
-                    s = Object.values(j).reduce((t, v, a) => t + v / a.length);
+                    s = Math.round(Object.values(j).reduce((t, v, _, a) => t + v / a.length, 0));
                 }
                 if (!s) {
                     s = -120;
                 }
             }
-            if (s > smax) {
-                smax = s;
+            if (s >= sf) {
+                if (s > smax) {
+                    smax = s;
+                }
+                if (s < smin) {
+                    smin = s;
+                }
+                bart.innerText = `${s} dBm`;
+                bar1.style.height = p(smax);
+                bar2.style.height = p(s);
+                bar3.style.height = p(smin);
+                bar1.firstElementChild.innerText = smax;
+                bar2.firstElementChild.innerText = s;
+                bar3.firstElementChild.innerText = smin;
             }
-            if (s >= sf && s < smin) {
-                smin = s;
+            else {
+                bart.innerText = `- dBm`;
+                bar2.style.height = p(sf);
+                bar2.firstElementChild.innerText = "";
             }
-            bart.innerText = `${s >= sf ? s : "-"} dBm`;
-            bar1.style.height = p(smax);
-            bar2.style.height = p(s);
-            bar3.style.height = p(smin);
-            bar1.firstElementChild.innerText = smax;
-            bar2.firstElementChild.innerText = s;
-            bar3.firstElementChild.innerText = smin;
             if (signal.points.length >= maxpoints) {
                 signal.points.removeItem(0);
                 for (let i = 0; i < signal.points.length; i++) {
@@ -202,7 +211,7 @@ for (let i = 0; i < length(stations); i++) {
             }
             const point = chart.createSVGPoint();
             point.x = 10 + signal.points.length / maxpoints * 180;
-            point.y = 90 - 80 * (s + 120) / 120;
+            point.y = 90 - 80 * ((s > -120 ? s : -120) + 120) / 120;
             signal.points.appendItem(point);
             oscillator.frequency.value = (s - sf) * htmx.find("#wifi-chart input[name=pitch]").value;
             gain.gain.value = htmx.find("#wifi-chart input[name=volume]").value;
