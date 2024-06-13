@@ -87,7 +87,7 @@ const mynode = configuration.getName();
                 }
                 out("Traceroute test started");
                 out("");
-                const r = await fetch(`http://${client}.local.mesh/cgi-bin/traceroute?server=${server}.local.mesh`);
+                const r = await fetch(`http://${client}${client.indexOf(".") == -1 ? ".local.mesh" : ""}/cgi-bin/traceroute?server=${server}${server.indexOf(".") == -1 ? ".local.mesh" : ""}`);
                 const reader = r.body.getReader();
                 let state = "BEGIN";
                 for (;;) {

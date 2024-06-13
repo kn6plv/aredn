@@ -56,24 +56,19 @@ else
     if not server:match("%.") then
         server = server .. ".local.mesh"
     end
-    local ip = iplookup(server)
-    if not ip then
-        print("<html><head><title>ERROR</title></head><body><pre>traceroute: no such server</pre></body></html>")
+    local running = io.popen("/bin/traceroute -q 1 -w 1 " .. server .. " 2>&1")
+    if not running then
+        print("<html><head><title>ERROR</title></head><body><pre>traceroute failed</pre></body></html>")
     else
-        local running = io.popen("/bin/traceroute -q 1 -w 1 " .. ip .. " 2>&1")
-        if not running then
-            print("<html><head><title>ERROR</title></head><body><pre>traceroute failed</pre></body></html>")
-        else
-            print("<html><head><title>SUCCESS</title></head>")
-            print("<body><pre>Client: " .. node .. "\nServer: " .. server)
+        print("<html><head><title>SUCCESS</title></head>")
+        print("<body><pre>Client: " .. node .. "\nServer: " .. server)
+        io.flush()
+        for line in running:lines()
+        do
+            print(line)
             io.flush()
-            for line in running:lines()
-            do
-                print(line)
-                io.flush()
-            end
-            running:close()
-            print("</pre></body></html>")
         end
+        running:close()
+        print("</pre></body></html>")
     end
 end
