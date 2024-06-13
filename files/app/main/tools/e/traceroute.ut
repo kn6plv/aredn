@@ -1,42 +1,50 @@
 {%
-if (request.env.REQUEST_METHOD === "GET" && substr(request.env.QUERY_STRING, 0, 2) === "h=") {
-    const target = substr(request.env.QUERY_STRING, 2);
-    response.override = true;
-    uhttpd.send("Status: 200 OK\r\nContent-Type: text/event-stream\r\nCache-Control: no-store\r\n\r\n");
-    uhttpd.send(`event: line\r\ndata: traceroute -q 1 -w 1 ${target}\r\n\r\n`);
-    const f = fs.popen(`/bin/traceroute -q 1 -w 1 ${target} 2>&1`);
-    if (!f) {
-        uhttpd.send(`event: close\r\ndata: ping failed\r\n\r\n`);
-        return;
-    }
-    for (let l = f.read("line"); length(l); l = f.read("line")) {
-        uhttpd.send(`event: line\r\ndata: ${trim(l)}\r\n\r\n`);
-    }
-    f.close();
-    uhttpd.send(`event: line\r\ndata: Done\r\n\r\n`);
-    uhttpd.send(`event: close\r\ndata:\r\n\r\n`);
-    return;
-}
 const nodes = mesh.getNodeList(true);
+const mynode = configuration.getName();
 %}
 <dialog class="wide">
     {{ _R("tool-header", "Traceroute") }}
-    <div class="simple-tool">
+    <div class="simple-tool compact client-server">
         <div class="cols">
             <div>
-                <div class="o">Network Address</div>
-                <div class="m">IP Address, Hostname or Node</div>
+                <div class="o">Server A&zwnj;ddress</div>
+                <div class="m">IP A&zwnj;ddress, Hostname or Node</div>
             </div>
             <div>
                 <input id="tool-target" type="text" size="40" required>
                 <select id="tool-select">
                     <option value="">&#x25BC;</option>
+                    <option value="{{ mynode }}">{{ mynode }}</option>
                     {%
                         for (let i = 0; i < length(nodes); i++) {
-                            print(`<option value="${nodes[i]}">${nodes[i]}</option>`);
+                            if (nodes[i] !== mynode) {
+                                print(`<option value="${nodes[i]}">${nodes[i]}</option>`);
+                            }
                         }
                     %}
                 </select>
+                <button id="target-swap"><div class="icon updownarrow"></div></button>
+            </div>
+        </div>
+        <div class="cols">
+            <div>
+                <div class="o">Client A&zwnj;ddress</div>
+                <div class="m">IP A&zwnj;ddress, Hostname or Node</div>
+            </div>
+            <div>
+                <input id="tool-client" type="text" size="40" required value="{{ mynode }}">
+                <select id="tool-client-select">
+                    <option value="">&#x25BC;</option>
+                    <option value="{{ mynode }}">{{ mynode }}</option>
+                    {%
+                        for (let i = 0; i < length(nodes); i++) {
+                            if (nodes[i] !== mynode) {
+                                print(`<option value="${nodes[i]}">${nodes[i]}</option>`);
+                            }
+                        }
+                    %}
+                </select>
+                <div style="width:42px"></div>
             </div>
         </div>
         <div class="cols">
@@ -50,32 +58,104 @@ const nodes = mesh.getNodeList(true);
     </div>
     <script>
     (function(){
-        let source = null;
+        const mynode = "{{ mynode }}";
         htmx.on("#tool-select", "change", e => {
             if (e.target.value !== "") {
                 htmx.find("#tool-target").value = e.target.value;
                 e.target.value = "";
             }
         });
-        htmx.on("#tool-start", "click", _ => {
-            const target = htmx.find("#tool-target").value;
-            if (target) {
+         htmx.on("#tool-client-select", "change", e => {
+            if (e.target.value !== "") {
+                htmx.find("#tool-client").value = e.target.value;
+                e.target.value = "";
+            }
+        });
+        htmx.on("#target-swap", "click", _ => {
+            const v = htmx.find("#tool-target").value;
+            htmx.find("#tool-target").value = htmx.find("#tool-client").value;
+            htmx.find("#tool-client").value = v;
+        });
+        htmx.on("#tool-start", "click", async _ => {
+            const server = htmx.find("#tool-target").value;
+            const client = htmx.find("#tool-client").value;
+            if (server && client) {
                 const con = htmx.find(".tool-console pre");
                 con.innerText = "";
-                if (source) {
-                    source.close();
+                function out(line) {
+                    con.innerText += `${line}\n`;
                 }
-                source = new EventSource(`{{ request.env.REQUEST_URI }}?h=${target}`);
-                source.addEventListener("close", e => {
-                    source.close();
-                    source = null;
-                    if (e.data) {
-                        con.innerText += `Error: ${e.data}\n`;
+                out("Traceroute test started");
+                out("");
+                const r = await fetch(`http://${client}.local.mesh/cgi-bin/traceroute?server=${server}.local.mesh`);
+                const reader = r.body.getReader();
+                let state = "BEGIN";
+                for (;;) {
+                    const { done, value } = await reader.read();
+                    if (done) {
+                        if (state !== "DONE") {
+                            out("Traceroute Terminated.");
+                        }
+                        break;
                     }
-                });
-                source.addEventListener("line", e => {
-                    con.innerText += `${e.data}\n`;
-                });
+                    const lines = String.fromCharCode.apply(null, value).split("\n");
+                    lines.forEach(line => {
+                        line = line.trim();
+                        switch (state) {
+                            case "BEGIN":
+                            {
+                                const m = line.match(/<title>(.*)<\/title>/);
+                                if (m) {
+                                    if (m[1] === "SUCCESS") {
+                                        state = "CONNECTING";
+                                        out(`Client: ${client}`);
+                                        out(`Server: ${server}`);
+                                        out("");
+                                    }
+                                    else {
+                                        state = "ERROR";
+                                        const m = line.match(/<pre>(.*)<\/pre>/);
+                                        if (m) {
+                                            out(`ERROR: ${m[1]}`);
+                                            state = "DONE";
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                            case "CONNECTING":
+                                if (line.match(/^traceroute/)) {
+                                    state = "PRINT";
+                                    out(line);
+                                }
+                                break;
+                            case "PRINT":
+                                if (line) {
+                                    if (line === "</pre></body></html>") {
+                                        state = "DONE";
+                                        out("");
+                                        out("Traceroute done");
+                                    }
+                                    else {
+                                        out(line);
+                                    }
+                                }
+                                break;
+                            case "ERROR":
+                            {
+                                const m = line.match(/<pre>(.*)<\/pre>/);
+                                if (m) {
+                                    out(`ERROR: ${m[1]}`);
+                                    state = "DONE";
+                                }
+                                break;
+                            }
+                            case "DONE":
+                            default:
+                                break;
+                        }
+                    });
+                }
             }
         });
     })();

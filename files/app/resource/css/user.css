@@ -584,6 +584,7 @@ body.authenticated .ctrl:hover
     font-size: 14px;
     background-color: var(--nav-bg-color);
     border-bottom-left-radius: 10px;
+    border-top: 1px solid var(--ctrl-modal-bg-tertiary-color);
 }
 #login-icon .menu > div,
 #logout-icon .menu > div

@@ -4,11 +4,11 @@ const mynode = configuration.getName();
 %}
 <dialog class="wide">
     {{ _R("tool-header", "iPerf3") }}
-    <div class="simple-tool compact iperf3">
+    <div class="simple-tool compact client-server">
         <div class="cols">
             <div>
-                <div class="o">Server Address</div>
-                <div class="m">IP Address, Hostname or Node</div>
+                <div class="o">Server A&zwnj;ddress</div>
+                <div class="m">IP A&zwnj;ddress, Hostname or Node</div>
             </div>
             <div>
                 <input id="tool-target" type="text" size="40" required>
@@ -28,8 +28,8 @@ const mynode = configuration.getName();
         </div>
         <div class="cols">
             <div>
-                <div class="o">Client Address</div>
-                <div class="m">IP Address, Hostname or Node</div>
+                <div class="o">Client A&zwnj;ddress</div>
+                <div class="m">IP A&zwnj;ddress, Hostname or Node</div>
             </div>
             <div>
                 <input id="tool-client" type="text" size="40" required value="{{ mynode }}">
@@ -85,7 +85,7 @@ const mynode = configuration.getName();
                 function out(line) {
                     con.innerText += `${line}\n`;
                 }
-                out("iPerf3 test started");
+                out("iperf3 test started");
                 out("");
                 const r = await fetch(`http://${client}.local.mesh/cgi-bin/iperf?server=${server}.local.mesh&kill=1&protocol=tcp`);
                 const reader = r.body.getReader();
@@ -94,7 +94,7 @@ const mynode = configuration.getName();
                     const { done, value } = await reader.read();
                     if (done) {
                         if (state !== "DONE") {
-                            out("iperf Terminated.");
+                            out("iperf3 Terminated.");
                         }
                         break;
                     }

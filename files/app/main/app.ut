@@ -52,12 +52,17 @@
 </body>
 </html>
 {% } else { %}
-<div id="panel" hx-swap-oob="true">
-    <div id="select">
-        {{ _R("selection") }}
+<div id="all" hx-swap-oob="true">
+    <div id="nav">
+        {{ _R("nav") }}
     </div>
-    <div id="main">
-        {{ _R(request.page) }}
+    <div id="panel">
+        <div id="select">
+            {{ _R("selection") }}
+        </div>
+        <div id="main">
+            {{ _R(request.page) }}
+        </div>
     </div>
 </div>
 {% } %}
