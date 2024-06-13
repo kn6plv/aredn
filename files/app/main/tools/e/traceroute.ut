@@ -7,7 +7,7 @@ const mynode = configuration.getName();
     <div class="simple-tool compact client-server">
         <div class="cols">
             <div>
-                <div class="o">Server A&zwnj;ddress</div>
+                <div class="o">Target A&zwnj;ddress</div>
                 <div class="m">IP A&zwnj;ddress, Hostname or Node</div>
             </div>
             <div>
@@ -28,7 +28,7 @@ const mynode = configuration.getName();
         </div>
         <div class="cols">
             <div>
-                <div class="o">Client A&zwnj;ddress</div>
+                <div class="o">Source A&zwnj;ddress</div>
                 <div class="m">IP A&zwnj;ddress, Hostname or Node</div>
             </div>
             <div>
@@ -108,8 +108,8 @@ const mynode = configuration.getName();
                                 if (m) {
                                     if (m[1] === "SUCCESS") {
                                         state = "CONNECTING";
-                                        out(`Client: ${client}`);
-                                        out(`Server: ${server}`);
+                                        out(`Source: ${client}`);
+                                        out(`Target: ${server}`);
                                         out("");
                                     }
                                     else {
