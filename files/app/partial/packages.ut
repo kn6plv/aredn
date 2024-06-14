@@ -13,5 +13,5 @@ if (f) {
     f.close();
 }
 %}
-<div class="t">{{ count }}</div>
+<div class="t">{{count}}</div>
 <div class="s">installed packages</div>

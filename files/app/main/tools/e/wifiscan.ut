@@ -191,7 +191,7 @@ else {
 }
 %}
 <dialog class="wide">
-    {{ _R("tool-header", "WiFi Scan") }}
+    {{_R("tool-header", "WiFi Scan")}}
     <div id="wifi-scan">
         <table>
             <thead>
@@ -210,7 +210,7 @@ else {
     </div>
     <div class="cols">
         <div>Last Scan: {{scan_time}}</div>
-        <button hx-put="{{ request.env.REQUEST_URI }}" hx-target="#ctrl-modal">Scan</button>
+        <button hx-put="{{request.env.REQUEST_URI}}" hx-target="#ctrl-modal">Scan</button>
         <script>
         (function(){
             htmx.on("#wifi-scan + div button", "click", e => {
@@ -232,5 +232,5 @@ else {
         })();
         </script>
     </div>
-    {{ _R("tool-footer") }}
+    {{_R("tool-footer")}}
 </dialog>

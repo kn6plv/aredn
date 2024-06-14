@@ -292,7 +292,7 @@
         }
         else {
             response.upgrade = upgrade.upgrade;
-            uhttpd.send(`event: close\r\ndata: ${sprintf("%J", { v: _R("reboot-firmware") })}\r\n\r\n`);
+            uhttpd.send(`event: close\r\ndata: ${sprintf("%J", { v:_R("reboot-firmware")})}\r\n\r\n`);
         }
         return;
     }
@@ -302,7 +302,7 @@
     const sideload = fs.access("/tmp/local_firmware");
 %}
 <dialog>
-    {{ _R("dialog-header", "Firmware") }}
+    {{_R("dialog-header", "Firmware")}}
     <div id="firmware-update">
         <div id="firmware-error"></div>
         <div class="cols">
@@ -311,7 +311,7 @@
                 <div class="m">Current firmware version</div>
             </div>
             <div style="flex:0">
-                <input type="text" disabled size="35" value="{{ configuration.getFirmwareVersion() }}">
+                <input type="text" disabled size="35" value="{{configuration.getFirmwareVersion()}}">
             </div>
         </div>
         <hr>
@@ -322,7 +322,7 @@
                     <div class="m">Download firmware from an AREDN server.</div>
                 </div>
                 <div style="flex:0">
-                    <select id="download-firmware" {{ sideload ? 'disabled' : '' }}>
+                    <select id="download-firmware" {{sideload ? 'disabled' : ''}}>
                         <option value="-">-</option>
                         {%
                             const f = fs.open("/tmp/firmware.list");
@@ -347,7 +347,7 @@
                     <div class="m">Upload a firmware file from your computer.</div>
                 </div>
                 <div style="flex:0">
-                    <input type="file" accept=".bin,.gz" {{ sideload ? 'disabled' : '' }}>
+                    <input type="file" accept=".bin,.gz" {{sideload ? 'disabled' : ''}}>
                 </div>
             </div>
             <br>
@@ -357,10 +357,10 @@
                     <div class="m">Use an alternatve way to load firmware onto the node.</div>
                 </div>
                 <div style="flex:0">
-                    <input id="sideload-firmware" type="text" disabled placeholder="/tmp/local_firmware" value="{{ sideload ? '/tmp/local_firmware' : '' }}">
+                    <input id="sideload-firmware" type="text" disabled placeholder="/tmp/local_firmware" value="{{sideload ? '/tmp/local_firmware' : ''}}">
                 </div>
             </div>
-            {{ _R("dialog-advanced") }}
+            {{_R("dialog-advanced")}}
             <div>
                 {% if (fs.access("/rom/etc")) { %}
                 <div class="cols">
@@ -369,7 +369,7 @@
                         <div class="m">Keep existing configuration after upgrade.</div>
                     </div>
                     <div style="flex:0">
-                        {{ _R("switch", { name: "keepconfig", value: true }) }}
+                        {{_R("switch", { name: "keepconfig", value: true })}}
                     </div>
                 </div>
                 {% } %}
@@ -379,7 +379,7 @@
                         <div class="m">Force the firmware onto the device, even if it fails the safety checks.</div>
                     </div>
                     <div style="flex:0">
-                        {{ _R("switch", { name: "dangerousupgrade", value: false }) }}
+                        {{_R("switch", { name: "dangerousupgrade", value: false })}}
                     </div>
                 </div>
                 <div class="cols">
@@ -388,7 +388,7 @@
                         <div class="m">URL for downloading firmware</div>
                     </div>
                     <div style="flex:0">
-                        <input hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="firmwareurl" type="text" size="45" pattern="{{ constants.patUrl }}" value="{{ uciMesh.get("aredn", "@downloads[0]", "firmware_aredn") }}">
+                        <input hx-put="{{request.env.REQUEST_URI}}" hx-swap="none" name="firmwareurl" type="text" size="45" pattern="{{constants.patUrl}}" value="{{uciMesh.get("aredn", "@downloads[0]", "firmware_aredn")}}">
                     </div>
                 </div>
             </div>
@@ -398,12 +398,12 @@
                     <progress value="0" max="100">
                 </div>
                 <div style="flex:0">
-                    <button id="fetch-and-update" {{ sideload ? '' : 'disabled' }} hx-trigger="none" hx-encoding="multipart/form-data">{{ sideload ? 'Update' : 'Fetch and Update' }}</button>
+                    <button id="fetch-and-update" {{sideload ? '' : 'disabled'}} hx-trigger="none" hx-encoding="multipart/form-data">{{sideload ? 'Update' : 'Fetch and Update'}}</button>
                 </div>
             </div>
         </div>
     </div>
-    {{ _R("dialog-footer") }}
+    {{_R("dialog-footer")}}
     <script>
     (function(){
         htmx.on("#firmware-update input[type='file']", "change", e => {
@@ -428,8 +428,8 @@
             htmx.find("#firmware-error").innerHTML = "";
             const upload = htmx.find("#firmware-update input[type=file]").files[0];
             const download = htmx.find("#download-firmware").value;
-            if ({{ sideload || false }}) {
-                htmx.ajax("POST", "{{ request.env.REQUEST_URI }}", {
+            if ({{sideload || false}}) {
+                htmx.ajax("POST", "{{request.env.REQUEST_URI}}", {
                     values: {
                         sideload: 1
                     },
@@ -438,7 +438,7 @@
             }
             else if (upload) {
                 htmx.on(e.currentTarget, "htmx:xhr:progress", e => htmx.find("#firmware-upload progress").setAttribute("value", e.detail.loaded / e.detail.total * 100));
-                htmx.ajax("POST", "{{ request.env.REQUEST_URI }}", {
+                htmx.ajax("POST", "{{request.env.REQUEST_URI}}", {
                     source: e.currentTarget,
                     values: {
                         firmwarefile: upload
@@ -447,7 +447,7 @@
                 });
             }
             else if (download !== "-") {
-                const source = new EventSource(`{{ request.env.REQUEST_URI }}?v=${download}`);
+                const source = new EventSource(`{{request.env.REQUEST_URI}}?v=${download}`);
                 source.addEventListener("close", e => {
                     source.close();
                     const all = htmx.find("#all");
@@ -471,7 +471,7 @@
             const target = e.target;
             target.classList.add("rotate");
             htmx.find("#firmware-error").innerHTML = "";
-            const source = new EventSource("{{ request.env.REQUEST_URI }}?v=update");
+            const source = new EventSource("{{request.env.REQUEST_URI}}?v=update");
             source.addEventListener("close", e => {
                 source.close();
                 target.classList.remove("rotate");

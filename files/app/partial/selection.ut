@@ -1,14 +1,14 @@
 <div hx-boost="true" hx-swap="none">
     <a title="Node status" href="status">
-        <div class="icon status {{ request.page === "status" }}"></div>
+        <div class="icon status {{request.page === "status"}}"></div>
     </a>
     <a title="See what is on the mesh" href="mesh">
-        <div class="icon mesh {{ request.page === "mesh" }}"></div>
+        <div class="icon mesh {{request.page === "mesh"}}"></div>
     </a>
     {% 
     const ip = (match(fs.readfile("/tmp/dnsmasq.d/supernode.conf"), /^#([0-9.]+)/) || [])[1];
     if (ip) { %}
-    <a title="See what is on the whole AREDN mesh" href="http://{{ ip }}/cgi-bin/mesh">
+    <a title="See what is on the whole AREDN mesh" href="http://{{ip}}/cgi-bin/mesh">
         <div class="icon cloudmesh"></div>
     </a>
     {% } %}
@@ -19,10 +19,10 @@
     const mapurl = lat && lon && map ? replace(replace(map, "(lat)", lat), "(lon)", lon) : null;
     if (mapurl) {
     %}
-    <a title="Map of the mesh" href="{{ mapurl }}">
+    <a title="Map of the mesh" href="{{mapurl}}">
         <div class="icon map"></div>
     </a>
     {% } %}
 </div>
 <div style="flex:1"></div>
-{{ _R("tools") }}
+{{_R("tools")}}

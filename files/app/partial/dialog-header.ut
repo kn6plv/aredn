@@ -1,6 +1,6 @@
 <div>
     <input style="position:absolute;top:-10000px">
-    <div class="t">{{ inner }}</div>
+    <div class="t">{{inner}}</div>
     <div class="s">configuration</div>
     <hr/>
 </div>

@@ -1,10 +1,10 @@
 <a href="http://arednmesh.org"><div id="icon-logo"></div><div>AREDN<span style="font-size:4px">TM</span></div></a>
-<div class="nav-node-name">{{ configuration.getName() || "NOCALL" }}</div>
-<div class="nav-status">{{ request.page }}</div>
+<div class="nav-node-name">{{configuration.getName() || "NOCALL"}}</div>
+<div class="nav-status">{{request.page}}</div>
 <div style="flex:1">
-    {{ _R("changes") }}
+    {{_R("changes")}}
 </div>
-{{ _R("login") }}
+{{_R("login")}}
 <script>
 (function()
 {

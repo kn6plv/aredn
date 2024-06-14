@@ -3,7 +3,7 @@ const nodes = mesh.getNodeList(true);
 const mynode = configuration.getName();
 %}
 <dialog class="wide">
-    {{ _R("tool-header", "Ping") }}
+    {{_R("tool-header", "Ping")}}
     <div class="simple-tool compact client-server">
         <div class="cols">
             <div>
@@ -14,7 +14,7 @@ const mynode = configuration.getName();
                 <input id="tool-target" type="text" size="40" required>
                 <select id="tool-select">
                     <option value="">&#x25BC;</option>
-                    <option value="{{ mynode }}">{{ mynode }}</option>
+                    <option value="{{mynode}}">{{mynode}}</option>
                     {%
                         for (let i = 0; i < length(nodes); i++) {
                             if (nodes[i] !== mynode) {
@@ -32,10 +32,10 @@ const mynode = configuration.getName();
                 <div class="m">IP A&zwnj;ddress, Hostname or Node</div>
             </div>
             <div>
-                <input id="tool-client" type="text" size="40" required value="{{ mynode }}">
+                <input id="tool-client" type="text" size="40" required value="{{mynode}}">
                 <select id="tool-client-select">
                     <option value="">&#x25BC;</option>
-                    <option value="{{ mynode }}">{{ mynode }}</option>
+                    <option value="{{mynode}}">{{mynode}}</option>
                     {%
                         for (let i = 0; i < length(nodes); i++) {
                             if (nodes[i] !== mynode) {
@@ -58,7 +58,7 @@ const mynode = configuration.getName();
     </div>
     <script>
     (function(){
-        const mynode = "{{ mynode }}";
+        const mynode = "{{mynode}}";
         htmx.on("#tool-select", "change", e => {
             if (e.target.value !== "") {
                 htmx.find("#tool-target").value = e.target.value;
@@ -157,5 +157,5 @@ const mynode = configuration.getName();
         });
     })();
     </script>
-    {{ _R("tool-footer") }}
+    {{_R("tool-footer")}}
 </dialog>

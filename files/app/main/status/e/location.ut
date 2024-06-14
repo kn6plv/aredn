@@ -22,7 +22,7 @@
     }
     uciMesh.commit("aredn");
 %}
-{{ _R("changes") }}
+{{_R("changes")}}
 {% return; } %}
 {%
     const map = uciMesh.get("aredn", "@location[0]", "map");
@@ -32,11 +32,11 @@
     const mapurl = map ? replace(replace(map, "(lat)", lat), "(lon)", lon) : null;
 %}
 <dialog>
-    {{ _R("dialog-header", "Location") }}
+    {{_R("dialog-header", "Location")}}
     <div>
         {% if (mapurl) { %}
         <div id="location-edit-map">
-            <iframe src="{{ mapurl }}"></iframe>
+            <iframe src="{{mapurl}}"></iframe>
         </div>
         {% } %}
         <div class="cols">
@@ -45,34 +45,34 @@
                 <div class="m">Node's latitude</div>
             </div>
             <div style="flex:0">
-                <input hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="lat" type="text" size="10" pattern="-?\d+(\.\d+)?" value="{{ lat }}">
+                <input hx-put="{{request.env.REQUEST_URI}}" hx-swap="none" name="lat" type="text" size="10" pattern="-?\d+(\.\d+)?" value="{{lat}}">
             </div>
         </div>
-        {{ _H("The latitude of this node. This information is used to determine the distance between this node and others and is required to
-        optimize connection latency and bandwidth.") }}
+        {{_H("The latitude of this node. This information is used to determine the distance between this node and others and is required to
+        optimize connection latency and bandwidth.")}}
         <div class="cols">
             <div>
                 <div class="o">Longitude</div>
                 <div class="m">Node's longitude</div>
             </div>
             <div style="flex:0">
-                <input hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="lon" type="text" size="10" pattern="-?\d+(\.\d+)?" value="{{ lon }}">
+                <input hx-put="{{request.env.REQUEST_URI}}" hx-swap="none" name="lon" type="text" size="10" pattern="-?\d+(\.\d+)?" value="{{lon}}">
             </div>
         </div>
-        {{ _H("The longitude of this node. This information is used to determine the distance between this node and others and is required to
-        optimize connection latency and bandwidth.") }}
+        {{_H("The longitude of this node. This information is used to determine the distance between this node and others and is required to
+        optimize connection latency and bandwidth.")}}
         <div class="cols">
             <div>
                 <div class="o">Gridsquare</div>
                 <div class="m">Maidenhead gridsquare</div>
             </div>
             <div style="flex:0">
-                <input hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="gridsquare" type="text" size="7" pattern="[A-X][A-X]\d\d[a-x][a-x]" value="{{ gridsquare }}">
+                <input hx-put="{{request.env.REQUEST_URI}}" hx-swap="none" name="gridsquare" type="text" size="7" pattern="[A-X][A-X]\d\d[a-x][a-x]" value="{{gridsquare}}">
             </div>
         </div>
-        {{ _H("A gridsquare is a 6 character (2 uppercase letters, 2 digits, 2 lowercase letters) designation of the node's location.
-        A gridsquare is approximately 3x4 miles in size.") }}
-        {{ _R("dialog-advanced") }}
+        {{_H("A gridsquare is a 6 character (2 uppercase letters, 2 digits, 2 lowercase letters) designation of the node's location.
+        A gridsquare is approximately 3x4 miles in size.")}}
+        {{_R("dialog-advanced")}}
         <div>
             <div class="cols">
                 <div>
@@ -80,14 +80,14 @@
                     <div class="m">URL for embedded map</div>
                 </div>
                 <div style="flex:0">
-                    <input hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="mapurl" type="text" size="45" pattern="{{ constants.patUrl }}" value="{{ map }}">
+                    <input hx-put="{{request.env.REQUEST_URI}}" hx-swap="none" name="mapurl" type="text" size="45" pattern="{{constants.patUrl}}" value="{{map}}">
                 </div>
             </div>
-            {{ _H("The map URL is used to embed maps in this page (see above) and in other node pages. The (lat) and (lon) parameters in
-            the URL are expanded before the URL is used.") }}
+            {{_H("The map URL is used to embed maps in this page (see above) and in other node pages. The (lat) and (lon) parameters in
+            the URL are expanded before the URL is used.")}}
         </div>
     </div>
-    {{ _R("dialog-footer") }}
+    {{_R("dialog-footer")}}
     <script>
     (function(){
         const lat = htmx.find("#ctrl-modal dialog input[name=lat]");
@@ -103,7 +103,7 @@
                     lon.value = parseFloat(msg.lon).toFixed(5);
                     clearTimeout(mapt);
                     mapt = setTimeout(() => {
-                        htmx.ajax("PUT", "{{ request.env.REQUEST_URI }}", {
+                        htmx.ajax("PUT", "{{request.env.REQUEST_URI}}", {
                             swap: "none",
                             values: { lat: lat.value, lon: lon.value, gridsquare: gridsquare.value }
                         });
@@ -118,7 +118,7 @@
             }
             latlon2gridsquare();
             if (!map) {
-                htmx.ajax("PUT", "{{ request.env.REQUEST_URI }}", {
+                htmx.ajax("PUT", "{{request.env.REQUEST_URI}}", {
                     swap: "none",
                     values: { lat: lat.value, lon: lon.value, gridsquare: gridsquare.value }
                 });
@@ -132,7 +132,7 @@
                 map.contentWindow.postMessage(JSON.stringify({ type: "change-location", lat: lat.value, lon: lon.value }), "*");
             }
             else {
-                htmx.ajax("PUT", "{{ request.env.REQUEST_URI }}", {
+                htmx.ajax("PUT", "{{request.env.REQUEST_URI}}", {
                     swap: "none",
                     values: { lat: lat.value, lon: lon.value, gridsquare: gridsquare.value }
                 });

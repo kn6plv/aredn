@@ -27,21 +27,21 @@
         <div class="s">status</div>
         <div class="cols">
             <div>
-                <div class="t">{{ dhcp.gateway }} <span class="ts">/ {{ dhcp.cidr }}</span></div>
+                <div class="t">{{dhcp.gateway}} <span class="ts">/ {{dhcp.cidr}}</span></div>
                 <div class="s">gateway</div>
             </div>
             <div style="flex:2">
-                <div class="t">{{ dhcp.start }} - {{ dhcp.end }}</div>
+                <div class="t">{{dhcp.start}} - {{dhcp.end}}</div>
                 <div class="s">range</div>
             </div>
         </div>
         <div class="cols">
             <div>
-                <div class="t">{{ dr }}</div>
+                <div class="t">{{dr}}</div>
                 <div class="s">reserved leases</div>
             </div>
             <div>
-                <div class="t">{{ da }}</div>
+                <div class="t">{{da}}</div>
                 <div class="s">active leases</div>
             </div>
             <div></div>

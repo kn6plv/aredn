@@ -153,7 +153,7 @@ else if (request.env.REQUEST_METHOD === "PUT" && "packageurl" in request.args) {
 const po = getPackageOptions();
 %}
 <dialog>
-    {{ _R("dialog-header", "Packages") }}
+    {{_R("dialog-header", "Packages")}}
     <div id="package-update">
         <div id="package-error"></div>
         <div id="package-success"></div>
@@ -163,7 +163,7 @@ const po = getPackageOptions();
                 <div class="m">Download package from an AREDN server.</div>
             </div>
             <div style="flex:0">
-                <select id="download-package">${po.i}{{ po.i }}</select>
+                <select id="download-package">${po.i}{{po.i}}</select>
             </div>
             <div style="flex:0">
                 <div id="package-refresh"><button class="icon refresh"></button></div>
@@ -186,10 +186,10 @@ const po = getPackageOptions();
                 <div class="m">Uninstall package from node.</div>
             </div>
             <div style="flex:0">
-                <select id="remove-package">${po.i}{{ po.r }}</select>
+                <select id="remove-package">${po.i}{{po.r}}</select>
             </div>
         </div>
-        {{ _R("dialog-advanced") }}
+        {{_R("dialog-advanced")}}
         <div>
             <div class="cols">
                 <div>
@@ -197,7 +197,7 @@ const po = getPackageOptions();
                     <div class="m">URL for downloading packages</div>
                 </div>
                 <div style="flex:0">
-                    <input hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="packageurl" type="text" size="45" pattern="{{ constants.patUrl }}" value="{{ uciMesh.get("aredn", "@downloads[0]", "packages_default") }}">
+                    <input hx-put="{{request.env.REQUEST_URI}}" hx-swap="none" name="packageurl" type="text" size="45" pattern="{{constants.patUrl}}" value="{{uciMesh.get("aredn", "@downloads[0]", "packages_default")}}">
                 </div>
             </div>
         </div>
@@ -211,10 +211,10 @@ const po = getPackageOptions();
             </div>
         </div>
     </div>
-    {{ _R("dialog-footer") }}
+    {{_R("dialog-footer")}}
     <script>
     (function(){
-        const packages = {{ fs.readfile("/tmp/packages.json") || "{}" }};
+        const packages = {{fs.readfile("/tmp/packages.json") || "{}"}};
         htmx.on("#package-update input[type='file']", "change", e => {
             if (e.target.files[0]) {
                 htmx.find("#fetch-and-update").disabled = false;
@@ -263,7 +263,7 @@ const po = getPackageOptions();
             const remove = htmx.find("#remove-package").value;
             if (upload) {
                 htmx.on(e.currentTarget, "htmx:xhr:progress", e => htmx.find("#package-upload progress").setAttribute("value", e.detail.loaded / e.detail.total * 100));
-                htmx.ajax("POST", "{{ request.env.REQUEST_URI }}", {
+                htmx.ajax("POST", "{{request.env.REQUEST_URI}}", {
                     source: e.currentTarget,
                     values: {
                         "packagefile.ipk": upload
@@ -272,7 +272,7 @@ const po = getPackageOptions();
                 }).then(_ => htmx.find("#package-upload progress").setAttribute("value", "0"));
             }
             else if (download !== "-") {
-                const source = new EventSource(`{{ request.env.REQUEST_URI }}?i=${download}`);
+                const source = new EventSource(`{{request.env.REQUEST_URI}}?i=${download}`);
                 source.addEventListener("close", e => {
                     source.close();
                     htmx.find("#package-upload progress").setAttribute("value", "0");
@@ -291,7 +291,7 @@ const po = getPackageOptions();
                 });
             }
             else if (remove !== "-") {
-                htmx.ajax("GET", `{{ request.env.REQUEST_URI }}?r=${remove}`, {
+                htmx.ajax("GET", `{{request.env.REQUEST_URI}}?r=${remove}`, {
                     source: e.currentTarget,
                     swap: "none"
                 });
@@ -306,7 +306,7 @@ const po = getPackageOptions();
             htmx.find("#package-update input[type=file]").value = null;
             htmx.find("#fetch-and-update").disabled = true;
             htmx.find("#fetch-and-update").innerText = "Fetch and Update";
-            const source = new EventSource("{{ request.env.REQUEST_URI }}?v=update");
+            const source = new EventSource("{{request.env.REQUEST_URI}}?v=update");
             source.addEventListener("close", e => {
                 source.close();
                 target.classList.remove("rotate");

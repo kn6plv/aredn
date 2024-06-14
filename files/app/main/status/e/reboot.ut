@@ -16,5 +16,5 @@
             <div id="countdown">&nbsp;</div>
         </div>
     </div>
-    {{ _R("reboot-mon", { delay: 20, countdown: 120, timeout: 5, location: `http://${request.env.HTTP_HOST}/a/status` }) }}
+    {{_R("reboot-mon", { delay: 20, countdown: 120, timeout: 5, location: `http://${request.env.HTTP_HOST}/a/status` })}}
 </div>

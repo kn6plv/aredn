@@ -1,55 +1,55 @@
 <div id="c1">
     <div id="general">
-        {{ _R("general") }}
+        {{_R("general")}}
     </div>
     <div id="location">
         <hr>
-        {{ _R("location") }}
+        {{_R("location")}}
     </div>
 </div>
 <div id="c2">
     {% if (messages.haveMessages()) { %}
     <div id="messages">
-        {{ _R("messages") }}
+        {{_R("messages")}}
     </div>
     {% } %}
     <div id="services">
         {% if (auth.authenticated) { %}
-        {{ _R("internal-services" )}}
+        {{_R("internal-services" )}}
         {% } %}
-        {{ _R("local-services") }}
+        {{_R("local-services")}}
     </div>
     <div id="local-and-neighbor-devices">
         <hr>
         <div hx-get="local-and-neighbor-devices" hx-trigger="every 60s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
-        {{ _R("local-and-neighbor-devices") }}
+        {{_R("local-and-neighbor-devices")}}
         </div>
     </div>
 </div>
 <div id="c3">
     <div id="radio-and-antenna">
-        {{ _R("radio-and-antenna") }}
+        {{_R("radio-and-antenna")}}
     </div>
     <div id="mesh-summary">
         <hr>
-        {{ _R("mesh-summary") }}
+        {{_R("mesh-summary")}}
     </div>
     <div id="dhcp">
         <hr>
         <div hx-get="dhcp" hx-trigger="every 120s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
-        {{ _R("dhcp") }}
+        {{_R("dhcp")}}
         </div>
     </div>
     {% if (length(hardware.getEthernetPorts()) > 0) { %}
     <div id="ports-and-xlinks">
         <hr>
-        {{ _R("ports-and-xlinks") }}
+        {{_R("ports-and-xlinks")}}
     </div>
     {% } %}
     <div id="tunnels">
         <hr>
         <div hx-get="tunnels" hx-trigger="every 120s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
-        {{ _R("tunnels") }}
+        {{_R("tunnels")}}
         </div>
     </div>
 </div>

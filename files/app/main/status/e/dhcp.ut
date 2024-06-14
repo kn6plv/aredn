@@ -20,7 +20,7 @@
         configuration.saveSettings();
     }
 %}
-{{ _R("changes") }}
+{{_R("changes")}}
 {% return; } %}
 {%
     const dhcp = configuration.getDHCP();
@@ -80,7 +80,7 @@
     }
 %}
 <dialog>
-    {{ _R("dialog-header", "DHCP") }}
+    {{_R("dialog-header", "DHCP")}}
     <div class="dhcp">
         <div>
             <div class="cols">
@@ -88,7 +88,7 @@
                     <div class="o">Address Reservations</div>
                     <div class="m">Hostnames with fixed addresses</div>
                 </div>
-                <button {{ length(options) === reservations ? "disabled" : "" }}>+</button>
+                <button {{length(options) === reservations ? "disabled" : ""}}>+</button>
             </div>
         </div>
         <div id="dhcp-reservations">
@@ -106,13 +106,13 @@
                 const o = options[i];
                 if (o.reserved) {
         %}
-                    <div class="cols reservation" data-ip="{{ o.ip }}">
+                    <div class="cols reservation" data-ip="{{o.ip}}">
                         <div style="white-space:nowrap">
-                            <input name="hostname" type="text" required placeholder="hostname" value="{{ o.name }}">
+                            <input name="hostname" type="text" required placeholder="hostname" value="{{o.name}}">
                             <select class="dhcp-addresses">
                             </select>
-                            <input name="mac" type="text" required placeholder="mac a&zwnj;ddress" pattern="([0-9a-fA-F][0-9a-fA-F]:){5}[0-9a-fA-F][0-9a-fA-F]" value="{{ o.mac }}">
-                            <label><input type="checkbox" {{ o.noprop ? "checked" : "" }}></label>
+                            <input name="mac" type="text" required placeholder="mac a&zwnj;ddress" pattern="([0-9a-fA-F][0-9a-fA-F]:){5}[0-9a-fA-F][0-9a-fA-F]" value="{{o.mac}}">
+                            <label><input type="checkbox" {{o.noprop ? "checked" : ""}}></label>
                         </div>
                         <button>-</button>
                     </div>
@@ -138,25 +138,25 @@
                 const o = options[i];
                 if (o.leased) {
         %}
-                    <div class="cols lease" data-ip="{{ o.ip }}">
+                    <div class="cols lease" data-ip="{{o.ip}}">
                         <div style="white-space:nowrap">
-                            <input readonly type="text" value="{{ o.name }}">
-                            <input readonly type="text" value="{{ o.ip }}">
-                            <input readonly type="text" value="{{ o.mac }}">
+                            <input readonly type="text" value="{{o.name}}">
+                            <input readonly type="text" value="{{o.ip}}">
+                            <input readonly type="text" value="{{o.mac}}">
                         </div>
-                        <button {{ o.reserved ? "disabled" : "" }}>+</button>
+                        <button {{o.reserved ? "disabled" : ""}}>+</button>
                     </div>
         {%      }
             }
         } %}
     </div>
-    {{ _R("dialog-footer") }}
+    {{_R("dialog-footer")}}
     <script>
     (function(){
-        const options = {{ sprintf("%J", options) }};
+        const options = {{sprintf("%J", options)}};
         function update()
         {
-            htmx.ajax("PUT", "{{ request.env.REQUEST_URI }}", {
+            htmx.ajax("PUT", "{{request.env.REQUEST_URI}}", {
                 swap: "none",
                 values: { options: JSON.stringify(options) }
             });

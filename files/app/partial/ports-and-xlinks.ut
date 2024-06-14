@@ -19,11 +19,11 @@
             <div class="section-title">Ethernet Ports</div>
             <div class="section cols">
                 <div>
-                    <div class="t">{{ length(ports) }}</div>
+                    <div class="t">{{length(ports)}}</div>
                     <div class="s">ports</div>
                 </div>
                 <div>
-                    <div class="t">{{ active }}</div>
+                    <div class="t">{{active}}</div>
                     <div class="s">active</div>
                 </div>
             </div>
@@ -32,7 +32,7 @@
         <div>
             <div class="section-title">XLinks</div>
             <div class="section">
-                <div class="t">{{ xcount }}</div>
+                <div class="t">{{xcount}}</div>
                 <div class="s">xlinks</div>
             </div>
         </div>

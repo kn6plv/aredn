@@ -23,7 +23,7 @@
     configuration.saveSettings();
     uciMesh.commit("aredn");
 %}
-{{ _R("changes") }}
+{{_R("changes")}}
 {% return; } %}
 {%
     const time_zone_name = configuration.getSettingAsString("time_zone_name", "UTC");
@@ -44,7 +44,7 @@
     const ntp_mode = uciMesh.get("aredn", "@ntp[0]", "period") || "daily";
 %}
 <dialog>
-    {{ _R("dialog-header", "Time") }}
+    {{_R("dialog-header", "Time")}}
     <div>
         <div class="cols">
             <div>
@@ -52,7 +52,7 @@
                 <div class="m">Timezone</div>
             </div>
             <div style="flex:0">
-                <select hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="timezone">
+                <select hx-put="{{request.env.REQUEST_URI}}" hx-swap="none" name="timezone">
                     {%
                         for (let i = 0; i < length(tz_db_names); i++) {
                             print(`<option value="${tz_db_names[i].value}" ${tz_db_names[i].name == time_zone_name ? "selected" : ""}>${tz_db_names[i].name}</option>`);
@@ -61,8 +61,8 @@
                 </select>
             </div>
         </div>
-        {{ _H("The timezone for this node. Setting this correctly means that timed events will run in the appopriate timezone,
-        logs will have the expected times, etc.") }}
+        {{_H("The timezone for this node. Setting this correctly means that timed events will run in the appopriate timezone,
+        logs will have the expected times, etc.")}}
         <hr>
         <div class="cols">
             <div>
@@ -70,25 +70,25 @@
                 <div class="m">The ntp server to sync the time</div>
             </div>
             <div style="flex:0">
-                <input hx-put="{{ request.env.REQUEST_URI }}" name="ntp_server" type="text" size="20" value="{{ ntp_server }}">
+                <input hx-put="{{request.env.REQUEST_URI}}" name="ntp_server" type="text" size="20" value="{{ntp_server}}">
             </div>
         </div>
-        {{ _H("The default NTP server to use when syncing the node's time. If this cannot be found, the node will search for one on the mesh.") }}
+        {{_H("The default NTP server to use when syncing the node's time. If this cannot be found, the node will search for one on the mesh.")}}
         <div class="cols">
             <div>
                 <div class="o">NTP Updates</div>
                 <div class="m">NTP update frequency</div>
             </div>
             <div style="flex:0">
-                <select hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="ntp_mode">
-                    <option value="hourly" {{ ntp_mode == "hourly" ? "selected" : ""}}>Hourly</option>
-                    <option value="daily" {{ ntp_mode == "daily" ? "selected" : ""}}>Daily</option>
+                <select hx-put="{{request.env.REQUEST_URI}}" hx-swap="none" name="ntp_mode">
+                    <option value="hourly" {{ntp_mode == "hourly" ? "selected" : ""}}>Hourly</option>
+                    <option value="daily" {{ntp_mode == "daily" ? "selected" : ""}}>Daily</option>
                 </select>
             </div>
         </div>
-        {{ _H("NTP is used to keep the node's time up to date. Syncing the time every day is probably sufficient
+        {{_H("NTP is used to keep the node's time up to date. Syncing the time every day is probably sufficient
         but you can increase the frequency to hourly. Having accurate time means your timed events will run when you expected
-        and log information will show meaningful times.") }}
+        and log information will show meaningful times.")}}
     </div>
-    {{ _R("dialog-footer") }}
+    {{_R("dialog-footer")}}
 </dialog>

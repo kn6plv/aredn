@@ -67,38 +67,38 @@
         <div class="section-subtitle">Wireguard</div>
         <div class="cols">
             <div>
-                <div class="t">{{ wac }}</div>
+                <div class="t">{{wac}}</div>
                 <div class="s">active clients</div>
             </div>
             <div>
-                <div class="t">{{ wc }}</div>
+                <div class="t">{{wc}}</div>
                 <div class="s">allocated clients</div>
             </div>
             <div>
-                <div class="t">{{ was }}</div>
+                <div class="t">{{was}}</div>
                 <div class="s">active servers</div>
             </div>
             <div>
-                <div class="t">{{ ws }}</div>
+                <div class="t">{{ws}}</div>
                 <div class="s">allocated servers</div>
             </div>
         </div>
         <div class="section-subtitle">Legacy</div>
         <div class="cols">
             <div>
-                <div class="t">{{ lac }}</div>
+                <div class="t">{{lac}}</div>
                 <div class="s">active clients</div>
             </div>
             <div>
-                <div class="t">{{ lc }}</div>
+                <div class="t">{{lc}}</div>
                 <div class="s">allocated clients</div>
             </div>
             <div>
-                <div class="t">{{ las }}</div>
+                <div class="t">{{las}}</div>
                 <div class="s">active servers</div>
             </div>
             <div>
-                <div class="t">{{ ls }}</div>
+                <div class="t">{{ls}}</div>
                 <div class="s">allocated servers</div>
             </div>
         </div>

@@ -37,7 +37,7 @@ for (let i = 0; i < length(stations); i++) {
 }
 %}
 <dialog class="wide">
-    {{ _R("tool-header", "WiFi Signal") }}
+    {{_R("tool-header", "WiFi Signal")}}
     <div id="wifi-chart">
         <div class="cols">
             <div>
@@ -115,7 +115,7 @@ for (let i = 0; i < length(stations); i++) {
             </div>
         </div>
     </div>
-    {{ _R("tool-footer") }}
+    {{_R("tool-footer")}}
     <script>
     (function(){
         const sf = -95;
@@ -169,7 +169,7 @@ for (let i = 0; i < length(stations); i++) {
                 clearInterval(timer);
                 return;
             }
-            const r = await fetch("{{ request.env.REQUEST_URI }}", { method: "PUT" });
+            const r = await fetch("{{request.env.REQUEST_URI}}", { method: "PUT" });
             const j = await r.json();
             if (last !== device.value) {
                 reset();

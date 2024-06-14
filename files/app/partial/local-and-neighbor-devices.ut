@@ -48,7 +48,7 @@
         <div class="cols">
             <div class="heading" style="flex:0.75"></div>
             <div class="heading ts cols stats">
-                <div>lq</div><div>nlq</div><div>snr</div><div>n snr</div><div>errors</div><div>mbps</div><div>{{ units.distanceUnit() }}</div>
+                <div>lq</div><div>nlq</div><div>snr</div><div>n snr</div><div>errors</div><div>mbps</div><div>{{units.distanceUnit()}}</div>
             </div>
         </div>
         {%

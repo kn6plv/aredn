@@ -24,7 +24,7 @@
         configuration.saveSettings();
     }
 %}
-{{ _R("changes") }}
+{{_R("changes")}}
 {% return; } %}
 {%
     const types = {
@@ -130,7 +130,7 @@
     }
 %}
 <dialog>
-    {{ _R("dialog-header", "Node Services") }}
+    {{_R("dialog-header", "Node Services")}}
     <div>
         <div id="service-templates" class="cols">
             <div>
@@ -158,7 +158,7 @@
             <div class="service">
                 <div class="cols">
                     <div class="cols">
-                        <input name="name" type="text" placeholder="{{ s.link === false ? 'service information' : 'service name' }}" required pattern='[^-:"|<>]+' value="{{ s.name }}">
+                        <input name="name" type="text" placeholder="{{s.link === false ? 'service information' : 'service name'}}" required pattern='[^-:"|<>]+' value="{{s.name}}">
                         <div style="flex:0">
                             <select name="type">
                                 <option value="">-</option>
@@ -189,7 +189,7 @@
                     </div>
                     {% } else { %}
                     <div>
-                        <input name="protocol" type="text" placeholder="proto" required pattern="[a-z]+" value="{{ s.protocol }}">
+                        <input name="protocol" type="text" placeholder="proto" required pattern="[a-z]+" value="{{s.protocol}}">
                         :// <select name="hostname">
                         {%
                             for (j = 0; j < length(hosts); j++) {
@@ -200,8 +200,8 @@
                             }
                         %}
                         </select>
-                        : <input name="port" type="text" placeholder="port" required pattern="([1-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])" value="{{ s.port }}">
-                        / <input name="path" type="text" placeholder="path" pattern="[\-\/\?\&\._=#a-zA-Z0-9]*" value="{{ s.path }}">
+                        : <input name="port" type="text" placeholder="port" required pattern="([1-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])" value="{{s.port}}">
+                        / <input name="path" type="text" placeholder="path" pattern="[\-\/\?\&\._=#a-zA-Z0-9]*" value="{{s.path}}">
                     </div>
                     {% } %}
                 </div>
@@ -219,7 +219,7 @@
             for (let i = 0; i < length(aliases.map); i++) {
             %}
                 <div class="cols alias">
-                    <input type="text" name="hostname" value="{{ aliases.map[i].hostname }}" required pattern="[a-zA-Z][a-zA-Z0-9_\-]*">
+                    <input type="text" name="hostname" value="{{aliases.map[i].hostname}}" required pattern="[a-zA-Z][a-zA-Z0-9_\-]*">
                     <div>
                         <select name="address">
                         {%
@@ -237,12 +237,12 @@
             }
         %}</div>
     </div>
-    {{ _R("dialog-footer") }}
+    {{_R("dialog-footer")}}
     <script>
     (function()
     {
-        const templates = {{ templates }};
-        const hosts = {{ hosts }};
+        const templates = {{templates}};
+        const hosts = {{hosts}};
         function updateServices() {
             const services = [];
             const svc = htmx.findAll("#local-services .service");
@@ -265,7 +265,7 @@
                     }
                 }
             }
-            htmx.ajax("PUT", "{{ request.env.REQUEST_URI }}", {
+            htmx.ajax("PUT", "{{request.env.REQUEST_URI}}", {
                 swap: "none",
                 values: { services: JSON.stringify(services) }
             });
@@ -282,7 +282,7 @@
                     aliases.push(`${address.value} ${hostname.value}`);
                 }
             }
-            htmx.ajax("PUT", "{{ request.env.REQUEST_URI }}", {
+            htmx.ajax("PUT", "{{request.env.REQUEST_URI}}", {
                 swap: "none",
                 values: { aliases: JSON.stringify(aliases) }
             });
