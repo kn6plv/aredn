@@ -566,28 +566,33 @@
 
 /* reboot end */
 
-/* firmware update start */
+/* firmware and package update start */
 
-#firmware-update
+#firmware-update,
+#package-update
 {
     display: flex;
     flex-direction: column;
 }
-#firmware-update hr + div
+#firmware-update hr + div,
+#package-update hr + div
 {
     display: flex;
     flex-direction: column;
     flex: 1;
 }
-#firmware-upload
+#firmware-upload,
+#package-upload
 {
     padding: 6px 10px 0 0;
 }
-#firmware-upload progress
+#firmware-upload progress,
+#package-upload progress
 {
     width: 100%;
 }
-#firmware-error
+#firmware-error,
+#package-error
 {
     margin: 10px 0;
     padding: 10px;
@@ -595,11 +600,31 @@
     color: var(--firmware-status-fg-color);
     background-color: var(--firmware-status-bg-color-negative);
 }
-#firmware-error:empty
+#package-info
+{
+    font-size: 14px;
+    padding: 10px;
+    border: 1px solid var(--ctrl-border-color);
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+#package-success
+{
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 8px;
+    color: var(--firmware-status-fg-color);
+    background-color: var(--firmware-status-bg-color-positive);
+}
+#firmware-error:empty,
+#package-error:empty,
+#package-success:empty,
+#package-info:empty
 {
     display: none;
 }
-#download-firmware
+#download-firmware,
+#download-package
 {
     width: 248px;
 }
@@ -607,7 +632,8 @@
 {
     width: 278px;
 }
-#firmware-refresh
+#firmware-refresh,
+#package-refresh
 {
     width: 24px;
     height: 24px;
@@ -616,11 +642,13 @@
     border-radius: 4px;
     background-color: var(--ctrl-modal-bg-color);
 }
-#firmware-refresh:hover
+#firmware-refresh:hover,
+#package-refresh:hover
 {
     background-color: var(--ctrl-modal-bg-secondary-color);
 }
-#ctrl-modal dialog #firmware-refresh button
+#ctrl-modal dialog #firmware-refresh button,
+#ctrl-modal dialog #package-refresh button
 {
     position: relative;
     top: -1px;
@@ -633,15 +661,28 @@
     background-position: center center;
     background-repeat: no-repeat;
 }
-#firmware-refresh button.rotate
+#firmware-refresh button.rotate,
+#package-refresh button.rotate
 {
     animation-name: logo-rotate;
     animation-duration: 1s;
     animation-iteration-count: infinite;
     animation-timing-function: linear;
 }
+#remove-package
+{
+    width: 277px;
+}
+#package-info
+{
+    font-size: 14px;
+    padding: 10px;
+    border: 1px solid var(--ctrl-border-color);
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
 
-/* firmware update end */
+/* firmware and package update end */
 
 /* tunnel start */
 

@@ -1,0 +1,307 @@
+{%
+function log()
+{
+    return replace(fs.readfile("/tmp/pkg.log"), "\n", "<br>");
+}
+if (request.env.REQUEST_METHOD === "POST") {
+    const ipkg = request.args.packagefile;
+    if (system(`/bin/opkg install ${ipk} > /dev/null 2>&1`) === 0) {
+        print(`<div id="package-success" hx-swap-oob="true">Package installed</div>`);
+    }
+    else {
+        if (system("/bin/opkg update > /tmp/pkg.log 2>&1") !== 0) {
+            print(`<div id="package-error" hx-swap-oob="true">${log()}</div>`);
+        }
+        else {
+            if (system(`/bin/opkg install ${ipk} > /tmp/pkg.log 2>&1`) === 0) {
+                print(`<div id="package-success" hx-swap-oob="true">Package installed</div>`);
+            
+            }
+            else {
+                print(`<div id="package-error" hx-swap-oob="true">${log()}</div>`);
+            }
+        }
+    }
+    fs.unlink(request.args.packagefile);
+    return;
+}
+else if (request.env.REQUEST_METHOD === "GET" && index(request.env.QUERY_STRING, "i=") === 0) {
+    response.override = true;
+    uhttpd.send("Status: 200 OK\r\nContent-Type: text/event-stream\r\nCache-Control: no-store\r\n\r\n");
+
+    fs.unlink("/tmp/pkg.log");
+    const ipk = substr(request.env.QUERY_STRING, 2);
+    uhttpd.send(`event: progress\r\ndata: 10\r\n\r\n`);
+    if (system(`/bin/opkg install ${ipk} > /dev/null 2>&1`) === 0) {
+        uhttpd.send(`event: progress\r\ndata: 100\r\n\r\n`);
+        uhttpd.send(`event: close\r\ndata: Package installed\r\n\r\n`);
+    }
+    else {
+        uhttpd.send(`event: progress\r\ndata: 20\r\n\r\n`);
+        if (system("/bin/opkg update > /tmp/pkg.log 2>&1") !== 0) {
+            uhttpd.send(`event: error\r\ndata: ${log()}\r\n\r\n`);
+        }
+        else {
+            uhttpd.send(`event: progress\r\ndata: 40\r\n\r\n`);
+            if (system(`/bin/opkg install ${ipk} > /tmp/pkg.log 2>&1`) === 0) {
+                uhttpd.send(`event: progress\r\ndata: 100\r\n\r\n`);
+                uhttpd.send(`event: close\r\ndata: Package installed\r\n\r\n`);
+            }
+            else {
+                uhttpd.send(`event: error\r\ndata: ${log()}\r\n\r\n`);
+            }
+        }
+    }
+    fs.unlink("/tmp/pkg.log");
+    return;
+}
+else if (request.env.REQUEST_METHOD === "GET" && request.env.QUERY_STRING === "v=update") {
+    response.override = true;
+    uhttpd.send("Status: 200 OK\r\nContent-Type: text/event-stream\r\nCache-Control: no-store\r\n\r\n");
+
+    const pulines = 7;
+    let f = fs.popen("/bin/opkg update 2>&1");
+    if (!f) {
+        uhttpd.send(`event: error\r\ndata: package update failed\r\n\r\n`);
+        return;
+    }
+    let count = 0;
+    for (let l = f.read("line"); length(l); l = f.read("line")) {
+        if (match(l, /^Updated/)) {
+            count++;
+            uhttpd.send(`event: progress\r\ndata: ${100 * count / pulines}\r\n\r\n`);
+        }
+    }
+    uhttpd.send(`event: progress\r\ndata: 100\r\n\r\n`);
+    f.close();
+    f = fs.popen("/bin/opkg list");
+    if (!f) {
+        uhttpd.send(`event: error\r\ndata: package list failed\r\n\r\n`);
+        return;
+    }
+    const pkgs = {};
+    const re = /^([^ ]+) - ([-0-9a-fr\.]+)(.*)$/;
+    for (let l = f.read("line"); length(l); l = f.read("line")) {
+        let m = match(trim(l), re);
+        if (m) {
+            pkgs[m[1]] = { v: m[2], d: replace(m[3], /^ - /, "") };
+        }
+    }
+    fs.writefile("/tmp/packages.json", sprintf("%J", pkgs));
+    let f = fs.popen("/bin/opkg list-installed");
+    if (f) {
+        for (let l = f.read("line"); length(l); l = f.read("line")) {
+            const m = match(l, /^[^ \t]+/);
+            if (m) {
+                delete pkgs[m[0]];
+            }
+        }
+        f.close();
+    }
+    uhttpd.send(`event: close\r\ndata: ${sprintf("%J", pkgs)}\r\n\r\n`);
+    return;
+}
+else if (request.env.REQUEST_METHOD === "PUT" && "packageurl" in request.args) {
+    if (match(request.args.packageurl, constants.reUrl)) {
+        configuration.prepareChanges();
+        uciMesh.set("aredn", "@downloads[0]", "packages_default", request.args.packageurl);
+        uciMesh.commit("aredn");
+        print(_R("changes"));
+    }
+    return;
+}
+%}
+<dialog>
+    {{ _R("dialog-header", "Packages") }}
+    <div id="package-update">
+        <div id="package-error"></div>
+        <div id="package-success"></div>
+        <div class="cols">
+            <div>
+                <div class="o">Download Package</div>
+                <div class="m">Download package from an AREDN server.</div>
+            </div>
+            <div style="flex:0">
+                <select id="download-package">
+                    <option value="-">-</option>
+                    {%
+                        const opkgs = {};
+                        let f = fs.popen("/bin/opkg list-installed");
+                        if (f) {
+                            for (let l = f.read("line"); length(l); l = f.read("line")) {
+                                const m = match(l, /^[^ \t]+/);
+                                if (m) {
+                                    opkgs[m[0]] = true;
+                                }
+                            }
+                            f.close();
+                        }
+                        f = fs.readfile("/tmp/packages.json");
+                        if (f) {
+                            const j = json(f);
+                            for (let k in j) {
+                                if (!opkgs[k]) {
+                                    print(`<option value="${k}">${k}</option>`);
+                                }
+                            }
+                        }
+                    %}
+                </select>
+            </div>
+            <div style="flex:0">
+                <div id="package-refresh"><button class="icon refresh"></button></div>
+            </div>
+        </div>
+        <div id="package-info"></div>
+        <div class="cols">
+            <div>
+                <div class="o">Upload Package</div>
+                <div class="m">Upload a package file from your computer.</div>
+            </div>
+            <div style="flex:0">
+                <input type="file" accept=".ipk">
+            </div>
+        </div>
+        <div><hr></div>
+        <div class="cols">
+            <div>
+                <div class="o">Remove Package</div>
+                <div class="m">Uninstall package from node.</div>
+            </div>
+            <div style="flex:0">
+                <select id="remove-package">
+                    <option value="-">-</option>
+                    {%
+                        const opkgs = {};
+                        map(split(fs.readfile("/etc/permpkg"), "\n"), p => opkgs[p] = true);
+                        let f = fs.popen("/bin/opkg list-installed");
+                        if (f) {
+                            for (let l = f.read("line"); length(l); l = f.read("line")) {
+                                const m = match(l, /^[^ \t]+/);
+                                if (m && !opkgs[m[0]]) {
+                                    print(`<option value="${m[0]}">${m[0]}</option>`);
+                                }
+                            }
+                            f.close();
+                        }
+                    %}
+                </select>
+            </div>
+        </div>
+        {{ _R("dialog-advanced") }}
+        <div>
+            <div class="cols">
+                <div>
+                    <div class="o">Package URL</div>
+                    <div class="m">URL for downloading packages</div>
+                </div>
+                <div style="flex:0">
+                    <input hx-put="{{ request.env.REQUEST_URI }}" hx-swap="none" name="packageurl" type="text" size="45" pattern="{{ constants.patUrl }}" value="{{ uciMesh.get("aredn", "@downloads[0]", "packages_default") }}">
+                </div>
+            </div>
+        </div>
+        <div style="flex:1"></div>
+        <div class="cols" style="padding-top:16px">
+            <div id="package-upload">
+                <progress value="0" max="100">
+            </div>
+            <div style="flex:0">
+                <button id="fetch-and-update" disabled hx-trigger="none" hx-encoding="multipart/form-data">Fetch and Update</button>
+            </div>
+        </div>
+    </div>
+    {{ _R("dialog-footer") }}
+    <script>
+    (function(){
+        const packages = {{ fs.readfile("/tmp/packages.json") || "{}" }};
+        htmx.on("#package-update input[type='file']", "change", e => {
+            if (e.target.files[0]) {
+                htmx.find("#fetch-and-update").disabled = false;
+            }
+            else {
+                htmx.find("#fetch-and-update").disabled = true;
+            }
+            htmx.find("#download-package").value = "-";
+            htmx.find("#package-info").innerHTML = "";
+        });
+        htmx.on("#download-package", "change", e => {
+            if (e.target.value === "-") {
+                htmx.find("#fetch-and-update").disabled = true;
+                htmx.find("#package-info").innerHTML = "";
+            }
+            else {
+                htmx.find("#fetch-and-update").disabled = false;
+                const pkg = packages[e.target.value];
+                if (pkg && pkg.d) {
+                    htmx.find("#package-info").innerHTML = `<span class="o">Description</span><p>${pkg.d}`;
+                }
+                else {
+                    htmx.find("#package-info").innerHTML = "";
+                }
+            }
+            htmx.find("#package-update input[type=file]").value = null;
+        });
+        htmx.on("#fetch-and-update", "click", e => {
+            htmx.find("#package-error").innerHTML = "";
+            htmx.find("#package-success").innerHTML = "";
+            const upload = htmx.find("#package-update input[type=file]").files[0];
+            const download = htmx.find("#download-package").value;
+            if (upload) {
+                htmx.on(e.currentTarget, "htmx:xhr:progress", e => htmx.find("#package-upload progress").setAttribute("value", e.detail.loaded / e.detail.total * 100));
+                htmx.ajax("POST", "{{ request.env.REQUEST_URI }}", {
+                    source: e.currentTarget,
+                    values: {
+                        packagefile: upload
+                    },
+                    swap: "none"
+                }).then(_ => htmx.find("#package-upload progress").setAttribute("value", "0"));
+            }
+            else if (download !== "-") {
+                const source = new EventSource(`{{ request.env.REQUEST_URI }}?i=${download}`);
+                source.addEventListener("close", e => {
+                    source.close();
+                    htmx.find("#package-upload progress").setAttribute("value", "0");
+                    htmx.find("#package-success").innerHTML = e.data;
+                });
+                source.addEventListener("error", e => {
+                    source.close();
+                    htmx.find("#package-upload progress").setAttribute("value", "0");
+                    htmx.find("#package-error").innerHTML = e.data || "Unknown error";
+                });
+                source.addEventListener("progress", e => {
+                    htmx.find("#package-upload progress").setAttribute("value", e.data);
+                });
+            }
+        });
+        htmx.on("#package-refresh button", "click", e => {
+            const target = e.target;
+            target.classList.add("rotate");
+            htmx.find("#package-error").innerHTML = "";
+            htmx.find("#package-success").innerHTML = "";
+            htmx.find("#package-info").innerHTML = "";
+            const source = new EventSource("{{ request.env.REQUEST_URI }}?v=update");
+            source.addEventListener("close", e => {
+                source.close();
+                target.classList.remove("rotate");
+                htmx.find("#fetch-and-update").disabled = true;
+                htmx.find("#package-upload progress").setAttribute("value", "0");
+                const j = JSON.parse(e.data);
+                let o = `<option value="-">-</option>`;
+                for (let k in j) {
+                    o += `<option value="${k}">${k}</option>`;
+                }
+                htmx.find("#download-package").innerHTML = o;
+            });
+            source.addEventListener("error", e => {
+                source.close();
+                target.classList.remove("rotate")
+                htmx.find("#package-upload progress").setAttribute("value", "0");
+                htmx.find("#package-error").innerHTML = e.data || "Unknown error";
+            });
+            source.addEventListener("progress", e => {
+                htmx.find("#package-upload progress").setAttribute("value", e.data);
+            });
+        });
+    })();
+    </script>
+</dialog>

@@ -13,5 +13,8 @@
 </div>
 {{ _R("health") }}
 {{ _R("firmware") }}
+{% if (auth.authenticated) { %}
+{{ _R("packages") }}
+{% } %}
 <hr>
 {{ _R("network") }}

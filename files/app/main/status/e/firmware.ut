@@ -398,13 +398,14 @@
                     <progress value="0" max="100">
                 </div>
                 <div style="flex:0">
-                    <button id="fetch-and-update" {{ sideload ? '' : 'disabled' }} hx-trigger="none" hx-encoding="multipart/form-data">{{ sideload ? 'Update' : 'Fetch and Update' }}
+                    <button id="fetch-and-update" {{ sideload ? '' : 'disabled' }} hx-trigger="none" hx-encoding="multipart/form-data">{{ sideload ? 'Update' : 'Fetch and Update' }}</button>
                 </div>
             </div>
         </div>
     </div>
     {{ _R("dialog-footer") }}
     <script>
+    (function(){
         htmx.on("#firmware-update input[type='file']", "change", e => {
             if (e.target.files[0]) {
                 htmx.find("#fetch-and-update").disabled = false;
@@ -458,6 +459,7 @@
                 });
                 source.addEventListener("error", e => {
                     source.close();
+                    htmx.find("#firmware-upload progress").setAttribute("value", "0");
                     htmx.find("#firmware-error").innerHTML = `ERROR: ${e.data || "Unknown error"}`;
                 });
                 source.addEventListener("progress", e => {
@@ -482,12 +484,14 @@
             });
             source.addEventListener("error", e => {
                 source.close();
-                target.classList.remove("rotate")
+                target.classList.remove("rotate");
+                htmx.find("#firmware-upload progress").setAttribute("value", "0");
                 htmx.find("#firmware-error").innerHTML = `ERROR: ${e.data || "Unknown error"}`;
             });
             source.addEventListener("progress", e => {
                 htmx.find("#firmware-upload progress").setAttribute("value", e.data);
             });
         });
+    })();
     </script>
 </dialog>
