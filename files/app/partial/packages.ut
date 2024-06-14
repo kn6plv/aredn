@@ -13,7 +13,5 @@ if (f) {
     f.close();
 }
 %}
-<div class="ctrl" hx-get="status/e/packages" hx-target="#ctrl-modal">
-    <div class="t">{{ count }}</div>
-    <div class="s">installed packages</div>
-</div>
+<div class="t">{{ count }}</div>
+<div class="s">installed packages</div>

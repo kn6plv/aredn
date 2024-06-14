@@ -337,7 +337,7 @@ body.authenticated .ctrl:hover
     content: "Custom";
 }
 
-#general .health
+#health
 {
     padding: 20px 0;
     font-size: 14px;

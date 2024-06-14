@@ -21,7 +21,9 @@
     </div>
     <div id="local-and-neighbor-devices">
         <hr>
+        <div hx-get="local-and-neighbor-devices" hx-trigger="every 60s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
         {{ _R("local-and-neighbor-devices") }}
+        </div>
     </div>
 </div>
 <div id="c3">
@@ -34,7 +36,9 @@
     </div>
     <div id="dhcp">
         <hr>
+        <div hx-get="dhcp" hx-trigger="every 120s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
         {{ _R("dhcp") }}
+        </div>
     </div>
     {% if (length(hardware.getEthernetPorts()) > 0) { %}
     <div id="ports-and-xlinks">
@@ -44,6 +48,8 @@
     {% } %}
     <div id="tunnels">
         <hr>
+        <div hx-get="tunnels" hx-trigger="every 120s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
         {{ _R("tunnels") }}
+        </div>
     </div>
 </div>

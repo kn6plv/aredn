@@ -1,17 +1,13 @@
-{% response.headers["Content-Type"] = "text/plain"; %}
 {%
+response.headers["Content-Type"] = "text/plain";
 for (k in request.env) {
     if (k !== "headers") {
         print("request.env." + k + ": " + request.env[k] + "\r\n");
     }
 }
-%}
-{%
 for (k in request.headers) {
     print("request.headers." + k + ": " + request.headers[k] + "\r\n");
 }
-%}
-{%
 for (k in uhttpd) {
     print("uhttpd." + k + ": " + uhttpd[k] + "\r\n");
 }

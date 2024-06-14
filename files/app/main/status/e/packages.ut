@@ -3,26 +3,61 @@ function log()
 {
     return replace(fs.readfile("/tmp/pkg.log"), "\n", "<br>");
 }
+function getPackageOptions()
+{
+    let i = `<option value="-">-</option>`;
+    let r = `<option value="-">-</option>`;
+    const ppkgs = {};
+    const opkgs = {};
+
+    map(split(fs.readfile("/etc/permpkg"), "\n"), p => ppkgs[p] = true);
+    let f = fs.popen("/bin/opkg list-installed");
+    if (f) {
+        for (let l = f.read("line"); length(l); l = f.read("line")) {
+            const m = match(l, /^[^ \t]+/);
+            if (m) {
+                opkgs[m[0]] = true;
+                if (!ppkgs[m[0]]) {
+                    r += `<option value="${m[0]}">${m[0]}</option>`;
+                }
+            }
+        }
+        f.close();
+    }
+    f = fs.readfile("/tmp/packages.json");
+    if (f) {
+        const j = json(f);
+        for (let k in j) {
+            if (!opkgs[k]) {
+                i += `<option value="${k}">${k}</option>`;
+            }
+        }
+    }
+    return { i: i, r: r };
+}
 if (request.env.REQUEST_METHOD === "POST") {
-    const ipkg = request.args.packagefile;
+    const ipk = request.args["packagefile.ipk"];
     if (system(`/bin/opkg install ${ipk} > /dev/null 2>&1`) === 0) {
-        print(`<div id="package-success" hx-swap-oob="true">Package installed</div>`);
+        print(`<div id="package-success" hx-swap-oob="innerHTML">Package installed</div>`);
     }
     else {
         if (system("/bin/opkg update > /tmp/pkg.log 2>&1") !== 0) {
-            print(`<div id="package-error" hx-swap-oob="true">${log()}</div>`);
+            print(`<div id="package-error" hx-swap-oob="innerHTML">${log()}</div>`);
         }
         else {
             if (system(`/bin/opkg install ${ipk} > /tmp/pkg.log 2>&1`) === 0) {
-                print(`<div id="package-success" hx-swap-oob="true">Package installed</div>`);
+                print(`<div id="package-success" hx-swap-oob="innerHTML">Package installed</div>`);
             
             }
             else {
-                print(`<div id="package-error" hx-swap-oob="true">${log()}</div>`);
+                print(`<div id="package-error" hx-swap-oob="innerHTML">${log()}</div>`);
             }
         }
     }
-    fs.unlink(request.args.packagefile);
+    const po = getPackageOptions();
+    print(`<select id="download-package" hx-swap-oob="innerHTML">${po.i}</select>`);
+    print(`<select id="remove-package" hx-swap-oob="innerHTML">${po.r}</select>`);
+    fs.unlink(ipk);
     return;
 }
 else if (request.env.REQUEST_METHOD === "GET" && index(request.env.QUERY_STRING, "i=") === 0) {
@@ -34,7 +69,7 @@ else if (request.env.REQUEST_METHOD === "GET" && index(request.env.QUERY_STRING,
     uhttpd.send(`event: progress\r\ndata: 10\r\n\r\n`);
     if (system(`/bin/opkg install ${ipk} > /dev/null 2>&1`) === 0) {
         uhttpd.send(`event: progress\r\ndata: 100\r\n\r\n`);
-        uhttpd.send(`event: close\r\ndata: Package installed\r\n\r\n`);
+        uhttpd.send(`event: close\r\ndata: ${sprintf("%J", getPackageOptions())}\r\n\r\n`);
     }
     else {
         uhttpd.send(`event: progress\r\ndata: 20\r\n\r\n`);
@@ -45,7 +80,7 @@ else if (request.env.REQUEST_METHOD === "GET" && index(request.env.QUERY_STRING,
             uhttpd.send(`event: progress\r\ndata: 40\r\n\r\n`);
             if (system(`/bin/opkg install ${ipk} > /tmp/pkg.log 2>&1`) === 0) {
                 uhttpd.send(`event: progress\r\ndata: 100\r\n\r\n`);
-                uhttpd.send(`event: close\r\ndata: Package installed\r\n\r\n`);
+                uhttpd.send(`event: close\r\ndata: ${sprintf("%J", getPackageOptions())}\r\n`);
             }
             else {
                 uhttpd.send(`event: error\r\ndata: ${log()}\r\n\r\n`);
@@ -53,6 +88,19 @@ else if (request.env.REQUEST_METHOD === "GET" && index(request.env.QUERY_STRING,
         }
     }
     fs.unlink("/tmp/pkg.log");
+    return;
+}
+else if (request.env.REQUEST_METHOD === "GET" && index(request.env.QUERY_STRING, "r=") === 0) {
+    const ipk = substr(request.env.QUERY_STRING, 2);
+    if (system(`/bin/opkg remove ${ipk} > /tmp/pkg.log 2>&1`) === 0) {
+        print(`<div id="package-success" hx-swap-oob="innerHTML">Package removed</div>`);
+        const po = getPackageOptions();
+        print(`<select id="download-package" hx-swap-oob="innerHTML">${po.i}</select>`);
+        print(`<select id="remove-package" hx-swap-oob="innerHTML">${po.r}</select>`);
+    }
+    else {
+        print(`<div id="package-error" hx-swap-oob="innerHTML">${log()}</div>`);
+    }
     return;
 }
 else if (request.env.REQUEST_METHOD === "GET" && request.env.QUERY_STRING === "v=update") {
@@ -88,17 +136,7 @@ else if (request.env.REQUEST_METHOD === "GET" && request.env.QUERY_STRING === "v
         }
     }
     fs.writefile("/tmp/packages.json", sprintf("%J", pkgs));
-    let f = fs.popen("/bin/opkg list-installed");
-    if (f) {
-        for (let l = f.read("line"); length(l); l = f.read("line")) {
-            const m = match(l, /^[^ \t]+/);
-            if (m) {
-                delete pkgs[m[0]];
-            }
-        }
-        f.close();
-    }
-    uhttpd.send(`event: close\r\ndata: ${sprintf("%J", pkgs)}\r\n\r\n`);
+    uhttpd.send(`event: close\r\ndata: ${sprintf("%J", getPackageOptions())}\r\n\r\n`);
     return;
 }
 else if (request.env.REQUEST_METHOD === "PUT" && "packageurl" in request.args) {
@@ -111,6 +149,9 @@ else if (request.env.REQUEST_METHOD === "PUT" && "packageurl" in request.args) {
     return;
 }
 %}
+{%
+const po = getPackageOptions();
+%}
 <dialog>
     {{ _R("dialog-header", "Packages") }}
     <div id="package-update">
@@ -122,31 +163,7 @@ else if (request.env.REQUEST_METHOD === "PUT" && "packageurl" in request.args) {
                 <div class="m">Download package from an AREDN server.</div>
             </div>
             <div style="flex:0">
-                <select id="download-package">
-                    <option value="-">-</option>
-                    {%
-                        const opkgs = {};
-                        let f = fs.popen("/bin/opkg list-installed");
-                        if (f) {
-                            for (let l = f.read("line"); length(l); l = f.read("line")) {
-                                const m = match(l, /^[^ \t]+/);
-                                if (m) {
-                                    opkgs[m[0]] = true;
-                                }
-                            }
-                            f.close();
-                        }
-                        f = fs.readfile("/tmp/packages.json");
-                        if (f) {
-                            const j = json(f);
-                            for (let k in j) {
-                                if (!opkgs[k]) {
-                                    print(`<option value="${k}">${k}</option>`);
-                                }
-                            }
-                        }
-                    %}
-                </select>
+                <select id="download-package">${po.i}{{ po.i }}</select>
             </div>
             <div style="flex:0">
                 <div id="package-refresh"><button class="icon refresh"></button></div>
@@ -169,23 +186,7 @@ else if (request.env.REQUEST_METHOD === "PUT" && "packageurl" in request.args) {
                 <div class="m">Uninstall package from node.</div>
             </div>
             <div style="flex:0">
-                <select id="remove-package">
-                    <option value="-">-</option>
-                    {%
-                        const opkgs = {};
-                        map(split(fs.readfile("/etc/permpkg"), "\n"), p => opkgs[p] = true);
-                        let f = fs.popen("/bin/opkg list-installed");
-                        if (f) {
-                            for (let l = f.read("line"); length(l); l = f.read("line")) {
-                                const m = match(l, /^[^ \t]+/);
-                                if (m && !opkgs[m[0]]) {
-                                    print(`<option value="${m[0]}">${m[0]}</option>`);
-                                }
-                            }
-                            f.close();
-                        }
-                    %}
-                </select>
+                <select id="remove-package">${po.i}{{ po.r }}</select>
             </div>
         </div>
         {{ _R("dialog-advanced") }}
@@ -221,13 +222,16 @@ else if (request.env.REQUEST_METHOD === "PUT" && "packageurl" in request.args) {
             else {
                 htmx.find("#fetch-and-update").disabled = true;
             }
+            htmx.find("#fetch-and-update").innerText = "Fetch and Update";
             htmx.find("#download-package").value = "-";
+            htmx.find("#remove-package").value = "-";
             htmx.find("#package-info").innerHTML = "";
         });
         htmx.on("#download-package", "change", e => {
+            htmx.find("#package-info").innerHTML = "";
+            htmx.find("#fetch-and-update").innerText = "Fetch and Update";
             if (e.target.value === "-") {
                 htmx.find("#fetch-and-update").disabled = true;
-                htmx.find("#package-info").innerHTML = "";
             }
             else {
                 htmx.find("#fetch-and-update").disabled = false;
@@ -235,10 +239,20 @@ else if (request.env.REQUEST_METHOD === "PUT" && "packageurl" in request.args) {
                 if (pkg && pkg.d) {
                     htmx.find("#package-info").innerHTML = `<span class="o">Description</span><p>${pkg.d}`;
                 }
-                else {
-                    htmx.find("#package-info").innerHTML = "";
-                }
             }
+            htmx.find("#remove-package").value = "-";
+            htmx.find("#package-update input[type=file]").value = null;
+        });
+        htmx.on("#remove-package", "change", e => {
+            htmx.find("#package-info").innerHTML = "";
+            if (e.target.value === "-") {
+                htmx.find("#fetch-and-update").disabled = true;
+            }
+            else {
+                htmx.find("#fetch-and-update").disabled = false;
+                htmx.find("#fetch-and-update").innerText = "Remove";
+            }
+            htmx.find("#download-package").value = "-";
             htmx.find("#package-update input[type=file]").value = null;
         });
         htmx.on("#fetch-and-update", "click", e => {
@@ -246,12 +260,13 @@ else if (request.env.REQUEST_METHOD === "PUT" && "packageurl" in request.args) {
             htmx.find("#package-success").innerHTML = "";
             const upload = htmx.find("#package-update input[type=file]").files[0];
             const download = htmx.find("#download-package").value;
+            const remove = htmx.find("#remove-package").value;
             if (upload) {
                 htmx.on(e.currentTarget, "htmx:xhr:progress", e => htmx.find("#package-upload progress").setAttribute("value", e.detail.loaded / e.detail.total * 100));
                 htmx.ajax("POST", "{{ request.env.REQUEST_URI }}", {
                     source: e.currentTarget,
                     values: {
-                        packagefile: upload
+                        "packagefile.ipk": upload
                     },
                     swap: "none"
                 }).then(_ => htmx.find("#package-upload progress").setAttribute("value", "0"));
@@ -261,7 +276,10 @@ else if (request.env.REQUEST_METHOD === "PUT" && "packageurl" in request.args) {
                 source.addEventListener("close", e => {
                     source.close();
                     htmx.find("#package-upload progress").setAttribute("value", "0");
-                    htmx.find("#package-success").innerHTML = e.data;
+                    htmx.find("#package-success").innerHTML = "Package installed";
+                    const j = JSON.parse(e.data);
+                    htmx.find("#download-package").innerHTML = j.i;
+                    htmx.find("#remove-package").innerHTML = j.r;
                 });
                 source.addEventListener("error", e => {
                     source.close();
@@ -272,6 +290,12 @@ else if (request.env.REQUEST_METHOD === "PUT" && "packageurl" in request.args) {
                     htmx.find("#package-upload progress").setAttribute("value", e.data);
                 });
             }
+            else if (remove !== "-") {
+                htmx.ajax("GET", `{{ request.env.REQUEST_URI }}?r=${remove}`, {
+                    source: e.currentTarget,
+                    swap: "none"
+                });
+            }
         });
         htmx.on("#package-refresh button", "click", e => {
             const target = e.target;
@@ -279,18 +303,17 @@ else if (request.env.REQUEST_METHOD === "PUT" && "packageurl" in request.args) {
             htmx.find("#package-error").innerHTML = "";
             htmx.find("#package-success").innerHTML = "";
             htmx.find("#package-info").innerHTML = "";
+            htmx.find("#package-update input[type=file]").value = null;
+            htmx.find("#fetch-and-update").disabled = true;
+            htmx.find("#fetch-and-update").innerText = "Fetch and Update";
             const source = new EventSource("{{ request.env.REQUEST_URI }}?v=update");
             source.addEventListener("close", e => {
                 source.close();
                 target.classList.remove("rotate");
-                htmx.find("#fetch-and-update").disabled = true;
                 htmx.find("#package-upload progress").setAttribute("value", "0");
                 const j = JSON.parse(e.data);
-                let o = `<option value="-">-</option>`;
-                for (let k in j) {
-                    o += `<option value="${k}">${k}</option>`;
-                }
-                htmx.find("#download-package").innerHTML = o;
+                htmx.find("#download-package").innerHTML = j.i;
+                htmx.find("#remove-package").innerHTML = j.r;
             });
             source.addEventListener("error", e => {
                 source.close();
@@ -300,6 +323,11 @@ else if (request.env.REQUEST_METHOD === "PUT" && "packageurl" in request.args) {
             });
             source.addEventListener("progress", e => {
                 htmx.find("#package-upload progress").setAttribute("value", e.data);
+            });
+        });
+        htmx.on("#dialog-done", "click", _ => {
+            htmx.ajax("GET", `/a/packages`, {
+                swap: "none"
             });
         });
     })();
