@@ -145,8 +145,8 @@
             <div class="compact hideable0">
                 <div class="cols">
                     <div>
-                        <div class="o">IP Address</div>
-                        <div class="m">Gateway IP address for this LAN network</div>
+                        <div class="o">IP A&zwnj;ddress</div>
+                        <div class="m">Gateway IP a&zwnj;ddress for this LAN network</div>
                     </div>
                     <div style="flex:0">
                         <input hx-put="{{request.env.REQUEST_URI}}" name="lan_dhcp_ip" type="text" size="15" required pattern="{{constants.patIP}}" value="{{dhcp.gateway}}">

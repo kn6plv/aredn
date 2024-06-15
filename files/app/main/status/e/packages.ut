@@ -7,37 +7,80 @@ function getPackageOptions()
 {
     let i = `<option value="-">-</option>`;
     let r = `<option value="-">-</option>`;
-    const ppkgs = {};
-    const opkgs = {};
+    const perm_pkgs = {};
+    const installed_pkgs = {};
 
-    map(split(fs.readfile("/etc/permpkg"), "\n"), p => ppkgs[p] = true);
+    map(split(fs.readfile("/etc/permpkg"), "\n"), p => perm_pkgs[p] = true);
+
     let f = fs.popen("/bin/opkg list-installed");
     if (f) {
         for (let l = f.read("line"); length(l); l = f.read("line")) {
             const m = match(l, /^[^ \t]+/);
             if (m) {
-                opkgs[m[0]] = true;
-                if (!ppkgs[m[0]]) {
+                installed_pkgs[m[0]] = true;
+                if (!perm_pkgs[m[0]]) {
                     r += `<option value="${m[0]}">${m[0]}</option>`;
                 }
             }
         }
         f.close();
     }
-    f = fs.readfile("/tmp/packages.json");
+
+    f = fs.popen("/bin/opkg list");
     if (f) {
-        const j = json(f);
-        for (let k in j) {
-            if (!opkgs[k]) {
-                i += `<option value="${k}">${k}</option>`;
+        const re = /^([^ ]+) - ([-0-9a-fr\.]+)(.*)$/;
+        for (let l = f.read("line"); length(l); l = f.read("line")) {
+            let m = match(trim(l), re);
+            if (m && !installed_pkgs[m[1]]) {
+                i += `<option value="${m[1]}">${m[1]}</option>`;
             }
         }
+        f.close();
     }
     return { i: i, r: r };
 }
-if (request.env.REQUEST_METHOD === "POST") {
+function recordPackage(op, pkg, file)
+{
+    const store = "/etc/package_store";
+    const catfile = `${store}/catalog.json`;
+    fs.mkdir(store);
+    const catalog = json(fs.readfile(catfile)) || { installed: {} };
+    switch (op) {
+        case "upload":
+            const package = split(pkg, "_")[0];
+            if (package) {
+                fs.writefile(`${store}/${package}.ipk`, fs.readfile(file));
+                catalog.installed[package] = "local";
+            }
+            break;
+        case "download":
+            const f = fs.popen(`/bin/opkg status ${pkg} 2>&1`);
+            if (f) {
+                const status = replace(f.read("all"), "\n", " ");
+                f.close();
+                const m = match(status, /Package: ([^ \t]+)/);
+                if (m) {
+                    catalog.installed[m[1]] = "global";
+                }
+            }
+            break;
+        case "remove":
+            fs.unlink(`${store}/${pkg}.ipk`);
+            delete catalog.installed[pkg];
+            break;
+        default:
+            break;
+    }
+    fs.unlink(catfile);
+    for (let k in catalog.installed) {
+        fs.writefile(catfile, sprintf("%J", catalog));
+        break;
+    }
+}
+if (request.env.REQUEST_METHOD === "POST" && request.args["packagefile.ipk"] && request.args.packagename) {
     const ipk = request.args["packagefile.ipk"];
-    if (system(`/bin/opkg install ${ipk} > /dev/null 2>&1`) === 0) {
+    if (system(`/bin/opkg -force-overwrite install ${ipk} > /dev/null 2>&1`) === 0) {
+        recordPackage("upload", request.args.packagename, ipk);
         print(`<div id="package-success" hx-swap-oob="innerHTML">Package installed</div>`);
     }
     else {
@@ -45,7 +88,8 @@ if (request.env.REQUEST_METHOD === "POST") {
             print(`<div id="package-error" hx-swap-oob="innerHTML">${log()}</div>`);
         }
         else {
-            if (system(`/bin/opkg install ${ipk} > /tmp/pkg.log 2>&1`) === 0) {
+            if (system(`/bin/opkg -force-overwrite install ${ipk} > /tmp/pkg.log 2>&1`) === 0) {
+                recordPackage("upload", request.args.name, ipk);
                 print(`<div id="package-success" hx-swap-oob="innerHTML">Package installed</div>`);
             
             }
@@ -60,15 +104,16 @@ if (request.env.REQUEST_METHOD === "POST") {
     fs.unlink(ipk);
     return;
 }
-else if (request.env.REQUEST_METHOD === "GET" && index(request.env.QUERY_STRING, "i=") === 0) {
+else if (request.env.REQUEST_METHOD === "GET" && index(request.env.QUERY_STRING, "d=") === 0) {
     response.override = true;
     uhttpd.send("Status: 200 OK\r\nContent-Type: text/event-stream\r\nCache-Control: no-store\r\n\r\n");
 
     fs.unlink("/tmp/pkg.log");
     const ipk = substr(request.env.QUERY_STRING, 2);
     uhttpd.send(`event: progress\r\ndata: 10\r\n\r\n`);
-    if (system(`/bin/opkg install ${ipk} > /dev/null 2>&1`) === 0) {
+    if (system(`/bin/opkg -force-overwrite install ${ipk} > /dev/null 2>&1`) === 0) {
         uhttpd.send(`event: progress\r\ndata: 100\r\n\r\n`);
+        recordPackage("download", ipk);
         uhttpd.send(`event: close\r\ndata: ${sprintf("%J", getPackageOptions())}\r\n\r\n`);
     }
     else {
@@ -78,8 +123,9 @@ else if (request.env.REQUEST_METHOD === "GET" && index(request.env.QUERY_STRING,
         }
         else {
             uhttpd.send(`event: progress\r\ndata: 40\r\n\r\n`);
-            if (system(`/bin/opkg install ${ipk} > /tmp/pkg.log 2>&1`) === 0) {
+            if (system(`/bin/opkg -force-overwrite install ${ipk} > /tmp/pkg.log 2>&1`) === 0) {
                 uhttpd.send(`event: progress\r\ndata: 100\r\n\r\n`);
+                recordPackage("download", ipk);
                 uhttpd.send(`event: close\r\ndata: ${sprintf("%J", getPackageOptions())}\r\n`);
             }
             else {
@@ -93,6 +139,7 @@ else if (request.env.REQUEST_METHOD === "GET" && index(request.env.QUERY_STRING,
 else if (request.env.REQUEST_METHOD === "GET" && index(request.env.QUERY_STRING, "r=") === 0) {
     const ipk = substr(request.env.QUERY_STRING, 2);
     if (system(`/bin/opkg remove ${ipk} > /tmp/pkg.log 2>&1`) === 0) {
+        recordPackage("remove", ipk);
         print(`<div id="package-success" hx-swap-oob="innerHTML">Package removed</div>`);
         const po = getPackageOptions();
         print(`<select id="download-package" hx-swap-oob="innerHTML">${po.i}</select>`);
@@ -103,12 +150,19 @@ else if (request.env.REQUEST_METHOD === "GET" && index(request.env.QUERY_STRING,
     }
     return;
 }
+else if (request.env.REQUEST_METHOD === "GET" && index(request.env.QUERY_STRING, "i=") === 0) {
+    const ipk = substr(request.env.QUERY_STRING, 2);
+    if (system(`/bin/opkg info ${ipk} > /tmp/pkg.log 2>&1`) === 0) {
+        print(`<div id="package-info" hx-swap-oob="innerHTML">${log()}</div>`);
+    }
+    return;
+}
 else if (request.env.REQUEST_METHOD === "GET" && request.env.QUERY_STRING === "v=update") {
     response.override = true;
     uhttpd.send("Status: 200 OK\r\nContent-Type: text/event-stream\r\nCache-Control: no-store\r\n\r\n");
 
     const pulines = 7;
-    let f = fs.popen("/bin/opkg update 2>&1");
+    const f = fs.popen("/bin/opkg update 2>&1");
     if (!f) {
         uhttpd.send(`event: error\r\ndata: package update failed\r\n\r\n`);
         return;
@@ -122,20 +176,6 @@ else if (request.env.REQUEST_METHOD === "GET" && request.env.QUERY_STRING === "v
     }
     uhttpd.send(`event: progress\r\ndata: 100\r\n\r\n`);
     f.close();
-    f = fs.popen("/bin/opkg list");
-    if (!f) {
-        uhttpd.send(`event: error\r\ndata: package list failed\r\n\r\n`);
-        return;
-    }
-    const pkgs = {};
-    const re = /^([^ ]+) - ([-0-9a-fr\.]+)(.*)$/;
-    for (let l = f.read("line"); length(l); l = f.read("line")) {
-        let m = match(trim(l), re);
-        if (m) {
-            pkgs[m[1]] = { v: m[2], d: replace(m[3], /^ - /, "") };
-        }
-    }
-    fs.writefile("/tmp/packages.json", sprintf("%J", pkgs));
     uhttpd.send(`event: close\r\ndata: ${sprintf("%J", getPackageOptions())}\r\n\r\n`);
     return;
 }
@@ -214,36 +254,38 @@ const po = getPackageOptions();
     {{_R("dialog-footer")}}
     <script>
     (function(){
-        const packages = {{fs.readfile("/tmp/packages.json") || "{}"}};
         htmx.on("#package-update input[type='file']", "change", e => {
+            htmx.find("#fetch-and-update").innerText = "Fetch and Update";
+            htmx.find("#download-package").value = "-";
+            htmx.find("#remove-package").value = "-";
+            htmx.find("#package-info").innerHTML = "";
             if (e.target.files[0]) {
                 htmx.find("#fetch-and-update").disabled = false;
             }
             else {
                 htmx.find("#fetch-and-update").disabled = true;
             }
-            htmx.find("#fetch-and-update").innerText = "Fetch and Update";
-            htmx.find("#download-package").value = "-";
-            htmx.find("#remove-package").value = "-";
-            htmx.find("#package-info").innerHTML = "";
         });
         htmx.on("#download-package", "change", e => {
-            htmx.find("#package-info").innerHTML = "";
             htmx.find("#fetch-and-update").innerText = "Fetch and Update";
+            htmx.find("#package-info").innerHTML = "";
+            htmx.find("#remove-package").value = "-";
+            htmx.find("#package-update input[type=file]").value = null;
             if (e.target.value === "-") {
                 htmx.find("#fetch-and-update").disabled = true;
             }
             else {
                 htmx.find("#fetch-and-update").disabled = false;
-                const pkg = packages[e.target.value];
-                if (pkg && pkg.d) {
-                    htmx.find("#package-info").innerHTML = `<span class="o">Description</span><p>${pkg.d}`;
-                }
+                htmx.ajax("GET", `{{request.env.REQUEST_URI}}?i=${e.target.value}`, {
+                    source: e.currentTarget,
+                    swap: "none"
+                });
             }
-            htmx.find("#remove-package").value = "-";
-            htmx.find("#package-update input[type=file]").value = null;
+            
         });
         htmx.on("#remove-package", "change", e => {
+            htmx.find("#download-package").value = "-";
+            htmx.find("#package-update input[type=file]").value = null;
             htmx.find("#package-info").innerHTML = "";
             if (e.target.value === "-") {
                 htmx.find("#fetch-and-update").disabled = true;
@@ -252,8 +294,6 @@ const po = getPackageOptions();
                 htmx.find("#fetch-and-update").disabled = false;
                 htmx.find("#fetch-and-update").innerText = "Remove";
             }
-            htmx.find("#download-package").value = "-";
-            htmx.find("#package-update input[type=file]").value = null;
         });
         htmx.on("#fetch-and-update", "click", e => {
             htmx.find("#package-error").innerHTML = "";
@@ -266,13 +306,14 @@ const po = getPackageOptions();
                 htmx.ajax("POST", "{{request.env.REQUEST_URI}}", {
                     source: e.currentTarget,
                     values: {
+                        packagename: htmx.find("#package-update input[type=file]").value.replace(/^.*\\/, ""),
                         "packagefile.ipk": upload
                     },
                     swap: "none"
                 }).then(_ => htmx.find("#package-upload progress").setAttribute("value", "0"));
             }
             else if (download !== "-") {
-                const source = new EventSource(`{{request.env.REQUEST_URI}}?i=${download}`);
+                const source = new EventSource(`{{request.env.REQUEST_URI}}?d=${download}`);
                 source.addEventListener("close", e => {
                     source.close();
                     htmx.find("#package-upload progress").setAttribute("value", "0");
@@ -302,10 +343,10 @@ const po = getPackageOptions();
             target.classList.add("rotate");
             htmx.find("#package-error").innerHTML = "";
             htmx.find("#package-success").innerHTML = "";
-            htmx.find("#package-info").innerHTML = "";
             htmx.find("#package-update input[type=file]").value = null;
             htmx.find("#fetch-and-update").disabled = true;
             htmx.find("#fetch-and-update").innerText = "Fetch and Update";
+            htmx.find("#package-info").innerHTML = "";
             const source = new EventSource("{{request.env.REQUEST_URI}}?v=update");
             source.addEventListener("close", e => {
                 source.close();

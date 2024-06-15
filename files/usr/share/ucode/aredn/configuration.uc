@@ -202,6 +202,28 @@ export function prepareChanges()
     }
 };
 
+function fileChanges(from, to)
+{
+    let count = 0;
+    const p = fs.popen(`exec /usr/bin/diff -NBbdiU0 ${from} ${to}`);
+    if (p) {
+        for (;;) {
+            const l = rtrim(p.read("line"));
+            if (!l) {
+                break;
+            }
+            if (index(l, "@@") === 0) {
+                const v = match(l, /^@@ [+-]\d+,?(\d*) [+-]\d+,?(\d*) @@$/);
+                if (v) {
+                    count += max(math.abs(int(v[1] === "" ? 1 : v[1])), math.abs(int(v[2] === "" ? 1 : v[2])));
+                }
+            }
+        }
+        p.close();
+    }
+    return count;
+};
+
 export function commitChanges()
 {
     const status = {};
@@ -250,28 +272,6 @@ export function revertChanges()
         }
         fs.rmdir(currentConfig);
     }
-};
-
-function fileChanges(from, to)
-{
-    let count = 0;
-    const p = fs.popen(`exec /usr/bin/diff -NBbdiU0 ${from} ${to}`);
-    if (p) {
-        for (;;) {
-            const l = rtrim(p.read("line"));
-            if (!l) {
-                break;
-            }
-            if (index(l, "@@") === 0) {
-                const v = match(l, /^@@ [+-]\d+,?(\d*) [+-]\d+,?(\d*) @@$/);
-                if (v) {
-                    count += max(math.abs(int(v[1] === "" ? 1 : v[1])), math.abs(int(v[2] === "" ? 1 : v[2])));
-                }
-            }
-        }
-        p.close();
-    }
-    return count;
 };
 
 export function countChanges()
