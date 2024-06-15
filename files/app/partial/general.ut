@@ -1,10 +1,6 @@
-{%
-    const id = hardware.getBoard().model?.id;
-    const url = fs.access(`${config.application}/resource/img/radio/${id}.png`) ? `/a/img/radio/${id}.png` : null;
-%}
 <div class="ctrl" hx-get="status/e/description" hx-target="#ctrl-modal">
-    {% if (url) { %}
-    <div class="radio-image"><img src="{{url}}"></div>
+    {% if (fs.access(`${config.application}/resource/img/radio.png`)) { %}
+    <div class="radio-image"><img src="/a/img/radio.png"></div>
     {% } %}
     <div class="node-description">
         <div class="t">{{configuration.getSettingAsString("description_node", "None")}}</div>

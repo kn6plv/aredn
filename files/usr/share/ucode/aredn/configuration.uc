@@ -152,7 +152,7 @@ export function setUpgrade(v)
 export function getDHCP(mode)
 {
     initSetup();
-    if (mode === "nat" || (setup.dmz_mode === "0" && !mode)) {
+    if (mode === "nat" || (!mode && setup.dmz_mode === "0")) {
         const root = replace(setup.lan_ip, /\d+$/, "");
         return {
             enabled: setup.lan_dhcp ? true : false,
@@ -165,7 +165,29 @@ export function getDHCP(mode)
             leases: "/tmp/dhcp.leases",
             reservations: "/etc/config.mesh/_setup.dhcp.nat",
             services: "/etc/config.mesh/_setup.services.nat",
+            ports: "/etc/config.mesh/_setup.ports.nat",
+            dhcptags: "/etc/config.mesh/_setup.dhcptags.nat",
+            dhcpoptions: "/etc/config.mesh/_setup.dhcpoptions.nat",
             aliases: "/etc/config.mesh/aliases.nat"
+        };
+    }
+    else if (setup.dmz_mode === "1") {
+        const root = replace(setup.lan_ip, /\d+$/, "");
+        return {
+            enabled: setup.lan_dhcp ? true : false,
+            mode: 1,
+            start: `${root}${setup.dhcp_start}`,
+            end: `${root}${setup.dhcp_end}`,
+            gateway: setup.lan_ip,
+            mask: setup.lan_mask,
+            cidr: network.netmaskToCIDR(setup.lan_mask),
+            leases: "/tmp/dhcp.leases",
+            reservations: "/etc/config.mesh/_setup.dhcp.dmz",
+            services: "/etc/config.mesh/_setup.services.dmz",
+            ports: "/etc/config.mesh/_setup.ports.dmz",
+            dhcptags: "/etc/config.mesh/_setup.dhcptags.dmz",
+            dhcpoptions: "/etc/config.mesh/_setup.dhcpoptions.dmz",
+            aliases: "/etc/config.mesh/aliases.dmz"
         };
     }
     else {
@@ -181,6 +203,9 @@ export function getDHCP(mode)
             leases: "/tmp/dhcp.leases",
             reservations: "/etc/config.mesh/_setup.dhcp.dmz",
             services: "/etc/config.mesh/_setup.services.dmz",
+            ports: "/etc/config.mesh/_setup.ports.dmz",
+            dhcptags: "/etc/config.mesh/_setup.dhcptags.dmz",
+            dhcpoptions: "/etc/config.mesh/_setup.dhcpoptions.dmz",
             aliases: "/etc/config.mesh/aliases.dmz"
         };
     }

@@ -51,6 +51,9 @@ function is_null(v)
         return false
     end
 end
+function is_notnull(v)
+    return not is_null(v)
+end
 
 local function h2s(hex)
     local s = ""
@@ -146,6 +149,16 @@ function valid_config(config)
     return r == 0 and true or false
 end
 
+function is_nat_mode()
+    return is_null(cfg.dmz_mode)
+end
+function is_dmz_mode()
+    return is_notnull(cfg.dmz_mode) and cfg.dmz_mode ~= "1"
+end
+function is_altnet_mode()
+    return cfg.dmz_mode == "1"
+end
+
 function expand_vars(lines)
     local nlines = {}
     for line in lines:gmatch("([^\n]*\n?)")
@@ -225,7 +238,7 @@ if cfg.wan_proto == "dhcp" then
     deleteme.wan_gw = true
     deleteme.wan_mask = true
 end
-if not is_null(cfg.dmz_mode) or cfg.wan_proto ~= "disabled" then
+if is_dmz_mode() or is_altnet_mode() or cfg.wan_proto ~= "disabled" then
     deleteme.lan_gw = true
 end
 
@@ -282,7 +295,7 @@ if is_null(cfg.dmz_mode) then
 end
 
 -- switch to dmz values if needed
-if not is_null(cfg.dmz_mode) then
+if is_dmz_mode() then
     cfg.lan_ip = cfg.dmz_lan_ip
     cfg.lan_mask = cfg.dmz_lan_mask
     cfg.dhcp_start = cfg.dmz_dhcp_start
@@ -297,7 +310,7 @@ local dhcptagsfile = "/etc/config.mesh/_setup.dhcptags"
 local dhcpoptionsfile = "/etc/config.mesh/_setup.dhcpoptions"
 local aliasfile = "/etc/config.mesh/aliases"
 local servfile = "/etc/config.mesh/_setup.services"
-if is_null(cfg.dmz_mode) then
+if is_nat_mode() then
     portfile = portfile .. ".nat"
     dhcpfile = dhcpfile .. ".nat"
     dhcptagsfile = dhcptagsfile .. ".nat"
@@ -650,15 +663,15 @@ local nc = uci.cursor("/tmp/new_config")
 local add_masq = false
 local fw = io.open("/tmp/new_config/firewall", "a")
 if fw then
-    if not is_null(cfg.dmz_mode) then
+    if is_nat_mode() then
+        fw:write("\nconfig 'include'\n        option 'path' '/etc/firewall.natmode'\n        option 'reload' '1'\n")
+    else
         fw:write("\nconfig forwarding\n        option src    wifi\n        option dest   lan\n")
         fw:write("\nconfig forwarding\n        option src    dtdlink\n        option dest   lan\n")
         if vpnzone then
             fw:write("\nconfig forwarding\n        option src    vpn\n        option dest   lan\n")
         end
         add_masq = true
-    else
-        fw:write("\nconfig 'include'\n        option 'path' '/etc/firewall.natmode'\n        option 'reload' '1'\n")
     end
 
     if nc:get("aredn", "@wan[0]", "olsrd_gw") == "1" then
@@ -674,7 +687,7 @@ if fw then
         do
             if not (line:match("^%s*#") or line:match("^%s*$")) then
                 local dip = line:match("dmz_ip = (%w+)")
-                if dip and cfg.dmz_mode ~= 0 then
+                if dip and is_dmz_mode() then
                     fw:write("\nconfig redirect\n        option src    wifi\n        option proto  tcp\n        option src_dip " .. cfg.wifi_ip .. "\n        option dest_ip " .. dip .. "\n")
                     fw:write("\nconfig redirect\n        option src    wifi\n        option proto  udp\n        option src_dip " .. cfg.wifi_ip .. "\n        option dest_ip " .. dip .. "\n")
                 else
@@ -692,7 +705,7 @@ if fw then
                         if not oport:match("-") then
                             host = host .. "        option dest_port " .. iport .. "\n"
                         end
-                        if not is_null(cfg.dmz_mode) and intf == "both" then
+                        if is_dmz_mode() and intf == "both" then
                             intf = "wan"
                         end
                         if intf == "both" then
@@ -702,7 +715,7 @@ if fw then
                                 fw:write("\nconfig redirect\n        option src vpn\n        option dest  lan\n        " .. match .. "        option src_dip " .. cfg.wifi_ip .. "\n        " .. host .. "\n")
                             end
                             fw:write("config redirect\n        option src wan\n        option dest  lan\n        " .. match .. "        " .. host .. "\n")
-                        elseif intf == "wifi" and is_null(cfg.dmz_mode) then
+                        elseif intf == "wifi" and is_nat_mode() then
                             fw:write("\nconfig redirect\n        option src dtdlink\n        option dest  lan\n        " .. match .. "        option src_dip " .. cfg.wifi_ip .. "\n        " .. host .. "\n")
                             fw:write("\nconfig redirect\n        option src wifi\n        option dest  lan\n        " .. match .. "        option src_dip " .. cfg.wifi_ip .. "\n        " .. host .. "\n")
                             if vpnzone then
@@ -983,16 +996,16 @@ if h and e then
     h:write("# automatically generated file - do not edit\n")
     h:write("# use /etc/hosts.user for custom entries\n")
     h:write("127.0.0.1\tlocalhost\n")
-    if not is_null(cfg.wifi_ip) then
+    if is_notnull(cfg.wifi_ip) then
         h:write(cfg.lan_ip .. "\tlocalnode\n")
         h:write(cfg.wifi_ip .. "\t" .. node .. " " .. tactical .. "\n")
     else
         h:write(cfg.lan_ip .. "\tlocalnode " .. node .. " " .. tactical .. "\n")
     end
-    if not is_null(cfg.dtdlink_ip) then
+    if is_notnull(cfg.dtdlink_ip) then
         h:write(cfg.dtdlink_ip .. "\tdtdlink." .. node .. ".local.mesh dtdlink." .. node .."\n")
     end
-    if is_null(cfg.dmz_mode) then
+    if is_nat_mode() then
         h:write(decimal_to_ip(ip_to_decimal(cfg.lan_ip) + 1) .. "\tlocalap\n")
     end
 
@@ -1077,17 +1090,26 @@ if nixio.fs.access("/etc/config.mesh/olsrd", "r") then
             of:write(line .. "\n")
         end
 
-        if not is_null(cfg.dmz_mode) then
+        if is_dmz_mode() then
             local a, b, c, d = cfg.dmz_lan_ip:match("(.*)%.(.*)%.(.*)%.(.*)")
             of:write(string.format("\nconfig Hna4\n\toption netaddr %s.%s.%s.%d\n\toption netmask 255.255.255.%d\n\n", a, b, c, d - 1, nixio.bit.band(255 * 2 ^ cfg.dmz_mode, 255)))
         end
+        if is_altnet_mode() then
+            local a, b, c, d = cfg.lan_ip:match("(.*)%.(.*)%.(.*)%.(.*)")
+            of:write(string.format("\nconfig Hna4\n\toption netaddr %s.%s.%s.%d\n\toption netmask %s\n\n", a, b, c, d - 1, cfg.lan_mask))
+        end
 
-        if cfg.wifi_enable ~= "1" and not is_null(cfg.wifi_ip) then
+        if cfg.wifi_enable ~= "1" and is_notnull(cfg.wifi_ip) then
             of:write(string.format("config Hna4\n\toption netaddr %s\n\toption netmask 255.255.255.255\n\n", cfg.wifi_ip))
         end
 
         if is_supernode then
             of:write("config Hna4\n\toption netaddr 10.0.0.0\n\toption netmask 255.0.0.0\n\n")
+            local altnetwork = nc:get("aredn", "@supernode[0]", "altnetwork")
+            local altnetmask = nc:get("aredn", "@supernode[0]", "altnetmask")
+            if altnetwork and altnetmask then
+                of:write("config Hna4\n\toption netaddr " .. altnetwork .. "\n\toption netmask " .. altnetmask .. "\n\n")
+            end
         end
 
         if nixio.fs.stat("/etc/config.mesh/xlink") then
@@ -1216,7 +1238,7 @@ if sf then
         if cfg.wifi_enable == "1" then
             sf:write("/usr/sbin/iw dev " .. cfg.wifi_intf .. " set txpower fixed " .. cfg.wifi_txpower .. "00\n")
         end
-        if not is_null(cfg.aprs_lat) and not is_null(cfg.aprs_lon) then
+        if is_notnull(cfg.aprs_lat) and is_notnull(cfg.aprs_lon) then
             nc:set("aredn", "@location[0]", "lat", cfg.aprs_lat)
             nc:set("aredn", "@location[0]", "lon", cfg.aprs_lon)
             nc:commit("aredn")
