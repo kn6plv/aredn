@@ -14,8 +14,9 @@ function getPackageOptions()
 
     let f = fs.popen("/bin/opkg list-installed");
     if (f) {
+        const re = /^[^ \t]+/;
         for (let l = f.read("line"); length(l); l = f.read("line")) {
-            const m = match(l, /^[^ \t]+/);
+            const m = match(l, re);
             if (m) {
                 installed_pkgs[m[0]] = true;
                 if (!perm_pkgs[m[0]]) {
@@ -168,8 +169,9 @@ else if (request.env.REQUEST_METHOD === "GET" && request.env.QUERY_STRING === "v
         return;
     }
     let count = 0;
+    const re = /^Updated/;
     for (let l = f.read("line"); length(l); l = f.read("line")) {
-        if (match(l, /^Updated/)) {
+        if (match(l, re)) {
             count++;
             uhttpd.send(`event: progress\r\ndata: ${100 * count / pulines}\r\n\r\n`);
         }
