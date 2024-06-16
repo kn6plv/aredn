@@ -14,7 +14,7 @@
     </div>
     {% } %}
     <div id="services">
-        {% if (auth.authenticated) { %}
+        {% if (auth.isAdmin) { %}
         {{_R("internal-services" )}}
         {% } %}
         {{_R("local-services")}}

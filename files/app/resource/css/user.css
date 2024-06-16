@@ -101,7 +101,7 @@ body.authenticated .ctrl:hover
 {
     padding: 10px;
     margin: -5px;
-    border: 1px solid var(--ctrl-border-color);
+    background-color: var(--ctrl-bg-color);
 }
 
 /* -- end common layout */
@@ -379,6 +379,16 @@ body.authenticated .ctrl:hover
     min-width: 260px;
 }
 
+#local-and-neighbor-devices .status
+{
+    padding: 2.5px 5px;
+    margin: -5px -5px;
+}
+body.authenticated #local-and-neighbor-devices .status.ctrl:hover
+{
+    padding: 7.5px 10px;
+    margin: -10px -10px;
+}
 #local-and-neighbor-devices .excellent
 {
     color: var(--conn-fg-color-excellent);

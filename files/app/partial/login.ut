@@ -1,4 +1,4 @@
-{% if (!auth.authenticated) { %}
+{% if (!auth.isAdmin) { %}
 <dialog id="login">
     Password <input type="password"><button>OK</button>
 </dialog>

@@ -46,8 +46,9 @@ if (!config.debug) {
     {
         const path = `${config.application}/resource/${resource}`;
         const pathgz = `${config.application}/resource/${resource}.gz`;
-        if (!fs.access(pathgz)) {
-            fs.popen(`/bin/gzip -k ${path}`).close();
+        if (fs.access(path)) {
+            fs.unlink(pathgz);
+            system(`/bin/gzip -k ${path}`);
         }
         const md = fs.popen(`/usr/bin/md5sum ${pathgz}`);
         resourceVersions[id] = match(md.read("all"), /^([0-9a-f]+)/)[1];
@@ -211,10 +212,9 @@ const uciMeshMethods =
 };
 
 const auth = {
-    authenticated: false,
+    isAdmin: false,
     key: null,
     age: 315360000, // 10 years
-    //age: 120, // 2 minutes
 
     DAYS: [ "", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" ],
     MONTHS: [ "", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ],
@@ -248,10 +248,10 @@ const auth = {
                 if (index(ca[i], "authV1=") === 0) {
                     this.initKey();
                     if (this.key == b64dec(substr(ca[i], 7))) {
-                        this.authenticated = true;
+                        this.isAdmin = true;
                     }
                     else {
-                        this.authenticated = false;
+                        this.isAdmin = false;
                     }
                     break;
                 }
@@ -261,7 +261,7 @@ const auth = {
 
     authenticate: function(password)
     {
-        if (!this.authenticated) {
+        if (!this.isAdmin) {
             this.initKey();
             const s = split(this.key, /[:$]/); // s[3] = salt, s[4] = hashed
             const f = fs.popen(`exec /usr/bin/mkpasswd -S '${s[3]}' '${password}'`);
@@ -273,18 +273,18 @@ const auth = {
                     const gm = gmtime(time[0] + this.age);
                     const tm = `${this.DAYS[gm.wday]}, ${gm.mday} ${this.MONTHS[gm.mon]} ${gm.year} 00:00:00 GMT`;
                     response.headers["Set-Cookie"] = `authV1=${b64enc(this.key)}; Path=/; Domain=${replace(request.headers.host, /:\d+$/, "")}; Expires=${tm}; SameSite=Strict`;
-                    this.authenticated = true;
+                    this.isAdmin = true;
                 }
             }
         }
-        return this.authenticated;
+        return this.isAdmin;
     },
 
     deauthenticate: function()
     {
-        if (this.authenticated) {
+        if (this.isAdmin) {
             response.headers["Set-Cookie"] = `authV1=; Path=/; Domain=${replace(request.headers.host, /:\d+$/, "")}; Max-Age=0;`;
-            this.authenticated = false;
+            this.isAdmin = false;
         }
     }
 };
@@ -320,7 +320,7 @@ global.handle_request = function(env)
 
         if (pageCache[tpath] || fs.access(tpath)) {
             auth.runAuthentication(env);
-            if (secured && !auth.authenticated && !config.debug) {
+            if (secured && !auth.isAdmin && !config.debug) {
                 uhttpd.send("Status: 401 Unauthorized\r\n\r\n");
                 return;
             }
