@@ -1,0 +1,38 @@
+{%
+if (request.env.REQUEST_METHOD === "PUT") {
+    configuration.prepareChanges();
+    if ("lowmem" in request.args) {
+        uciMesh.set("aredn", "@meshstatus[0]", "lowmem", request.args.lowmem);
+    }
+    if ("lowroutes" in request.args) {
+        uciMesh.set("aredn", "@meshstatus[0]", "lowmem", request.args.lowroutes);
+    }
+    uciMesh.commit("aredn");
+    print(_R("changes"));
+    return;
+}
+%}
+<dialog>
+    {{_R("dialog-header", "Mesh")}}
+    <div>
+        <div class="cols">
+            <div>
+                <div class="o">Low Memory Visiblity</div>
+                <div class="m">Low memory limit to restrict visible mesh</div>
+            </div>
+            <div style="flex:0">
+                <input hx-put="{{request.env.REQUEST_URI}}" type="text" name="lowmem" placeholder="10000" pattern="[0-9]+" value="{{uciMesh.get("aredn"," @meshstatus[0]", "lowmem")}}">
+            </div>
+        </div>
+        <div class="cols">
+            <div>
+                <div class="o">Mesh Limit</div>
+                <div class="m">Low memory limit for number of routes displayed</div>
+            </div>
+            <div style="flex:0">
+                <input hx-put="{{request.env.REQUEST_URI}}" type="text" name="lowroutes" placeholder="1000" pattern="[0-9]+" value="{{uciMesh.get("aredn"," @meshstatus[0]", "lowroutes")}}">
+            </div>
+        </div>
+    </div>
+    {{_R("dialog-footer")}}
+</dialog>

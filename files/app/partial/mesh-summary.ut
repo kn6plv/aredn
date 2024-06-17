@@ -1,7 +1,7 @@
 {%
     const counts = mesh.getNodeCounts();
 %}
-<div class="noctrl">
+<div class="ctrl" hx-get="status/e/mesh" hx-target="#ctrl-modal">
     <div class="section-title">Mesh</div>
     <div class="section">
         <div class="cols">

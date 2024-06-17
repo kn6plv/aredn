@@ -226,16 +226,16 @@
 
 /* basics start */
 
-#ctrl-modal dialog.basics .advanced .cols div:last-child
+#ctrl-modal dialog.basics .password .cols div:last-child
 {
     position: relative;
     flex: 0;
 }
-#ctrl-modal dialog.basics .advanced input
+#ctrl-modal dialog.basics .password input
 {
     padding-right: 30px;
 }
-#ctrl-modal dialog.basics .advanced button
+#ctrl-modal dialog.basics .password input + button
 {
     position: absolute;
     right: 2px;

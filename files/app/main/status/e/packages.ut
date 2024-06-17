@@ -205,7 +205,7 @@ const po = getPackageOptions();
                 <div class="m">Download package from an AREDN server.</div>
             </div>
             <div style="flex:0">
-                <select id="download-package">${po.i}{{po.i}}</select>
+                <select id="download-package">{{po.i}}</select>
             </div>
             <div style="flex:0">
                 <div id="package-refresh"><button class="icon refresh"></button></div>
@@ -228,7 +228,7 @@ const po = getPackageOptions();
                 <div class="m">Uninstall package from node.</div>
             </div>
             <div style="flex:0">
-                <select id="remove-package">${po.i}{{po.r}}</select>
+                <select id="remove-package">{{po.r}}</select>
             </div>
         </div>
         {{_R("dialog-advanced")}}

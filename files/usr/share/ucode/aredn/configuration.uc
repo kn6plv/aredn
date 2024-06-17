@@ -49,6 +49,7 @@ const configFiles = [
     "/etc/aredn_include/dtdlink.network.user",
     "/etc/aredn_include/lan.network.user",
     "/etc/aredn_include/wan.network.user",
+    "/etc/dropbear/authorized_keys",
     "/tmp/newpassword"
 ];
 

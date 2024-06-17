@@ -1,4 +1,21 @@
-{% if (request.env.REQUEST_METHOD === "PUT") {
+{%
+function getSshKeys()
+{
+    let options = "<option value='-'>-</option>";
+    const f = fs.open("/etc/dropbear/authorized_keys");
+    if (f) {
+        const re = /^(.+) (.+) (.+)$/;
+        for (let l = f.read("line"); length(l); l = f.read("line")) {
+            const m = match(trim(l), re);
+            if (m) {
+                options += `<option value="${m[3]}">${m[3]}</option>`;
+            }
+        }
+        f.close();
+    }
+    return options;
+}
+if (request.env.REQUEST_METHOD === "PUT") {
     configuration.prepareChanges();
     if ("description_node" in request.args) {
         configuration.setSetting("description_node", replace(request.args.description_node || "", "'", "’"));
@@ -23,12 +40,36 @@
     if ("passwd" in request.args) {
         configuration.setPassword(request.args.passwd);
     }
+    if ("ssh_remove" in request.args) {
+        print(request.args);
+        const keys = split(fs.readfile("/etc/dropbear/authorized_keys"), "\n");
+        const re = /^(.+) (.+) (.+)$/;
+        for (let i = 0; i < length(keys); i++) {
+            const m = match(keys[i], re);
+            if (m && m[3] === request.args.ssh_remove) {
+                splice(keys, i, 1);
+                break;
+            }
+        }
+        fs.writefile("/etc/dropbear/authorized_keys", join("\n", keys));
+        print(getSshKeys());
+    }
+    if ("ssh_add" in request.args) {
+        configuration.prepareChanges();
+        const key = fs.readfile(request.args.ssh_add);
+        if (key) {
+            const keys = fs.readfile("/etc/dropbear/authorized_keys") || "";
+            fs.writefile("/etc/dropbear/authorized_keys", `${keys}${key}`);
+        }
+        print(getSshKeys());
+    }
     configuration.saveSettings();
+    print(_R("changes"));
+    return;
+}
 %}
-{{_R("changes")}}
-{% return; } %}
 <dialog class="basics">
-    {{_R("dialog-header", "Basics")}}
+    {{_R("dialog-header", "Name &amp; Security")}}
     <div>
         <div class="cols">
             <div>
@@ -52,8 +93,7 @@
         People include various thing, such as some basic information about the location or hardware or
         the services this node provides. Some people include alternate ways to reach the owner (e.g email
         address).")}}
-        {{_R("dialog-advanced")}}
-        <div class="advanced">
+        <div class="password">
             <div class="cols">
                 <div>
                     <div class="o">New Password</div>
@@ -70,6 +110,33 @@
                 </div>
                 <div>
                     <input name="passwd2" type="password" pattern=""><button class="icon eye"></button>
+                </div>
+            </div>
+        </div>
+        {{_R("dialog-advanced")}}
+        <div>
+            <div class="cols">
+                <div>
+                    <div class="o">Upload SSH Key</div>
+                    <div class="m">Add SSH key</div>
+                </div>
+                <div>
+                    <input name="ssh_add" type="file" accept=".pub">
+                </div>
+            </div>
+            <div class="cols">
+                <div>
+                    <div class="o">Remove SSH Key</div>
+                    <div class="m">Delete SSH key</div>
+                </div>
+                <div style="flex:0">
+                    <select name="ssh_remove">{{getSshKeys()}}</select>
+                </div>
+            </div>
+            <div class="cols">
+                <div></div>
+                <div style="flex:0">
+                    <button id="ssh_change" disabled hx-trigger="none" hx-encoding="multipart/form-data">Upload or Remove Key</button>
                 </div>
             </div>
         </div>
@@ -108,6 +175,51 @@
         }
         htmx.on("dialog input[name=passwd1] + button", "click", toggle);
         htmx.on("dialog input[name=passwd2] + button", "click", toggle);
+        htmx.on("dialog input[name=ssh_add]", "change", e => {
+            htmx.find("dialog select[name=ssh_remove]").value = "-";
+            if (e.target.value === "-") {
+                htmx.find("dialog #ssh_change").disabled = true;
+                htmx.find("dialog #ssh_change").innerHTML = "Upload or Remove Key";
+            }
+            else {
+                htmx.find("dialog #ssh_change").disabled = false;
+                htmx.find("dialog #ssh_change").innerHTML = "Upload Key";
+            }
+        });
+        htmx.on("dialog select[name=ssh_remove]", "change", e => {
+            htmx.find("dialog input[name=ssh_add]").value = "";
+            if (e.target.value === "-") {
+                htmx.find("dialog #ssh_change").disabled = true;
+                htmx.find("dialog #ssh_change").innerHTML = "Upload or Remove Key";
+            }
+            else {
+                htmx.find("dialog #ssh_change").disabled = false;
+                htmx.find("dialog #ssh_change").innerHTML = "Remove Key";
+            }
+        });
+        htmx.on("dialog #ssh_change", "click", e => {
+            const upload = htmx.find("dialog input[name=ssh_add]").files[0];
+            const remove = htmx.find("dialog select[name=ssh_remove]").value;
+            if (upload) {
+                htmx.ajax("PUT", "{{request.env.REQUEST_URI}}", {
+                    source: e.currentTarget,
+                    values: {
+                        "ssh_add": upload
+                    },
+                    target: "dialog select[name=ssh_remove]"
+                }).then(_ => htmx.find("dialog input[name=ssh_add]").value = "");
+            }
+            else if (remove) {
+                htmx.ajax("PUT", "{{request.env.REQUEST_URI}}", {
+                    values: {
+                        "ssh_remove": remove
+                    },
+                    target: "dialog select[name=ssh_remove]"
+                });
+            }
+            htmx.find("dialog #ssh_change").disabled = true;
+            htmx.find("dialog #ssh_change").innerHTML = "Upload or Remove Key";
+        });
     })();
     </script>
 </dialog>

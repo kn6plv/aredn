@@ -15,17 +15,26 @@
     if (request.args.web_access) {
         uciMesh.set("aredn", "@wan[0]", "web_access", request.args.web_access === "on" ? "1" : "0");
     }
-    if (request.args.remotelog !== undefined) {
+    if ("remotelog" in request.args) {
         uciMesh.set("aredn", "@remotelog[0]", "url", request.args.remotelog);
     }
     if (request.args.watchdog) {
         uciMesh.set("aredn", "@watchdog[0]", "enable", request.args.watchdog === "on" ? "1" : "0");
     }
-    if (request.args.watchdog_ping_address !== undefined) {
+    if ("watchdog_ping_address" in request.args) {
         uciMesh.set("aredn", "@watchdog[0]", "ping_addresses", request.args.watchdog_ping_address);
     }
-    if (request.args.watchdog_daily !== undefined) {
+    if ("watchdog_daily" in request.args) {
         uciMesh.set("aredn", "@watchdog[0]", "daily", request.args.watchdog_daily);
+    }
+    if ("message_pollrate" in request.args) {
+        uciMesh.set("aredn", "@alerts[0]", "pollrate", request.args.message_pollrate);
+    }
+    if ("message_localpath" in request.args) {
+        uciMesh.set("aredn", "@alerts[0]", "localpath", request.args.message_localpath);
+    }
+    if ("message_groups" in request.args) {
+        uciMesh.set("aredn", "@alerts[0]", "groups", request.args.message_groups);
     }
     uciMesh.commit("aredn");
 %}
@@ -135,6 +144,33 @@
                 </div>
                 {{_H("For the node to reboot at a specific hour of the day (between 0 and 23), every day. Hopefully this isn't necessary. but it can be a good fallback for nodes which
                 are unreliable and in places difficult to reach.")}}
+            </div>
+        </div>
+        <div class="cols">
+            <div>
+                <div class="o">Message Updates</div>
+                <div class="m">Update messages every somany hours</div>
+            </div>
+            <div style="flex:0">
+                <input hx-put="{{request.env.REQUEST_URI}}" type="text" name="message_pollrate" pattern="([1-9]|1[0-9]|2[0-4])" placeholder="1" value="{{uciMesh.get("aredn", "@alerts[0]", "pollrate")}}">
+            </div>
+        </div>
+        <div class="cols">
+            <div>
+                <div class="o">Local Message URL</div>
+                <div class="m">Configure the local message sources</div>
+            </div>
+            <div style="flex:0">
+                <input hx-put="{{request.env.REQUEST_URI}}" type="text" name="message_localpath" pattern="{{constants.patUrl}}" value="{{uciMesh.get("aredn", "@alerts[0]", "localpath")}}">
+            </div>
+        </div>
+        <div class="cols">
+            <div>
+                <div class="o">Message Groups</div>
+                <div class="m">List of message group names</div>
+            </div>
+            <div style="flex:0">
+                <input hx-put="{{request.env.REQUEST_URI}}" type="text" name="message_groups" pattern="[a-zA-Z]+(,[a-zA-Z]+)*" value="{{uciMesh.get("aredn", "@alerts[0]", "groups")}}">
             </div>
         </div>
     </div>
