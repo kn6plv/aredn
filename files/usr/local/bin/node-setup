@@ -660,18 +660,14 @@ write_all("/tmp/new_config/vtun", expand_vars("<tun_network_config>"))
 local nc = uci.cursor("/tmp/new_config")
 
 -- append to firewall
-local add_masq = false
 local fw = io.open("/tmp/new_config/firewall", "a")
 if fw then
-    if is_nat_mode() then
-        fw:write("\nconfig 'include'\n        option 'path' '/etc/firewall.natmode'\n        option 'reload' '1'\n")
-    else
+    if not is_nat_mode() then
         fw:write("\nconfig forwarding\n        option src    wifi\n        option dest   lan\n")
         fw:write("\nconfig forwarding\n        option src    dtdlink\n        option dest   lan\n")
         if vpnzone then
             fw:write("\nconfig forwarding\n        option src    vpn\n        option dest   lan\n")
         end
-        add_masq = true
     end
 
     if nc:get("aredn", "@wan[0]", "olsrd_gw") == "1" then
@@ -733,8 +729,16 @@ if fw then
 
     fw:close();
 end
-if add_masq then
-    nc:set("firewall", "@zone[2]", "masq", "0")
+
+-- setup nat
+if is_nat_mode() then
+    -- zone[0] = lan, zone[1] = wan, zone[2] = wifi, zone[3] = dtdlink, zone[4] = vpn
+    local masq_src = cfg.lan_ip .. "/" .. netmask_to_cidr(cfg.lan_mask)
+    for z = 2, 4
+    do
+        nc:set("firewall", "@zone[" .. z .. "]", "masq", "1")
+        nc:set("firewall", "@zone[" .. z .. "]", "masq_src", masq_src)
+    end
     nc:commit("firewall")
 end
 
