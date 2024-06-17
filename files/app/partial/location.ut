@@ -5,12 +5,10 @@
     const gridsquare = uci.get("aredn", "@location[0]", "gridsquare");
     const mapurl = lat && lon && map ? replace(replace(map, "(lat)", lat), "(lon)", lon) : null;
 %}
-{% if (mapurl) { %}
-<div class="noctrl">
-    <a target="_blank" href="{{mapurl}}"><div class="location-image"><iframe loading="eager" src="{{mapurl}}"></iframe></div></a>
-</div>
-{% } %}
 <div class="ctrl" hx-get="status/e/location" hx-target="#ctrl-modal">
+{% if (mapurl) { %}
+    <div class="location-image"><iframe loading="eager" src="{{mapurl}}"></iframe></div>
+{% } %}
     {% if (lat && lon) { %}
     <div class="cols">
         <div class="t">{{lat}}, {{lon}}</div>
