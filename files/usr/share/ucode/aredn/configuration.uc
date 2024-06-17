@@ -15,7 +15,8 @@ const configDirs = [
     "/etc/config.mesh",
     "/etc/local",
     "/etc/local/uci",
-    "/etc/aredn_include"
+    "/etc/aredn_include",
+    "/tmp"
 ];
 const configFiles = [
     "/etc/config.mesh/_setup",
@@ -47,7 +48,8 @@ const configFiles = [
     "/etc/local/uci/hsmmmesh",
     "/etc/aredn_include/dtdlink.network.user",
     "/etc/aredn_include/lan.network.user",
-    "/etc/aredn_include/wan.network.user"
+    "/etc/aredn_include/wan.network.user",
+    "/tmp/newpassword"
 ];
 
 function initCursor()
@@ -147,6 +149,16 @@ export function setUpgrade(v)
     initCursor();
     cursor.set("hsmmmesh", "settings", "nodeupgraded", v);
     cursor.commit("hsmmmesh");
+};
+
+export function setPassword(passwd)
+{
+    fs.writefile("/tmp/newpassword", passwd);
+};
+
+export function isPasswordChanged()
+{
+    return fs.access("/tmp/newpassword") ? true : false;
 };
 
 export function getDHCP(mode)
@@ -264,6 +276,11 @@ export function commitChanges()
             fs.rmdir(`${currentConfig}${configDirs[i]}`);
         }
         fs.rmdir(currentConfig);
+        if (fs.access("/tmp/newpassword")) {
+            const pw = fs.readfile("/tmp/newpassword");
+            system(`{ echo '${pw}'; sleep 1; echo '${pw}'; } | passwd > /dev/null 2>&1`);
+            fs.unlink("/tmp/newpassword");
+        }
         const n = fs.popen("exec /usr/local/bin/node-setup");
         if (n) {
             status.setup = n.read("all");

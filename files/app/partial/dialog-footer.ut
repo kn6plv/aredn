@@ -3,5 +3,5 @@
     {% if (auth.isAdmin) { %}
     <button id="dialog-help" hx-get="{{request.env.REQUEST_URI}}" hx-trigger="click delay:10ms" hx-target="#ctrl-modal" hx-headers='{"Include-Help":"{{includeHelp ? "0" : "1"}}","Include-Advanced":"{{request.headers['include-advanced'] === "1" ? "1" : "0"}}"}'>Help</button>
     {% } %}
-    <button id="dialog-done" onclick="document.getElementById('ctrl-modal').innerHTML = ''">Done</button>
+    <button id="dialog-done" onclick="setTimeout(_ => document.getElementById('ctrl-modal').innerHTML = '', 10)">Done</button>
 </div>

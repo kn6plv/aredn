@@ -1,4 +1,4 @@
-<div class="ctrl" hx-get="status/e/description" hx-target="#ctrl-modal">
+<div class="ctrl" hx-get="status/e/basics" hx-target="#ctrl-modal">
     {% if (fs.access(`${config.application}/resource/img/radio.png`)) { %}
     <div class="radio-image"><img src="/a/img/radio.png"></div>
     {% } %}

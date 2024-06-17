@@ -369,7 +369,7 @@ const po = getPackageOptions();
             });
         });
         htmx.on("#dialog-done", "click", _ => {
-            htmx.ajax("GET", `/a/packages`, {
+            htmx.ajax("GET", "/a/packages", {
                 swap: "none"
             });
         });

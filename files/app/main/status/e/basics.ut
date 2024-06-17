@@ -1,0 +1,113 @@
+{% if (request.env.REQUEST_METHOD === "PUT") {
+    configuration.prepareChanges();
+    if ("description_node" in request.args) {
+        configuration.setSetting("description_node", replace(request.args.description_node || "", "'", "’"));
+    }
+    if ("node_name" in request.args) {
+        const name = request.args.node_name;
+        configuration.setName(name);
+        uciMesh.foreach("vtun", "server", s => {
+            const netip = s.netip;
+            if (index(net, ":") === -1) {
+                const np = split(netip, ":");
+                const n = iptoarr(np[0]);
+                uciMesh.set("vtun", s[".name"], "node", `${uc(substr(name, 0, 23))}-${n[0]}-${n[1]}-${n[2]}-${n[3]}:${np[1]}`);
+            }
+            else {
+                const n = iptoarr(netip);
+                uciMesh.set("vtun", s[".name"], "node", `${uc(substr(name, 0, 23))}-${n[0]}-${n[1]}-${n[2]}-${n[3]}`);
+            }
+        });
+        uciMesh.commit("vtun");
+    }
+    if ("passwd" in request.args) {
+        configuration.setPassword(request.args.passwd);
+    }
+    configuration.saveSettings();
+%}
+{{_R("changes")}}
+{% return; } %}
+<dialog class="basics">
+    {{_R("dialog-header", "Basics")}}
+    <div>
+        <div class="cols">
+            <div>
+                <div class="o">Node Name</div>
+                <div class="m">This node's unique name</div>
+            </div>
+            <div style="flex:0">
+                <input name="node_name" hx-put="{{request.env.REQUEST_URI}}" hx-swap="none" type="text" minlength="4" maxlength="63" size="30" required pattern="[^']+" value="{{configuration.getName()}}">
+            </div>
+        </div>
+        <div class="cols">
+            <div>
+                <div class="o">Description</div>
+                <div class="m">Information about this node</div>
+            </div>
+            <div style="flex:0">
+                <textarea name="description_node" style="width:340px" rows="2" columns="80" hx-put="{{request.env.REQUEST_URI}}">{{configuration.getSettingAsString("description_node", "")}}</textarea>
+            </div>
+        </div>
+        {{_H("Some optional descriptive text about this node. This can be anything you think relevant.
+        People include various thing, such as some basic information about the location or hardware or
+        the services this node provides. Some people include alternate ways to reach the owner (e.g email
+        address).")}}
+        {{_R("dialog-advanced")}}
+        <div class="advanced">
+            <div class="cols">
+                <div>
+                    <div class="o">New Password</div>
+                    <div class="m">Change the node password</div>
+                </div>
+                <div>
+                    <input name="passwd1" type="password" pattern="`[^#'"]+"><button class="icon eye"></button>
+                </div>
+            </div>
+            <div class="cols">
+                <div>
+                    <div class="o">Retype Password</div>
+                    <div class="m">Passwords must match</div>
+                </div>
+                <div>
+                    <input name="passwd2" type="password" pattern=""><button class="icon eye"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{_R("dialog-footer")}}
+    <script>
+    (function(){
+        htmx.on("dialog input[name=passwd1]", "keyup", e => {
+            const v = e.target.value;
+            if (v === "hsmm") {
+                htmx.find("dialog input[name=passwd1]").pattern = "BAD";
+            }
+            else {
+                htmx.find("dialog input[name=passwd1]").pattern = `[^#'"]+`;
+            }
+            htmx.find("dialog input[name=passwd2]").required = v ? "required" : "";
+            htmx.find("dialog input[name=passwd2]").pattern = v;
+        });
+        htmx.on("#dialog-done", "click", _ => {
+            const passwd1 = htmx.find("dialog input[name=passwd1]");
+            const passwd2 = htmx.find("dialog input[name=passwd2]");
+            if (passwd1.validity.valid && passwd2.validity.valid && passwd1.value !== "" && passwd1.value === passwd2.value) {
+                htmx.ajax("PUT", "{{request.env.REQUEST_URI}}", {
+                    values: {
+                        passwd: passwd1.value
+                    },
+                    swap: "none"
+                });
+            }
+        });
+        function toggle()
+        {
+            const t = htmx.find("dialog input[name=passwd1]").type;
+            htmx.find("dialog input[name=passwd1]").type = t === "text" ? "password" : "text";
+            htmx.find("dialog input[name=passwd2]").type = t === "text" ? "password" : "text";
+        }
+        htmx.on("dialog input[name=passwd1] + button", "click", toggle);
+        htmx.on("dialog input[name=passwd2] + button", "click", toggle);
+    })();
+    </script>
+</dialog>

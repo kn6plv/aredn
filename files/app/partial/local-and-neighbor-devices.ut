@@ -76,10 +76,10 @@
                     const lq = link.lossMultiplier ? (int(100 * link.linkQuality * 65536 / link.lossMultiplier) + "%"): "-";
                     const nlq = link.lossMultiplier ? (int(100 * link.neighborLinkQuality * 65536 / link.lossMultiplier) + "%") : "-";
                     if (tracker.hostname) {
-                        print(`<div style='flex:0.75'><a title='Link status: ${status}' href='http://${tracker.hostname}.local.mesh'>${tracker.hostname}</a></div>`);
+                        print(`<div style='flex:0.75'><a onclick="event.stopPropagation()" title='Link status: ${status}' href='http://${tracker.hostname}.local.mesh'>${tracker.hostname}</a></div>`);
                     }
                     else {
-                        print(`<div style='flex:0.75'><a title='Link status: ${status}' href='http://${tracker.ip}'>${tracker.ip}</a></div>`);
+                        print(`<div style='flex:0.75'><a onclick="event.stopPropagation()" title='Link status: ${status}' href='http://${tracker.ip}'>${tracker.ip}</a></div>`);
                     }
                     print("<div class='ts cols stats'>");
                     print(`<div>${lq}</div><div>${nlq}</div><div></div><div></div><div>${100 - tracker.quality}%</div><div></div><div></div>`);
@@ -132,10 +132,10 @@
                         break;
                 }
                 if (tracker.hostname) {
-                    print(`<div style='flex:0.75'><a title='${title}status: ${status}' href='http://${tracker.hostname}.local.mesh'>${tracker.hostname}<div class="icon ${icon}"></div></a></div>`);
+                    print(`<div style='flex:0.75'><a onclick="event.stopPropagation()" title='${title}status: ${status}' href='http://${tracker.hostname}.local.mesh'>${tracker.hostname}<div class="icon ${icon}"></div></a></div>`);
                 }
                 else {
-                    print(`<div style='flex:0.75'><a title='${title}status: ${status}' href='http://${tracker.ip}'>${tracker.ip}<div class="icon ${icon}"></div></a></div>`);
+                    print(`<div style='flex:0.75'><a onclick="event.stopPropagation()" title='${title}status: ${status}' href='http://${tracker.ip}'>${tracker.ip}<div class="icon ${icon}"></div></a></div>`);
                 }
                 print("<div class='ts cols stats'>");
                 let d = "-";

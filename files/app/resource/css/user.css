@@ -182,6 +182,7 @@ body.authenticated .ctrl:hover
 }
 #local-and-neighbor-devices
 {
+    container-type: inline-size;
 }
 
 #c3
@@ -190,6 +191,7 @@ body.authenticated .ctrl:hover
     flex-direction: column;
     flex: 4;
     padding: 20px 0 0 5px;
+    container-type: inline-size;
 }
 #radio-and-antenna
 {
@@ -208,6 +210,17 @@ body.authenticated .ctrl:hover
 {
     display: flex;
     flex-direction: column;
+}
+@container (width < 400px)
+{
+    #dhcp .t
+    {
+        font-size: 12px;
+    }
+    #dhcp .ts
+    {
+        font-size: 10px;
+    }
 }
 
 /* -- end overall layout -- */
@@ -373,6 +386,17 @@ body.authenticated .ctrl:hover
 
 /* -- start local and neighborhood devices layout -- */
 
+@container (width < 450px)
+{
+    #local-and-neighbor-devices .section
+    {
+        font-size: 12px;
+    }
+    #local-and-neighbor-devices .ts
+    {
+        font-size: 10px;
+    }
+}
 #local-and-neighbor-devices .stats
 {
     text-align: right;
@@ -595,6 +619,7 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
     background-color: var(--nav-bg-color);
     border-bottom-left-radius: 10px;
     border-top: 1px solid var(--ctrl-modal-bg-tertiary-color);
+    z-index: 1;
 }
 #login-icon .menu > div,
 #logout-icon .menu > div
@@ -611,6 +636,11 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
 #logout-icon .menu > div:hover
 {
     color: var(--login-menu-fg-select-color);
+}
+#login-icon .menu a,
+#logout-icon .menu a
+{
+    color: inherit;
 }
 
 #login
@@ -984,6 +1014,10 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
 .icon.globe
 {
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" /></svg>') !important;
+}
+.icon.eye
+{
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" /><path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 0 1 0-1.113ZM17.25 12a5.25 5.25 0 1 1-10.5 0 5.25 5.25 0 0 1 10.5 0Z" clip-rule="evenodd" /></svg>') !important;
 }
 
 /* end icons */
