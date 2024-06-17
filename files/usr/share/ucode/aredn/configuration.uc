@@ -16,6 +16,7 @@ const configDirs = [
     "/etc/local",
     "/etc/local/uci",
     "/etc/aredn_include",
+    "/etc/dropbear",
     "/tmp"
 ];
 const configFiles = [
