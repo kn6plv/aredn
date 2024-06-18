@@ -249,7 +249,7 @@ const po = getPackageOptions();
                 <progress value="0" max="100">
             </div>
             <div style="flex:0">
-                <button id="fetch-and-update" disabled hx-trigger="none" hx-encoding="multipart/form-data">Fetch and Update</button>
+                <button id="fetch-and-update" disabled hx-trigger="none" hx-encoding="multipart/form-data">Fetch and Install</button>
             </div>
         </div>
     </div>
@@ -257,7 +257,7 @@ const po = getPackageOptions();
     <script>
     (function(){
         htmx.on("#package-update input[type='file']", "change", e => {
-            htmx.find("#fetch-and-update").innerText = "Fetch and Update";
+            htmx.find("#fetch-and-update").innerText = "Fetch and Install";
             htmx.find("#download-package").value = "-";
             htmx.find("#remove-package").value = "-";
             htmx.find("#package-info").innerHTML = "";
@@ -269,7 +269,7 @@ const po = getPackageOptions();
             }
         });
         htmx.on("#download-package", "change", e => {
-            htmx.find("#fetch-and-update").innerText = "Fetch and Update";
+            htmx.find("#fetch-and-update").innerText = "Fetch and Install";
             htmx.find("#package-info").innerHTML = "";
             htmx.find("#remove-package").value = "-";
             htmx.find("#package-update input[type=file]").value = null;
@@ -346,7 +346,7 @@ const po = getPackageOptions();
             htmx.find("#dialog-messages-success").innerHTML = "";
             htmx.find("#package-update input[type=file]").value = null;
             htmx.find("#fetch-and-update").disabled = true;
-            htmx.find("#fetch-and-update").innerText = "Fetch and Update";
+            htmx.find("#fetch-and-update").innerText = "Fetch and Install";
             htmx.find("#package-info").innerHTML = "";
             const source = new EventSource("{{request.env.REQUEST_URI}}?v=update");
             source.addEventListener("close", e => {

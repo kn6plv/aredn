@@ -440,7 +440,7 @@
                     <div class="m">Maximum packet size in bytes sent over WiFi (256 to 1500 or leave blank for the default)</div>
                 </div>
                 <div style="flex:0">
-                    <input hx-put="{{request.env.REQUEST_URI}}" name="radio_mtu" type="text" size="4" pattern="(25[6-9]|2[6-9]\d|[3-9]\d{2}|1[0-4]\d{2}|1500)" value="{{uciMesh.get("aredn", "@lqm[0]", "mtu")}}">
+                    <input hx-put="{{request.env.REQUEST_URI}}" name="radio_mtu" type="text" size="4" pattern="(25[6-9]|2[6-9]\d|[3-9]\d{2}|1[0-4]\d{2}|1500)" placeholder="1500" value="{{uciMesh.get("aredn", "@lqm[0]", "mtu")}}">
                 </div>
             </div>
             <div class="cols">
