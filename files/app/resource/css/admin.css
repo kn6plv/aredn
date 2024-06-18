@@ -1214,6 +1214,7 @@
 #wifi-bar .bars div div
 {
     display: inline-block;
+    width: 24px;
     vertical-align: top;
     padding-right: 5px;
 }
