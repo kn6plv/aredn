@@ -1,0 +1,25 @@
+<div id="all" hx-swap-oob="true">
+    <div class="reboot">
+        <div>
+            <div id="icon-logo""></div>
+            <div></div>
+            <div>AREDN<span>TM</span></div>
+            <div>Amateur Radio Emergency Data Network</div>
+        </div>
+        <div>
+            <div id="firmware-title">Installing Firmware</div>
+            <div id="firmware-msg">Installing the firmware on your node.<br><b>DO NOT REMOVE POWER UNTIL THIS IS COMPLETE.</b></div>
+            <div>
+                <div><progress id="cdprogress" max="300"></div>
+                <div id="countdown">&nbsp;</div>
+            </div>
+        </div>
+        <script>
+            setTimeout(function() {
+                document.getElementById("firmware-title").innerHTML = "Rebooting";
+                document.getElementById("firmware-msg").innerHTML = "<div>Your node is rebooting.<br>This browser will reconnect automatically once complete.</div>";
+            }, 100 * 1000);
+        </script>
+        {{_R("reboot-mon", { delay: 120, countdown: 300, timeout: 5, location: `http://192.168.1.1/` })}}
+    </div>
+</div>

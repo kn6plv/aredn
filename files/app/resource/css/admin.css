@@ -577,9 +577,10 @@
 
 /* services end */
 
-/* reboot start */
+/* reboot and firstuse start */
 
-.reboot
+.reboot,
+.firstuse
 {
     display: flex;
     height: 100%;
@@ -587,22 +588,26 @@
     background-color: white;
     color: black;
 }
-.reboot > div:first-child
+.reboot > div:first-child,
+.firstuse > div:first-child
 {
     flex: 0;
 }
-.reboot > div:nth-child(2)
+.reboot > div:nth-child(2),
+.firstuse > div:nth-child(2)
 {
     display: flex;
     flex-direction: column;
     padding: 64px 172px;
     font-size: 32px;
 }
-.reboot #icon-logo
+.reboot #icon-logo,
+.firstuse #icon-logo
 {
     transform: scale(4) translate(47%,37%);
 }
-.reboot #icon-logo + div + div
+.reboot #icon-logo + div + div,
+.firstuse #icon-logo + div + div
 {
     position: relative;
     margin-top: 107px;
@@ -611,12 +616,14 @@
     line-height: 70px;
     background-color: rgba(255,255,255,0.6);
 }
-.reboot #icon-logo + div + div span
+.reboot #icon-logo + div + div span,
+.firstuse #icon-logo + div + div span
 {
     font-size: 10px;
     line-height: 10px;
 }
-.reboot #icon-logo + div + div + div
+.reboot #icon-logo + div + div + div,
+.firstuse #icon-logo + div + div + div
 {
     font-size: 15px;
     font-weight: bold;
@@ -638,8 +645,84 @@
 {
     width: 100%;
 }
+.firstuse > div:nth-child(2) > div:nth-child(2)
+{
+    font-size: 24px;
+    line-height: 34px;
+    padding-top: 30px;
+}
+.firstuse > div:nth-child(2) > div:nth-child(3)
+{
+    padding-top: 40px;
+    font-size: 20px;
+    line-height: 30px;
+}
+.firstuse > div:nth-child(2) > div:nth-child(3) .cols div:first-child
+{
+    margin: auto 0;
+}
+.firstuse .cols div:nth-child(2)
+{
+    flex: 0;
+}
+.firstuse input[type=text],
+.firstuse input[type=password]
+{
+    width: 350px;
+    font: inherit;
+    margin: 5px;
+    border: 1px solid black;
+    outline: none;
+}
+.firstuse input[type=password]
+{
+    width: 200px;
+}
+.firstuse input[type=text]:invalid,
+.firstuse input[type=password]:invalid
+{
+    border-color: red;
+}
+.firstuse small
+{
+    font-size: 14px;
+}
+.firstuse button
+{
+    width: 200px;
+    padding: 10px;
+    border: 0;
+    margin: 40px 7px 0 0;
+    background-color: green;
+    color: white;
+    font: inherit;
+}
+.firstuse button:disabled
+{
+    background-color: #e0e0e0;
+    color: #c0c0c0;
+}
+.firstuse.ram > div:nth-child(2) > div:nth-child(2) > div:nth-child(2)
+{
+    font-size: 16px;
+    padding-top: 10px;
+}
+.firstuse.ram > div:nth-child(2) > div:nth-child(2) > div:nth-child(3)
+{
+    font-size: 18px;
+    padding-top: 10px;
+}
+.firstuse.ram input[type=file]
+{
+    width: 465px;
+    margin-right: 6px;
+    padding: 6px;
+    border: 1px solid black;
+    font: inherit;
+    font-size: 12px;
+}
 
-/* reboot end */
+/* reboot and firstuse end */
 
 /* firmware and package update start */
 

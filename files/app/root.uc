@@ -305,10 +305,24 @@ global.handle_request = function(env)
     const path = match(env.PATH_INFO, /^\/([-a-z]*)(.*)$/);
     const page = path[1] || "status";
     const secured = index(path[2], "/e/") === 0;
+    const firstuse = !!fs.access("/etc/config/unconfigured");
 
     if (path[2] == "" || secured) {
         let tpath;
-        if (secured) {
+        if (firstuse) {
+            tpath = `${config.application}/main/firstuse-ram.ut`;
+            const f = fs.open("/proc/mounts");
+            if (f) {
+                for (let l = f.read("line"); length(l); l = f.read("line")) {
+                    if (index(l, "overlay") !== -1 || index(l, "ext4") !== -1) {
+                        tpath = `${config.application}/main/firstuse.ut`;
+                        break;
+                    }
+                }
+                f.close();
+            }
+        }
+        else if (secured) {
             tpath = `${config.application}/main${env.PATH_INFO}.ut`;
         }
         else {
@@ -412,7 +426,7 @@ global.handle_request = function(env)
                     parser.parse(v);
                 }
             }
-            const response = { statusCode: 200, headers: { "Content-Type": "text/html", "Cache-Control": "no-store" } };
+            const response = { statusCode: 200, headers: { "Content-Type": "text/html", "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*" } };
             const fn = pageCache[tpath] || loadfile(tpath, { raw_mode: false });
             let res = "";
             try {

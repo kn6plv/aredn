@@ -1,0 +1,71 @@
+
+{%
+if (request.env.REQUEST_METHOD === "POST") {
+    print(_R("reboot-firstuse-ram"));
+    response.upgrade = `/usr/local/bin/aredn_sysupgrade -n -q ${request.args.firmwarefile}`;
+    return;
+}
+%}
+<!DOCTYPE>
+<html>
+<head>
+    <link href="/a/css/aredn.css" rel="stylesheet">
+    <link href="/a/css/user.css" rel="stylesheet">
+    <link href="/a/css/admin.css" rel="stylesheet">
+    <script src="/a/js/htmx.min.js"></script>
+    <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+</head>
+<body>
+    <div id="all">
+        <div class="firstuse ram">
+            <div>
+                <div id="icon-logo""></div>
+                <div></div>
+                <div>AREDN<span>TM</span></div>
+                <div>Amateur Radio Emergency Data Network</div>
+            </div>
+            <div>
+                <div>Welcome</div>
+                <div>
+                    <div>Congratulations on booting AREDN&trade;</div>
+                    <div>AREDN&trade; is currently running in RAM. The next step is to install AREDN&trade; into Flash.</div>
+                    <div>Download the <b>sysupgrade.bin</b> file for this device (it should be at the same place your found this
+                    <b>kernel.bin</b> file) and upload it using the file selector below</div>
+                </div>
+                <div>
+                    <div class="cols">
+                        <div>Select Firmware File</div>
+                        <div><input type="file" name="firmware" accept=".bin"></div>
+                    </div>
+                    <div class="cols">
+                        <div></div>
+                        <div><button disabled hx-trigger="none" hx-encoding="multipart/form-data">Upload &amp; Reboot</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    (function(){
+        htmx.on("input[name=firmware]", "change", _ => {
+            if (htmx.find("input[name=firmware]").files[0]) {
+                htmx.find("button").disabled = false;
+            }
+            else {
+                htmx.find("button").disabled = true;
+            }
+        });
+        htmx.on("button", "click", e => {
+            htmx.find("button").disabled = true;
+            htmx.ajax("POST", "{{request.env.REQUEST_URI}}", {
+                source: e.currentTarget,
+                values: {
+                    firmwarefile: htmx.find("input[name=firmware]").files[0],
+                },
+                swap: "none"
+            });
+        });
+    })();
+    </script>
+</body>
+</html>
