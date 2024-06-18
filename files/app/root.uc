@@ -461,6 +461,7 @@ global.handle_request = function(env)
             }
             if (!response.override) {
                 if (index(env.HTTP_ACCEPT_ENCODING || "", "gzip") === -1 || config.debug) {
+                    response.headers["Content-Length"] = `${length(res)}`;
                     uhttpd.send(
                         `Status: ${response.statusCode} OK\r\n`,
                         join("", map(keys(response.headers), k => k + ": " + response.headers[k] + "\r\n")),
@@ -474,11 +475,13 @@ global.handle_request = function(env)
                         fs.writefile(datafile, res);
                         const z = fs.popen("exec /bin/gzip -c " + datafile);
                         try {
+                            res = z.read("all");
+                            response.headers["Content-Length"] = `${length(res)}`;
                             uhttpd.send(
                                 `Status: ${response.statusCode} OK\r\nContent-Encoding: gzip\r\n`,
                                 join("", map(keys(response.headers), k => k + ": " + response.headers[k] + "\r\n")),
                                 "\r\n",
-                                z.read("all")
+                                res
                             );
                         }
                         catch (_) {
@@ -518,7 +521,9 @@ global.handle_request = function(env)
         else {
             uhttpd.send("Cache-Control: max-age=604800\r\n");
         }
-        uhttpd.send("\r\n", fs.readfile(gzrpath));
+        const res = fs.readfile(gzrpath);
+        uhttpd.send(`Content-Length: ${length(res)}\n`);
+        uhttpd.send("\r\n", res);
         return;
     }
 
@@ -542,7 +547,9 @@ global.handle_request = function(env)
         else {
             uhttpd.send("Cache-Control: max-age=604800\r\n");
         }
-        uhttpd.send("\r\n", fs.readfile(rpath));
+        const res = fs.readfile(rpath);
+        uhttpd.send(`Content-Length: ${length(res)}\n`);
+        uhttpd.send("\r\n", res);
         return;
     }
 

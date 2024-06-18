@@ -1,10 +1,6 @@
-
 {%
 if (request.env.REQUEST_METHOD === "PUT") {
-    configuration.prepareChanges();
-    configuration.setName(request.args.name);
-    configuration.setPassword(request.args.passwd);
-    configuration.commitChanges();
+    system(`/usr/local/bin/firstuse-setup '${request.args.name}' '${request.args.passwd}'`);
     response.reboot = true;
     print(_R("reboot-firstuse"));
     return;

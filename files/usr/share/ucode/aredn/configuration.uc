@@ -74,12 +74,20 @@ function initSetup()
                     break;
                 }
                 const kv = split(line, " =");
-                setup[kv[0]] = trim(kv[1]);
-                push(setupKeys, kv[0]);
+                if (length(kv) === 2) {
+                    setup[kv[0]] = trim(kv[1]);
+                    push(setupKeys, kv[0]);
+                }
             }
             f.close();
         }
     }
+};
+
+export function reset()
+{
+    setup = null;
+    cursor = null;
 };
 
 export function getSettingAsString(key, def)

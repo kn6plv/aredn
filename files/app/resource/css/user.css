@@ -242,39 +242,6 @@ body.authenticated .ctrl:hover
     margin: auto 0;
 }
 
-#changes
-{
-    padding-left: 90px;
-    font-size: 16px;
-    color: var(--title-fg-color);
-    text-align: center;
-}
-#changes > div
-{
-    width: 450px;
-    margin-top: 4px;
-    padding: 10px;
-    border: 2px solid var(--firmware-status-bg-color-positive);
-}
-#changes button
-{
-    font: inherit;
-    font-size: 12px;
-    margin: 0 10px;
-    padding: 8px;
-    background-color: transparent;
-}
-#changes button:first-child
-{
-    border: 2px solid var(--firmware-status-bg-color-positive);
-    color: var(--firmware-status-bg-color-positive);
-}
-#changes button:last-child
-{
-    border: 2px solid var(--firmware-status-bg-color-negative);
-    color: var(--firmware-status-bg-color-negative);
-}
-
 /* -- end nav layout -- */
 
 /* -- start general layout -- */

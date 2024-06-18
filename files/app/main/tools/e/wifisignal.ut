@@ -147,6 +147,9 @@ for (let i = 0; i < length(stations); i++) {
         let last = null;
         const maxpoints = 300;
         function p(v) {
+            if (v <= -120) {
+                return "0%';
+            }
             const low = Math.max(sf, 1.05 * smin);
             const range = 0.98 * smax - low;
             return `${Math.min(100, 100 * (v - low) / range)}%`;

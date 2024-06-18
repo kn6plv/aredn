@@ -224,6 +224,46 @@
 
 /* ctrls end */
 
+/* changes start */
+
+#changes
+{
+    position: absolute;
+    left: 0;
+    width: 100%;
+    font-size: 16px;
+    color: var(--title-fg-color);
+    text-align: center;
+}
+#changes > div
+{
+    display: inline-block;
+    width: 450px;
+    margin-top: 4px;
+    padding: 10px;
+    border: 2px solid var(--firmware-status-bg-color-positive);
+}
+#changes button
+{
+    font: inherit;
+    font-size: 12px;
+    margin: 0 10px;
+    padding: 8px;
+    background-color: transparent;
+}
+#changes button:first-child
+{
+    border: 2px solid var(--firmware-status-bg-color-positive);
+    color: var(--firmware-status-bg-color-positive);
+}
+#changes button:last-child
+{
+    border: 2px solid var(--firmware-status-bg-color-negative);
+    color: var(--firmware-status-bg-color-negative);
+}
+
+/* changes end */
+
 /* basics start */
 
 #ctrl-modal dialog.basics .password .cols div:last-child

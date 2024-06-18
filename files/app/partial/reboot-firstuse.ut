@@ -1,4 +1,7 @@
-{% const address = configuration.getSettingAsString("wifi_ip", "192.168.1.1"); %}
+{%
+configuration.reset();
+const address = configuration.getSettingAsString("wifi_ip", "192.168.1.1");
+%}
 <div id="all" hx-swap-oob="true">
     <div class="reboot">
         <div>

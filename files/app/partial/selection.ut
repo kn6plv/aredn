@@ -8,7 +8,7 @@
     {% 
     const ip = (match(fs.readfile("/tmp/dnsmasq.d/supernode.conf"), /^#([0-9.]+)/) || [])[1];
     if (ip) { %}
-    <a title="See what is on the whole AREDN mesh" href="http://{{ip}}/cgi-bin/mesh">
+    <a title="See what is on the whole AREDN mesh" href="http://{{ip}}/a/mesh">
         <div class="icon cloudmesh"></div>
     </a>
     {% } %}
