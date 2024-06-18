@@ -1,0 +1,4 @@
+<div class="dialog-messages">
+    <div id="dialog-messages-error"></div>
+    <div id="dialog-messages-success"></div>
+</div>

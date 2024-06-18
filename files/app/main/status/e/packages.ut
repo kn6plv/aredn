@@ -45,7 +45,7 @@ function recordPackage(op, pkg, file)
     const store = "/etc/package_store";
     const catfile = `${store}/catalog.json`;
     fs.mkdir(store);
-    const catalog = json(fs.readfile(catfile)) || { installed: {} };
+    const catalog = json(fs.readfile(catfile) || '{ "installed": {} }');
     switch (op) {
         case "upload":
             const package = split(pkg, "_")[0];
@@ -82,27 +82,28 @@ if (request.env.REQUEST_METHOD === "POST" && request.args["packagefile.ipk"] && 
     const ipk = request.args["packagefile.ipk"];
     if (system(`/bin/opkg -force-overwrite install ${ipk} > /dev/null 2>&1`) === 0) {
         recordPackage("upload", request.args.packagename, ipk);
-        print(`<div id="package-success" hx-swap-oob="innerHTML">Package installed</div>`);
+        print(`<div id="dialog-messages-success" hx-swap-oob="innerHTML">Package installed</div>`);
     }
     else {
         if (system("/bin/opkg update > /tmp/pkg.log 2>&1") !== 0) {
-            print(`<div id="package-error" hx-swap-oob="innerHTML">${log()}</div>`);
+            print(`<div id="dialog-messages-error" hx-swap-oob="innerHTML">${log()}</div>`);
         }
         else {
             if (system(`/bin/opkg -force-overwrite install ${ipk} > /tmp/pkg.log 2>&1`) === 0) {
                 recordPackage("upload", request.args.name, ipk);
-                print(`<div id="package-success" hx-swap-oob="innerHTML">Package installed</div>`);
+                print(`<div id="dialog-messages-success" hx-swap-oob="innerHTML">Package installed</div>`);
             
             }
             else {
-                print(`<div id="package-error" hx-swap-oob="innerHTML">${log()}</div>`);
+                print(`<div id="dialog-messages-error" hx-swap-oob="innerHTML">${log()}</div>`);
             }
         }
     }
     const po = getPackageOptions();
     print(`<select id="download-package" hx-swap-oob="innerHTML">${po.i}</select>`);
     print(`<select id="remove-package" hx-swap-oob="innerHTML">${po.r}</select>`);
-    fs.unlink(ipk);
+    //fs.unlink(ipk);
+    //fs.unlink("/tmp/pkg.log");
     return;
 }
 else if (request.env.REQUEST_METHOD === "GET" && index(request.env.QUERY_STRING, "d=") === 0) {
@@ -141,13 +142,13 @@ else if (request.env.REQUEST_METHOD === "GET" && index(request.env.QUERY_STRING,
     const ipk = substr(request.env.QUERY_STRING, 2);
     if (system(`/bin/opkg remove ${ipk} > /tmp/pkg.log 2>&1`) === 0) {
         recordPackage("remove", ipk);
-        print(`<div id="package-success" hx-swap-oob="innerHTML">Package removed</div>`);
+        print(`<div id="dialog-messages-success" hx-swap-oob="innerHTML">Package removed</div>`);
         const po = getPackageOptions();
         print(`<select id="download-package" hx-swap-oob="innerHTML">${po.i}</select>`);
         print(`<select id="remove-package" hx-swap-oob="innerHTML">${po.r}</select>`);
     }
     else {
-        print(`<div id="package-error" hx-swap-oob="innerHTML">${log()}</div>`);
+        print(`<div id="dialog-messages-error" hx-swap-oob="innerHTML">${log()}</div>`);
     }
     return;
 }
@@ -197,8 +198,7 @@ const po = getPackageOptions();
 <dialog>
     {{_R("dialog-header", "Packages")}}
     <div id="package-update">
-        <div id="package-error"></div>
-        <div id="package-success"></div>
+        {{_R("dialog-messages")}}
         <div class="cols">
             <div>
                 <div class="o">Download Package</div>
@@ -298,8 +298,8 @@ const po = getPackageOptions();
             }
         });
         htmx.on("#fetch-and-update", "click", e => {
-            htmx.find("#package-error").innerHTML = "";
-            htmx.find("#package-success").innerHTML = "";
+            htmx.find("#dialog-messages-error").innerHTML = "";
+            htmx.find("#dialog-messages-success").innerHTML = "";
             const upload = htmx.find("#package-update input[type=file]").files[0];
             const download = htmx.find("#download-package").value;
             const remove = htmx.find("#remove-package").value;
@@ -319,7 +319,7 @@ const po = getPackageOptions();
                 source.addEventListener("close", e => {
                     source.close();
                     htmx.find("#package-upload progress").setAttribute("value", "0");
-                    htmx.find("#package-success").innerHTML = "Package installed";
+                    htmx.find("#dialog-messages-success").innerHTML = "Package installed";
                     const j = JSON.parse(e.data);
                     htmx.find("#download-package").innerHTML = j.i;
                     htmx.find("#remove-package").innerHTML = j.r;
@@ -327,7 +327,7 @@ const po = getPackageOptions();
                 source.addEventListener("error", e => {
                     source.close();
                     htmx.find("#package-upload progress").setAttribute("value", "0");
-                    htmx.find("#package-error").innerHTML = e.data || "Unknown error";
+                    htmx.find("#dialog-messages-error").innerHTML = e.data || "Unknown error";
                 });
                 source.addEventListener("progress", e => {
                     htmx.find("#package-upload progress").setAttribute("value", e.data);
@@ -340,11 +340,10 @@ const po = getPackageOptions();
                 });
             }
         });
-        htmx.on("#package-refresh button", "click", e => {
-            const target = e.target;
-            target.classList.add("rotate");
-            htmx.find("#package-error").innerHTML = "";
-            htmx.find("#package-success").innerHTML = "";
+        htmx.on("#package-refresh", "click", e => {
+            htmx.find("#package-refresh button").classList.add("rotate");
+            htmx.find("#dialog-messages-error").innerHTML = "";
+            htmx.find("#dialog-messages-success").innerHTML = "";
             htmx.find("#package-update input[type=file]").value = null;
             htmx.find("#fetch-and-update").disabled = true;
             htmx.find("#fetch-and-update").innerText = "Fetch and Update";
@@ -352,7 +351,7 @@ const po = getPackageOptions();
             const source = new EventSource("{{request.env.REQUEST_URI}}?v=update");
             source.addEventListener("close", e => {
                 source.close();
-                target.classList.remove("rotate");
+                htmx.find("#package-refresh button").classList.remove("rotate");
                 htmx.find("#package-upload progress").setAttribute("value", "0");
                 const j = JSON.parse(e.data);
                 htmx.find("#download-package").innerHTML = j.i;
@@ -360,9 +359,9 @@ const po = getPackageOptions();
             });
             source.addEventListener("error", e => {
                 source.close();
-                target.classList.remove("rotate")
+                htmx.find("#package-refresh button").classList.remove("rotate")
                 htmx.find("#package-upload progress").setAttribute("value", "0");
-                htmx.find("#package-error").innerHTML = e.data || "Unknown error";
+                htmx.find("#dialog-messages-error").innerHTML = e.data || "Unknown error";
             });
             source.addEventListener("progress", e => {
                 htmx.find("#package-upload progress").setAttribute("value", e.data);

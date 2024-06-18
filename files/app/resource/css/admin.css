@@ -666,8 +666,7 @@
 {
     width: 100%;
 }
-#firmware-error,
-#package-error
+#dialog-messages-error
 {
     margin: 10px 0;
     padding: 10px;
@@ -683,7 +682,7 @@
     border-radius: 10px;
     margin-bottom: 15px;
 }
-#package-success
+#dialog-messages-success
 {
     margin: 10px 0;
     padding: 10px;
@@ -691,9 +690,8 @@
     color: var(--firmware-status-fg-color);
     background-color: var(--firmware-status-bg-color-positive);
 }
-#firmware-error:empty,
-#package-error:empty,
-#package-success:empty,
+#dialog-messages-error:empty,
+#dialog-messages-success:empty,
 #package-info:empty
 {
     display: none;
