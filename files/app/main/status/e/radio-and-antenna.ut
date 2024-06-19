@@ -1,4 +1,5 @@
-{% if (request.env.REQUEST_METHOD === "PUT") {
+{%
+if (request.env.REQUEST_METHOD === "PUT") {
     configuration.prepareChanges();
     if ("radio0_mode" in request.args || "radio1_mode" in request.args) {
         const wlan = radios.getConfiguration();
@@ -137,7 +138,13 @@
     configuration.saveSettings();
     print(_R("changes"));
     return;
-} %}
+}
+if (request.env.REQUEST_METHOD === "DELETE") {
+    configuration.revertModalChanges();
+    print(_R("changes"));
+    return;
+}
+%}
 {% const wlan = radios.getConfiguration(); %}
 <dialog class="radio-and-antenna">
     {{_R("dialog-header", "Radios &amp; Antennas")}}

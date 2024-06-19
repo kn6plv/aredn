@@ -26,8 +26,7 @@ function loadPorts(type, def)
     f.close();
     return r;
 }
-%}
-{% if (request.env.REQUEST_METHOD === "PUT") {
+if (request.env.REQUEST_METHOD === "PUT") {
     configuration.prepareChanges();
     if ("xlinks" in request.args) {
         const xlinks = {};
@@ -155,43 +154,47 @@ ${type === "wan" ? "\toption gateway '<wan_gw>'" : ""}${type === "lan" ? "\topti
             savePort("dtdlink", nets.dtdlink);
         }
     }
-%}
-{{_R("changes")}}
-{% return; } %}
-{%
-    let haveports = false;
-    let wan_vlan = 0;
-    const ports = hardware.getEthernetPorts();
-    if (length(ports) > 1) {
-        haveports = true;
-        const defnet = hardware.getDefaultNetworkConfiguration();
-        const wan = loadPorts("wan", defnet.wan);
-        const lan = loadPorts("lan", defnet.lan);
-        const dtdlink = loadPorts("dtdlink", defnet.dtdlink);
-        for (let i = 0; i < length(ports); i++) {
-            const v = {
-                name: ports[i],
-                info: hardware.getEthernetPortInfo(ports[i]),
-                dtdlink: dtdlink.ports[ports[i]],
-                lan: lan.ports[ports[i]],
-                wan: wan.ports[ports[i]]
-            };
-            ports[i] = v;
-        }
-        wan_vlan = wan.vlan;
+    print(_R("changes"));
+    return;
+}
+if (request.env.REQUEST_METHOD === "DELETE") {
+    configuration.revertModalChanges();
+    print(_R("changes"));
+    return;
+}
+let haveports = false;
+let wan_vlan = 0;
+const ports = hardware.getEthernetPorts();
+if (length(ports) > 1) {
+    haveports = true;
+    const defnet = hardware.getDefaultNetworkConfiguration();
+    const wan = loadPorts("wan", defnet.wan);
+    const lan = loadPorts("lan", defnet.lan);
+    const dtdlink = loadPorts("dtdlink", defnet.dtdlink);
+    for (let i = 0; i < length(ports); i++) {
+        const v = {
+            name: ports[i],
+            info: hardware.getEthernetPortInfo(ports[i]),
+            dtdlink: dtdlink.ports[ports[i]],
+            lan: lan.ports[ports[i]],
+            wan: wan.ports[ports[i]]
+        };
+        ports[i] = v;
     }
-    const xlinks = [];
-    uciMesh.foreach("xlink", "interface", x => {
-        push(xlinks, {
-            name: x[".name"],
-            vlan: int(split(x.ifname, ".")[1]),
-            ipaddr: x.ipaddr,
-            peer: x.peer || "",
-            weight: int(x.weight),
-            port: match(uciMesh.get("xlink", `${x[".name"]}bridge`, "ports")[0], /^(.+):/)[1],
-            cidr: network.netmaskToCIDR(x.netmask)
-        });
+    wan_vlan = wan.vlan;
+}
+const xlinks = [];
+uciMesh.foreach("xlink", "interface", x => {
+    push(xlinks, {
+        name: x[".name"],
+        vlan: int(split(x.ifname, ".")[1]),
+        ipaddr: x.ipaddr,
+        peer: x.peer || "",
+        weight: int(x.weight),
+        port: match(uciMesh.get("xlink", `${x[".name"]}bridge`, "ports")[0], /^(.+):/)[1],
+        cidr: network.netmaskToCIDR(x.netmask)
     });
+});
 %}
 <dialog>
     {{_R("dialog-header", `${haveports ? "Ports &amp; " : ""}XLinks`)}}

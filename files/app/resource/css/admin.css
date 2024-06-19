@@ -51,9 +51,21 @@
     font-size: 14px;
     color: var(--ctrl-modal-fg-subtitle-color);
 }
-.ctrl-modal-footer button:last-child
+.ctrl-modal-footer #dialog-done
 {
     float: right;
+}
+#dialog-help
+{
+    float: right;
+}
+#dialog-help.enabled
+{
+    background-color: var(--ctrl-modal-bg-secondary-color);
+}
+#dialog-help.enabled:active
+{
+    background-color: var(--ctrl-modal-textbox-bg-color);
 }
 .ctrl-modal-advanced
 {

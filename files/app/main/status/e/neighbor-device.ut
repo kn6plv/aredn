@@ -27,41 +27,45 @@
     uciMesh.set("aredn", "@lqm[0]", "user_blocks", join(",", keys(blockedmacs)));
     uciMesh.set("aredn", "@lqm[0]", "user_allows", join(",", keys(allowedmacs)));
     uciMesh.commit("aredn");
-%}
-{{_R("changes")}}
-{% return; } %}
-{%
-    const selected = substr(request.env.QUERY_STRING, 2);
-    const blockedmacs = {};
-    const user = split(uciMesh.get("aredn", "@lqm[0]", "user_blocks"), ",");
-    for (let i = 0; i < length(user); i++) {
-        blockedmacs[uc(user[i])] = true;
+    print(_R("changes"));
+    return;
+}
+if (request.env.REQUEST_METHOD === "DELETE") {
+    configuration.revertModalChanges();
+    print(_R("changes"));
+    return;
+}
+const selected = substr(request.env.QUERY_STRING, 2);
+const blockedmacs = {};
+const user = split(uciMesh.get("aredn", "@lqm[0]", "user_blocks"), ",");
+for (let i = 0; i < length(user); i++) {
+    blockedmacs[uc(user[i])] = true;
+}
+const usera = split(uciMesh.get("aredn", "@lqm[0]", "user_allows"), ",");
+const allowedmacs = {};
+for (let i = 0; i < length(usera); i++) {
+    allowedmacs[uc(usera[i])] = true;
+}
+const lqmInfo = lqm.get();
+const trackers = lqm.getTrackers();
+const tracker = trackers[selected];
+let neighbor = null;
+if (tracker) {
+    if (allowedmacs[uc(tracker.mac)]) {
+        tracker.user_allow = true;
     }
-    const usera = split(uciMesh.get("aredn", "@lqm[0]", "user_allows"), ",");
-    const allowedmacs = {};
-    for (let i = 0; i < length(usera); i++) {
-        allowedmacs[uc(usera[i])] = true;
+    else if (blockedmacs[uc(tracker.mac)]) {
+        tracker.blocks.user = true;
     }
-    const lqmInfo = lqm.get();
-    const trackers = lqm.getTrackers();
-    const tracker = trackers[selected];
-    let neighbor = null;
-    if (tracker) {
-        if (allowedmacs[uc(tracker.mac)]) {
-            tracker.user_allow = true;
-        }
-        else if (blockedmacs[uc(tracker.mac)]) {
-            tracker.blocks.user = true;
-        }
-        neighbor = { name: tracker.hostname || `|${tracker.ip}`, n: tracker, l: null };
-        const o = olsr.getLinks();
-        for (let i = 0; i < length(o); i++) {
-            if (o[i].remoteIP === tracker.ip) {
-                neighbor.l = o[i];
-                break;
-            }
+    neighbor = { name: tracker.hostname || `|${tracker.ip}`, n: tracker, l: null };
+    const o = olsr.getLinks();
+    for (let i = 0; i < length(o); i++) {
+        if (o[i].remoteIP === tracker.ip) {
+            neighbor.l = o[i];
+            break;
         }
     }
+}
 %}
 <dialog>
     {{_R("dialog-header", "Neighborhood Device")}}

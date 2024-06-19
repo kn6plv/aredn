@@ -1,4 +1,5 @@
-{% if (request.env.REQUEST_METHOD === "PUT") {
+{%
+if (request.env.REQUEST_METHOD === "PUT") {
     configuration.prepareChanges();
     if (request.args.cloudmesh) {
         uciMesh.set("aredn", "@supernode[0]", "support", request.args.cloudmesh === "on" ? "1" : "0");
@@ -37,9 +38,15 @@
         uciMesh.set("aredn", "@alerts[0]", "groups", request.args.message_groups);
     }
     uciMesh.commit("aredn");
+    print(_R("changes"));
+    return;
+}
+if (request.env.REQUEST_METHOD === "DELETE") {
+    configuration.revertModalChanges();
+    print(_R("changes"));
+    return;
+}
 %}
-{{_R("changes")}}
-{% return; } %}
 <dialog>
     {{_R("dialog-header", "Internal Services")}}
     <div>

@@ -1,4 +1,5 @@
-{% if (request.env.REQUEST_METHOD === "PUT") {
+{%
+if (request.env.REQUEST_METHOD === "PUT") {
     configuration.prepareChanges();
     if ("gridsquare" in request.args) {
         if (match(request.args.gridsquare, /^[A-X][A-X]\d\d[a-x][a-x]$/)) {
@@ -21,15 +22,19 @@
         }
     }
     uciMesh.commit("aredn");
-%}
-{{_R("changes")}}
-{% return; } %}
-{%
-    const map = uciMesh.get("aredn", "@location[0]", "map");
-    const lat = uciMesh.get("aredn", "@location[0]", "lat") ?? 37;
-    const lon = uciMesh.get("aredn", "@location[0]", "lon") ?? -122;
-    const gridsquare = uciMesh.get("aredn", "@location[0]", "gridsquare");
-    const mapurl = map ? replace(replace(map, "(lat)", lat), "(lon)", lon) : null;
+    print(_R("changes"));
+    return;
+}
+if (request.env.REQUEST_METHOD === "DELETE") {
+    configuration.revertModalChanges();
+    print(_R("changes"));
+    return;
+}
+const map = uciMesh.get("aredn", "@location[0]", "map");
+const lat = uciMesh.get("aredn", "@location[0]", "lat") ?? 37;
+const lon = uciMesh.get("aredn", "@location[0]", "lon") ?? -122;
+const gridsquare = uciMesh.get("aredn", "@location[0]", "gridsquare");
+const mapurl = map ? replace(replace(map, "(lat)", lat), "(lon)", lon) : null;
 %}
 <dialog>
     {{_R("dialog-header", "Location")}}

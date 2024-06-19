@@ -791,7 +791,7 @@ do
     end
 
     if nodeiface or waniface or lqmstatus then
-        c1 = c1 .. "&nbsp;<small>(" .. ac(ac(nodeiface, waniface), x) .. ")</small>"
+        c1 = c1 .. "&nbsp;<small>(" .. ac(ac(nodeiface, waniface), lqmstatus) .. ")</small>"
     end
 
     -- print node services if any

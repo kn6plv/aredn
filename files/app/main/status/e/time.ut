@@ -1,4 +1,5 @@
-{% if (request.env.REQUEST_METHOD === "PUT") {
+{%
+if (request.env.REQUEST_METHOD === "PUT") {
     configuration.prepareChanges();
     if ("timezone" in request.args) {
         const nt = match(request.args.timezone, /^(.*)\t(.*)$/);
@@ -22,26 +23,30 @@
     }
     configuration.saveSettings();
     uciMesh.commit("aredn");
-%}
-{{_R("changes")}}
-{% return; } %}
-{%
-    const time_zone_name = configuration.getSettingAsString("time_zone_name", "UTC");
-    const tz_db_names = [];
-    const f = fs.open("/etc/zoneinfo");
-    if (f) {
-        for (;;) {
-            const l = rtrim(f.read("line"));
-            if (!length(l)) {
-                break;
-            }
-            const nt = split(l, "\t");
-            push(tz_db_names, { name: nt[0], value: l });
+    print(_R("changes"));
+    return;
+}
+if (request.env.REQUEST_METHOD === "DELETE") {
+    configuration.revertModalChanges();
+    print(_R("changes"));
+    return;
+}
+const time_zone_name = configuration.getSettingAsString("time_zone_name", "UTC");
+const tz_db_names = [];
+const f = fs.open("/etc/zoneinfo");
+if (f) {
+    for (;;) {
+        const l = rtrim(f.read("line"));
+        if (!length(l)) {
+            break;
         }
-        f.close();
+        const nt = split(l, "\t");
+        push(tz_db_names, { name: nt[0], value: l });
     }
-    const ntp_server = configuration.getSettingAsString("ntp_server", "");
-    const ntp_mode = uciMesh.get("aredn", "@ntp[0]", "period") || "daily";
+    f.close();
+}
+const ntp_server = configuration.getSettingAsString("ntp_server", "");
+const ntp_mode = uciMesh.get("aredn", "@ntp[0]", "period") || "daily";
 %}
 <dialog>
     {{_R("dialog-header", "Time")}}

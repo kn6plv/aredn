@@ -8,7 +8,8 @@
     <div class="s">lan address</div>
     {%
         let validWan = false;
-        if (uci.get("network", "wan", "proto") == "dhcp") {
+        const wan_proto = uci.get("network", "wan", "proto");
+        if (wan_proto === "dhcp") {
             const ifaces = ubus.call("network.interface", "dump").interface;
             for (let i = 0; i < length(ifaces); i++) {
                 if (ifaces[i].interface === "wan" && ifaces[i]["ipv4-address"]) {
@@ -22,7 +23,7 @@
                 }
             }
         }
-        else {
+        else if (wan_proto === "static") {
             print("<div class='t'>" + uci.get("network", "wan", "ipaddr") + "</div>");
             print("<div class='s'>wan address (static)</div>");
             print("<div class='t'>" + uci.get("network", "wan", "gateway") + "</div>");

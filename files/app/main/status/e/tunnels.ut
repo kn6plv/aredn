@@ -1,4 +1,5 @@
-{% if (request.env.REQUEST_METHOD === "PUT") {
+{%
+if (request.env.REQUEST_METHOD === "PUT") {
     configuration.prepareChanges();
     if ("tunnel_server" in request.args) {
         uciMesh.set("vtun", "@network[0]", "dns", request.args.tunnel_server);
@@ -97,120 +98,124 @@
         uciMesh.commit("vtun");
         uciMesh.commit("wireguard");
     }
-%}
-{{_R("changes")}}
-{% return; } %}
-{%
-    const available = { l: {}, w: {} };
-    const l = iptoarr(uciMesh.get("vtun", "@network[0]", "start"));
-    const w = [ l[0], l[1], (l[2] === 255 ? 0 : l[2] + 1), l[3] ];
-    for (let i = 0; i < 62; i++) {
-        available.l[`${l[0]}.${l[1]}.${l[2]}.${l[3]}`] = 1;
-        l[3] += 4;
-        if (l[3] >= 252) {
-            l[2]++;
-            l[3] = 4;
+    print(_R("changes"));
+    return;
+}
+if (request.env.REQUEST_METHOD === "DELETE") {
+    configuration.revertModalChanges();
+    print(_R("changes"));
+    return;
+}
+const available = { l: {}, w: {} };
+const l = iptoarr(uciMesh.get("vtun", "@network[0]", "start"));
+const w = [ l[0], l[1], (l[2] === 255 ? 0 : l[2] + 1), l[3] ];
+for (let i = 0; i < 62; i++) {
+    available.l[`${l[0]}.${l[1]}.${l[2]}.${l[3]}`] = 1;
+    l[3] += 4;
+    if (l[3] >= 252) {
+        l[2]++;
+        l[3] = 4;
+    }
+}
+let p = uciMesh.get("aredn", "@supernode[0]", "enable") === 1 ? 6526 : 5525;
+for (let i = 0; i < 126; i++) {
+    available.w[`${w[0]}.${w[1]}.${w[2]}.${w[3]}:${p}`] = 1;
+    w[3] += 2;
+    if (w[3] >= 254) {
+        w[2]++;
+        w[3] = 2;
+    }
+    p++;
+}
+const up = { lg: {}, wg: [] };
+let f = fs.popen("ps -w | grep vtun | grep ' tun '");
+if (f) {
+    for (;;) {
+        const l = f.read("line");
+        if (!length(l)) {
+            break;
+        }
+        const m = match(l, /.*:.*-(172-.*) tun tun/);
+        if (m) {
+            up.lg[replace(m[1], "-", ".")] = true;
         }
     }
-    let p = uciMesh.get("aredn", "@supernode[0]", "enable") === 1 ? 6526 : 5525;
-    for (let i = 0; i < 126; i++) {
-        available.w[`${w[0]}.${w[1]}.${w[2]}.${w[3]}:${p}`] = 1;
-        w[3] += 2;
-        if (w[3] >= 254) {
-            w[2]++;
-            w[3] = 2;
+    f.close();
+}
+const handshaketime = time();
+f = fs.popen("/usr/bin/wg show all latest-handshakes");
+if (f) {
+    for (;;) {
+        const l = f.read("line");
+        if (!length(l)) {
+            break;
         }
-        p++;
-    }
-    const up = { lg: {}, wg: [] };
-    let f = fs.popen("ps -w | grep vtun | grep ' tun '");
-    if (f) {
-        for (;;) {
-            const l = f.read("line");
-            if (!length(l)) {
-                break;
-            }
-            const m = match(l, /.*:.*-(172-.*) tun tun/);
-            if (m) {
-                up.lg[replace(m[1], "-", ".")] = true;
-            }
+        const m = split(l, /\t/);
+        if (m && int(m[2]) + 300 > handshaketime) {
+            push(up.wg, m[1]);
         }
-        f.close();
     }
-    const handshaketime = time();
-    f = fs.popen("/usr/bin/wg show all latest-handshakes");
-    if (f) {
-        for (;;) {
-            const l = f.read("line");
-            if (!length(l)) {
-                break;
-            }
-            const m = split(l, /\t/);
-            if (m && int(m[2]) + 300 > handshaketime) {
-                push(up.wg, m[1]);
-            }
-        }
-        f.close();
-    }
-    const tunnels = [];
-    uciMesh.foreach("vtun", "server", a => {
-        const wireguard = index(a.node, ":") !== -1;
-        push(tunnels, {
-            index: a[".name"],
-            type: wireguard ? "wc" : "lc",
-            name: a.host,
-            enabled: a.enabled === "1",
-            notes: a.comment || "",
-            network: a.netip,
-            passwd: a.passwd,
-            up: wireguard ? (length(filter(up.wg, v => index(a.key, v) !== -1)) === 0 ? false : true) : (up.lg[a.netip] ? true : false)
-        });
-        delete available.l[a.clientip];
-        delete available.w[a.clientip];
+    f.close();
+}
+const tunnels = [];
+uciMesh.foreach("vtun", "server", a => {
+    const wireguard = index(a.node, ":") !== -1;
+    push(tunnels, {
+        index: a[".name"],
+        type: wireguard ? "wc" : "lc",
+        name: a.host,
+        enabled: a.enabled === "1",
+        notes: a.comment || "",
+        network: a.netip,
+        passwd: a.passwd,
+        up: wireguard ? (length(filter(up.wg, v => index(a.key, v) !== -1)) === 0 ? false : true) : (up.lg[a.netip] ? true : false)
     });
-    uciMesh.foreach("vtun", "client", a => {
-        const n = iptoarr(a.netip);
-        const remove = `-${n[0]}-${n[1]}-${n[2]}-${n[3]}`;
-        push(tunnels, {
-            index: a[".name"],
-            type: "ls",
-            name: replace(a.name, remove, ""),
-            enabled: a.enabled === "1",
-            notes: a.comment || "",
-            network: a.netip,
-            passwd: a.passwd,
-            up: up.lg[a.netip] ? true : false
-        });
-        delete available.l[a.clientip];
+    delete available.l[a.clientip];
+    delete available.w[a.clientip];
+});
+uciMesh.foreach("vtun", "client", a => {
+    const n = iptoarr(a.netip);
+    const remove = `-${n[0]}-${n[1]}-${n[2]}-${n[3]}`;
+    push(tunnels, {
+        index: a[".name"],
+        type: "ls",
+        name: replace(a.name, remove, ""),
+        enabled: a.enabled === "1",
+        notes: a.comment || "",
+        network: a.netip,
+        passwd: a.passwd,
+        up: up.lg[a.netip] ? true : false
     });
-    uciMesh.foreach("wireguard", "client", a => {
-        push(tunnels, {
-            index: a[".name"],
-            type: "ws",
-            name: a.name,
-            enabled: a.enabled === "1",
-            notes: a.comment || "",
-            network: a.clientip,
-            passwd: a.key,
-            up: length(filter(up.wg, v => index(a.key, v) !== -1)) === 0 ? false : true
-        });
-        delete available.w[a.clientip];
+    delete available.l[a.clientip];
+});
+uciMesh.foreach("wireguard", "client", a => {
+    push(tunnels, {
+        index: a[".name"],
+        type: "ws",
+        name: a.name,
+        enabled: a.enabled === "1",
+        notes: a.comment || "",
+        network: a.clientip,
+        passwd: a.key,
+        up: length(filter(up.wg, v => index(a.key, v) !== -1)) === 0 ? false : true
     });
-    function t2t(type)
-    {
-        switch (type) {
-            case "ws":
-                return "Wireguard<br>Server";
-            case "wc":
-                return "Wireguard<br>Client";
-            case "ls":
-                return "Legacy<br>Server";
-            case "lc":
-                return "Legacy<br>Client";
-            default:
-                return type;
-        }
+    delete available.w[a.clientip];
+});
+function t2t(type)
+{
+    switch (type) {
+        case "ws":
+            return "Wireguard<br>Server";
+        case "wc":
+            return "Wireguard<br>Client";
+        case "ls":
+            return "Legacy<br>Server";
+        case "lc":
+            return "Legacy<br>Client";
+        default:
+            return type;
     }
+}
 %}
 <dialog>
     {{_R("dialog-header", "Tunnels")}}

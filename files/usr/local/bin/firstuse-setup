@@ -72,6 +72,8 @@ do
             line = "wifi_channel = " .. defaultwifi.channel
         elseif line:match("^wifi_chanbw") then
             line = "wifi_chanbw = " .. defaultwifi.bandwidth
+        elseif line:match("^wifi_intf") then
+            line = "wifi_intf = wlan0"
         end
     end
     lines[#lines + 1] = line

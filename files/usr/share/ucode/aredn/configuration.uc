@@ -10,6 +10,7 @@ let setupChanged = false;
 let firmwareVersion = null;
 
 const currentConfig = "/tmp/config.current";
+const modalConfig = "/tmp/config.modal";
 const configDirs = [
     "/etc",
     "/etc/config.mesh",
@@ -233,20 +234,65 @@ export function getDHCP(mode)
     }
 };
 
+function copyConfig(configRoot)
+{
+    fs.mkdir(configRoot);
+    for (let i = 0; i < length(configDirs); i++) {
+        fs.mkdir(`${configRoot}${configDirs[i]}`);
+    }
+    for (let i = 0; i < length(configFiles); i++) {
+        const entry = configFiles[i];
+        if (fs.access(entry)) {
+            fs.writefile(`${configRoot}${entry}`, fs.readfile(entry));
+        }
+    }
+};
+
+function removeConfig(configRoot)
+{
+    for (let i = 0; i < length(configFiles); i++) {
+        fs.unlink(`${configRoot}${configFiles[i]}`);
+    }
+    for (let i = length(configDirs) - 1; i >= 0; i--) {
+        fs.rmdir(`${configRoot}${configDirs[i]}`);
+    }
+    fs.rmdir(configRoot);
+};
+
+function revertConfig(configRoot)
+{
+    if (fs.access(`${configRoot}/etc/config.mesh/_setup`)) {
+        for (let i = 0; i < length(configFiles); i++) {
+            const to = configFiles[i];
+            const from = `${configRoot}${to}`;
+            if (fs.access(from)) {
+                fs.writefile(to, fs.readfile(from));
+                fs.unlink(from);
+            }
+            else {
+                fs.unlink(to);
+            }
+        }
+        for (let i = length(configDirs) - 1; i >= 0; i--) {
+            fs.rmdir(`${configRoot}${configDirs[i]}`);
+        }
+        fs.rmdir(currentConfig);
+    }
+};
+
 export function prepareChanges()
 {
     if (!fs.access(`${currentConfig}/etc/config.mesh/_setup`)) {
-        fs.mkdir(currentConfig);
-        for (let i = 0; i < length(configDirs); i++) {
-            fs.mkdir(`${currentConfig}${configDirs[i]}`);
-        }
-        for (let i = 0; i < length(configFiles); i++) {
-            const entry = configFiles[i];
-            if (fs.access(entry)) {
-                fs.writefile(`${currentConfig}${entry}`, fs.readfile(entry));
-            }
-        }
+        copyConfig(currentConfig);
     }
+};
+
+export function prepareModalChanges()
+{
+    if (fs.access(`${modalConfig}/etc/config.mesh/_setup`)) {
+        removeConfig(modalConfig);
+    }
+    copyConfig(modalConfig);
 };
 
 function fileChanges(from, to)
@@ -279,13 +325,8 @@ export function commitChanges()
             fs.mkdir("/tmp/reboot-required");
             fs.writefile("/tmp/reboot-required/reboot", "");
         }
-        for (let i = 0; i < length(configFiles); i++) {
-            fs.unlink(`${currentConfig}${configFiles[i]}`);
-        }
-        for (let i = length(configDirs) - 1; i >= 0; i--) {
-            fs.rmdir(`${currentConfig}${configDirs[i]}`);
-        }
-        fs.rmdir(currentConfig);
+        removeConfig(modalConfig);
+        removeConfig(currentConfig);
         if (fs.access("/tmp/newpassword")) {
             const pw = fs.readfile("/tmp/newpassword");
             system(`{ echo '${pw}'; sleep 1; echo '${pw}'; } | passwd > /dev/null 2>&1`);
@@ -307,23 +348,12 @@ export function commitChanges()
 
 export function revertChanges()
 {
-    if (fs.access(`${currentConfig}/etc/config.mesh/_setup`)) {
-        for (let i = 0; i < length(configFiles); i++) {
-            const to = configFiles[i];
-            const from = `${currentConfig}${to}`;
-            if (fs.access(from)) {
-                fs.writefile(to, fs.readfile(from));
-                fs.unlink(from);
-            }
-            else {
-                fs.unlink(to);
-            }
-        }
-        for (let i = length(configDirs) - 1; i >= 0; i--) {
-            fs.rmdir(`${currentConfig}${configDirs[i]}`);
-        }
-        fs.rmdir(currentConfig);
-    }
+    revertConfig(currentConfig);
+};
+
+export function revertModalChanges()
+{
+    revertConfig(modalConfig);
 };
 
 export function countChanges()

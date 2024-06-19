@@ -1,4 +1,5 @@
-{% if (request.env.REQUEST_METHOD === "PUT") {
+{%
+if (request.env.REQUEST_METHOD === "PUT") {
     configuration.prepareChanges();
     if ("mesh_ip" in request.args) {
         if (match(request.args.mesh_ip, constants.reIP)) {
@@ -97,17 +98,21 @@
     }
     uciMesh.commit("aredn");
     configuration.saveSettings();
-%}
-{{_R("changes")}}
-{% return; } %}
-{%
-    const dmz_mode = configuration.getSettingAsInt("dmz_mode", 3);
-    const dhcp = configuration.getDHCP("nat");
-    const wan_proto = configuration.getSettingAsString("wan_proto", "disabled");
-    const wan_iface = split(configuration.getSettingAsString("wan_intf", ""), ".");
-    const wan_vlan = wan_iface[1] ? wan_iface[1] : "";
-    const gateway_nat = dmz_mode !== 1 ? dhcp.gateway : "172.27.0.1";
-    const gateway_altnet = dmz_mode === 1 ? dhcp.gateway : "";
+    print(_R("changes"));
+    return;
+}
+if (request.env.REQUEST_METHOD === "DELETE") {
+    configuration.revertModalChanges();
+    print(_R("changes"));
+    return;
+}
+const dmz_mode = configuration.getSettingAsInt("dmz_mode", 3);
+const dhcp = configuration.getDHCP("nat");
+const wan_proto = configuration.getSettingAsString("wan_proto", "disabled");
+const wan_iface = split(configuration.getSettingAsString("wan_intf", ""), ".");
+const wan_vlan = wan_iface[1] ? wan_iface[1] : "";
+const gateway_nat = dmz_mode !== 1 ? dhcp.gateway : "172.27.0.1";
+const gateway_altnet = dmz_mode === 1 ? dhcp.gateway : "";
 %}
 <dialog>
     {{_R("dialog-header", "Network")}}

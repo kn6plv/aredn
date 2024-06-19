@@ -403,7 +403,7 @@
             </div>
         </div>
     </div>
-    {{_R("dialog-footer")}}
+    {{_R("dialog-footer", "nocancel" )}}
     <script>
     (function(){
         htmx.on("#firmware-update input[type='file']", "change", e => {

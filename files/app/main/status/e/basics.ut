@@ -67,6 +67,11 @@ if (request.env.REQUEST_METHOD === "PUT") {
     print(_R("changes"));
     return;
 }
+if (request.env.REQUEST_METHOD === "DELETE") {
+    configuration.revertModalChanges();
+    print(_R("changes"));
+    return;
+}
 %}
 <dialog class="basics">
     {{_R("dialog-header", "Name &amp; Security")}}
