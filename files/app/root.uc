@@ -79,6 +79,8 @@ if (!config.debug) {
         }
     }
     resourceVersions.themecss = cthemeversion;
+    fs.unlink(`${config.application}/resource/css/theme.version`);
+    fs.symlink(cthemeversion, `${config.application}/resource/css/theme.version`);
 }
 
 global._R = function(path, arg)

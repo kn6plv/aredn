@@ -11,17 +11,7 @@
     <script src="/a/js/htmx.min.js"></script>
     {% } %}
     {% } else {
-        const t = fs.readlink(`${config.application}/resource/css/theme.css`);
-        if (t) {
-            const f = fs.popen(`echo ${config.application}/resource/css/${t}.*.gz`);
-            if (f) {
-                const m = match(f.read("all"), /\.css\.(.+)\.gz/);
-                if (m) {
-                    versions.themecss = m[1];
-                }
-                f.close();
-            }
-        }
+        versions.themecss = fs.readlink(`${config.application}/resource/css/theme.version`);
     %}
     <link href="http://localnode.local.mesh/a/css/theme.css.{{versions.themecss}}" rel="stylesheet" onerror="s=document.createElement('link');s.rel='stylesheet';s.href='/a/css/theme.css.{{versions.themecss}}';document.head.appendChild(s)">
     <link href="http://localnode.local.mesh/a/css/user.css.{{versions.usercss}}" rel="stylesheet" onerror="s=document.createElement('link');s.rel='stylesheet';s.href='/a/css/user.css.{{versions.usercss}}';document.head.appendChild(s)">

@@ -26,7 +26,8 @@ if (request.env.REQUEST_METHOD === "PUT" && request.args.theme) {
             for (let i = 0; i < length(themes); i++) {
                 const m = match(themes[i], re);
                 if (m) {
-                    versions.themecss = m[1];
+                    fs.unlink(`${config.application}/resource/css/theme.version`);
+                    fs.symlink(m[1], `${config.application}/resource/css/theme.version`);
                     break;
                 }
             }
