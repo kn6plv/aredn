@@ -278,6 +278,10 @@
 
 /* basics start */
 
+#ctrl-modal dialog.basics select[name=theme]
+{
+    text-transform: capitalize;
+}
 #ctrl-modal dialog.basics .password .cols div:last-child
 {
     position: relative;

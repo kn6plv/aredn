@@ -8,7 +8,6 @@ body
     height: 100%;
     margin: 0;
     padding: 0;
-    background-color: black;
     font-family: var(--font-family);
 }
 hr
@@ -660,7 +659,7 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
 }
 #messages .section-title
 {
-    color: black;
+    color: var(--message-fg-color);
 }
 #messages .section > div
 {

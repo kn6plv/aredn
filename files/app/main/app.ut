@@ -4,14 +4,26 @@
 <html>
 <head>
     {% if (config.debug) { %}
-    <link href="/a/css/aredn.css" rel="stylesheet">
+    <link href="/a/css/theme.css" rel="stylesheet">
     <link href="/a/css/user.css" rel="stylesheet">
     {% if (auth.isAdmin) { %}
     <link href="/a/css/admin.css" rel="stylesheet">
     <script src="/a/js/htmx.min.js"></script>
     {% } %}
-    {% } else { %}
-    <link href="http://localnode.local.mesh/a/css/aredn.css.{{versions.aredncss}}" rel="stylesheet" onerror="s=document.createElement('link');s.rel='stylesheet';s.href='/a/css/aredn.css.{{versions.aredncss}}';document.head.appendChild(s)">
+    {% } else {
+        const t = fs.readlink(`${config.application}/resource/css/theme.css`);
+        if (t) {
+            const f = fs.popen(`echo ${config.application}/resource/css/${t}.*.gz`);
+            if (f) {
+                const m = match(f.read("all"), /\.css\.(.+)\.gz/);
+                if (m) {
+                    versions.themecss = m[1];
+                }
+                f.close();
+            }
+        }
+    %}
+    <link href="http://localnode.local.mesh/a/css/theme.css.{{versions.themecss}}" rel="stylesheet" onerror="s=document.createElement('link');s.rel='stylesheet';s.href='/a/css/theme.css.{{versions.themecss}}';document.head.appendChild(s)">
     <link href="http://localnode.local.mesh/a/css/user.css.{{versions.usercss}}" rel="stylesheet" onerror="s=document.createElement('link');s.rel='stylesheet';s.href='/a/css/user.css.{{versions.usercss}}';document.head.appendChild(s)">
     {% if (auth.isAdmin) { %}
     <link href="http://localnode.local.mesh/a/css/admin.css.{{versions.admincss}}" rel="stylesheet" onerror="s=document.createElement('link');s.rel='stylesheet';s.href='/a/css/admin.css.{{versions.admincss}}';document.head.appendChild(s)">

@@ -22,6 +22,10 @@ const resourceVersions = {};
 
 log.openlog("uhttpd.aredn", log.LOG_PID, log.LOG_USER);
 
+if (!fs.access(`${config.application}/resource/css/theme.css`)) {
+    fs.symlink("themes/default.css", `${config.application}/resource/css/theme.css`);
+}
+
 if (!config.debug) {
     function cp(path) {
         const dir = fs.opendir(`${config.application}${path}`);
@@ -57,9 +61,24 @@ if (!config.debug) {
     }
     prepareResource("usercss", "css/user.css");
     prepareResource("admincss", "css/admin.css");
-    prepareResource("aredncss", "css/aredn.css");
+    prepareResource("themecss", "css/theme.css");
     prepareResource("htmx", "js/htmx.min.js");
     prepareResource("meshpage", "js/meshpage.js");
+    let cthemeversion = null;
+    const ctheme = fs.readlink(`${config.application}/resource/css/theme.css`);
+    const themes = fs.lsdir(`${config.application}/resource/css/themes`);
+    for (let i = 0; i < length(themes); i++) {
+        const theme = themes[i];
+        if (match(theme, /^.*\.css$/)) {
+            prepareResource("themecss", `css/themes/${theme}`);
+            if (ctheme === `themes/${theme}`) {
+                cthemeversion = resourceVersions.themecss;
+            }
+            fs.unlink(`${config.application}/resource/css/theme.css.${resourceVersions.themecss}.gz`);
+            fs.symlink(`themes/${theme}.${resourceVersions.themecss}.gz`, `${config.application}/resource/css/theme.css.${resourceVersions.themecss}.gz`);
+        }
+    }
+    resourceVersions.themecss = cthemeversion;
 }
 
 global._R = function(path, arg)
