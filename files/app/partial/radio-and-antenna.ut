@@ -19,9 +19,13 @@
                 <div class="t">{{radio[midx].modes[radios.RADIO_MESH].channel}}</div>
                 <div class="s">channel</div>
             </div>
-            <div style="flex:2">
+            <div>
                 <div class="t">{{hardware.getChannelFrequencyRange(radio[midx].iface, radio[midx].modes[radios.RADIO_MESH].channel, radio[midx].modes[radios.RADIO_MESH].bandwidth)}}</div>
                 <div class="s">frequencies</div>
+            </div>
+            <div>
+                <div class="t">{{radio[midx].modes[radios.RADIO_MESH].bandwidth}} MHz</div>
+                <div class="s">bandwidth</div>
             </div>
         </div>
         <div class="cols">

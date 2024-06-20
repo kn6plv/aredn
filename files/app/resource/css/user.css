@@ -283,6 +283,19 @@ body.authenticated .ctrl:hover
 {
     font-size: 12px;
 }
+#general .firmware .s
+{
+    padding-top: 2px;
+}
+#general .firmware .s a
+{
+    color: inherit;
+    text-decoration: none;
+}
+#general .firmware .s a:hover
+{
+    text-decoration: underline;
+}
 #general .firmware-status
 {
     display: inline-block;

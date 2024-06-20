@@ -443,6 +443,7 @@
                     values: {
                         firmwarefile: upload
                     },
+                    target: "#dialog-done",
                     swap: "none"
                 });
             }

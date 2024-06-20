@@ -1,7 +1,4 @@
 <div class="ctrl-modal-footer">
     <hr/>
-    {% if (auth.isAdmin) { %}
-    <button hx-get="{{request.env.REQUEST_URI}}" hx-trigger="click delay:10ms" hx-target="#ctrl-modal" hx-headers='{"Include-Help":"{{includeHelp ? "0" : "1"}}"}'>Help</button>
-    {% } %}
-    <button onclick="document.getElementById('ctrl-modal').innerHTML = ''">Done</button>
+    <button id="dialog-done" onclick="setTimeout(_ => document.getElementById('ctrl-modal').innerHTML = '', 10)">Done</button>
 </div>

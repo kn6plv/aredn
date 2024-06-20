@@ -245,9 +245,10 @@ const auth = {
         if (cookieheader) {
             const ca = split(cookieheader, ";");
             for (let i = 0; i < length(ca); i++) {
-                if (index(ca[i], "authV1=") === 0) {
+                const cookie = trim(ca[i]);
+                if (index(cookie, "authV1=") === 0) {
                     this.initKey();
-                    if (this.key == b64dec(substr(ca[i], 7))) {
+                    if (this.key == b64dec(substr(cookie, 7))) {
                         this.isAdmin = true;
                     }
                     else {
