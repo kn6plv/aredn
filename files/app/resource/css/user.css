@@ -441,6 +441,7 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
     color: var(--service-fg-color);
     font-size: 13px;
     padding: 2px 0;
+    flex-basis: 50%;
 }
 #services .service .status
 {
