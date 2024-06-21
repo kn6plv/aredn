@@ -8,7 +8,7 @@ export function haveMessages()
     if (fs.access("/etc/cron.boot/reinstall-packages") && fs.access("/etc/package_store/catalog.json")) {
         return true;
     }
-    if (fs.access("/tmp/aredn_message") || fs.access("/tmp/local_message")) {
+    if (fs.stat("/tmp/aredn_message")?.size || fs.stat("/tmp/local_message")?.size) {
         return true;
     }
     return false;
