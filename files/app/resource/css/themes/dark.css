@@ -1,5 +1,44 @@
-body
+:root
 {
-    background-color: black;
-    color: white;
+    --font-family:  sans-serif;
+    --default-fg-color: #d8d8d8;
+    --body-bg-color: #282828;
+    --logo-fg-color: hsl(0, 0%, 60%);
+    --nav-bg-color: #181818;
+    --hr-color: #808080;
+
+    --title-fg-color: #e0e0e0;
+    --subtitle-fg-color: #808080;
+
+    --ctrl-bg-color-hover: #202020;
+
+    --ctrl-modal-backdrop-color: rgba(43, 32, 32, 0.7);
+    --ctrl-modal-bg-color: #101010;
+    --ctrl-modal-border-color: #404040;
+    --ctrl-modal-border-color-error: hsl(0, 100%, 37%);
+    --ctrl-modal-fg-title-color: #f0f0f0;
+    --ctrl-modal-fg-subtitle-color: #808080;
+    --ctrl-modal-fg-option-color: #f0f0f0;
+    --ctrl-modal-fg-message-color: #808080;
+    --ctrl-modal-textbox-fg-color: #f0f0f0;
+    --ctrl-modal-textbox-bg-color: #282828;
+    --ctrl-modal-textbox-border-color: #a0a0a0;
+    --ctrl-modal-bg-secondary-color: #383838;
+    --ctrl-modal-bg-tertiary-color: #2c2c2c;
+
+    --conn-fg-color-excellent: #107410;
+
+    --service-icon-filter: invert(86%) sepia(86%) saturate(38%) hue-rotate(322deg) brightness(116%) contrast(69%);
+    --menu-fg-select-color: #1278a5;
+    --icon-filter: invert(75%) sepia(0%) saturate(1338%) hue-rotate(137deg) brightness(86%) contrast(87%);
+    --icon-filter-select: invert(30%) sepia(27%) saturate(4907%) hue-rotate(173deg) brightness(95%) contrast(102%);
+
+    --service-fg-color-status: #f0f0f0;
+    --service-bg-color-status-active: #356535;
+    --service-bg-color-status-inactive: #808080;
+    --service-bg-color-status-disabled: #900000;
+
+    --console-bg-color: #000000;
+    --console-fg-color: #ffffff;
+    --console-border-color: #606060;
 }

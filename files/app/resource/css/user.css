@@ -8,6 +8,8 @@ body
     height: 100%;
     margin: 0;
     padding: 0;
+    color: var(--default-fg-color);
+    background-color: var(--body-bg-color);
     font-family: var(--font-family);
 }
 hr
@@ -22,7 +24,7 @@ hr
 .section-title
 {
     color: var(--section-title-fg-color);
-    font-size: 14px;
+    font-size: 16px;
     font-variant: small-caps;
     padding: 20px 0 10px 0;
 }
@@ -65,7 +67,7 @@ hr + .section-title,
 
 .heading
 {
-    color: var(--heading-fg-color);
+    color: var(--section-title-fg-color);
     font-size: 14px;
     padding-bottom: 6px;
 }
@@ -100,7 +102,7 @@ body.authenticated .ctrl:hover
 {
     padding: 10px;
     margin: -5px;
-    background-color: var(--ctrl-bg-color);
+    background-color: var(--ctrl-bg-color-hover);
 }
 
 /* -- end common layout */
@@ -429,6 +431,7 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
     margin-left: 4px;
     background-position: center center;
     background-repeat: no-repeat;
+    filter: var(--service-icon-filter);
 }
 
 /* -- end local and neighborhood devices layout -- */
@@ -437,7 +440,6 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
 
 #services .service
 {
-    color: var(--service-fg-color);
     font-size: 13px;
     padding: 2px 0;
     flex-basis: 50%;
@@ -605,7 +607,7 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
 #logout-icon .menu > div
 {
     padding: 12px 20px;
-    color: var(--login-menu-fg-color);
+    color: var(--title-fg-color);
 }
 #login-icon:has(input:checked) .menu,
 #logout-icon:has(input:checked) .menu
@@ -615,7 +617,7 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
 #login-icon .menu > div:hover,
 #logout-icon .menu > div:hover
 {
-    color: var(--login-menu-fg-select-color);
+    color: var(--menu-fg-select-color);
 }
 #login-icon .menu a,
 #logout-icon .menu a
@@ -628,10 +630,9 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
     font: inherit;
     font-size: 16px;
     padding: 50px;
-    color: var(--login-fg-color);
-    border: 2px solid var(--login-border-color);
+    color: var(--ctrl-modal-textbox-fg-color);
     border-radius: 20px;
-    background-color: var(--login-bg-color);
+    background-color: var(--ctrl-modal-bg-tertiary-color);
 }
 #login input {
     color: inherit;
@@ -644,7 +645,7 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
 }
 #login::backdrop
 {
-    background-color: var(--login-backdrop-color);
+    background-color: var(--ctrl-modal-backdrop-color);
 }
 
 /* login end */

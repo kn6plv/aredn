@@ -22,6 +22,9 @@ const resourceVersions = {};
 
 log.openlog("uhttpd.aredn", log.LOG_PID, log.LOG_USER);
 
+const light = fs.readfile(`${config.application}/resource/css/themes/light.css`);
+const dark = fs.readfile(`${config.application}/resource/css/themes/dark.css`);
+fs.writefile(`${config.application}/resource/css/themes/default.css`, `${light}@media (prefers-color-scheme: dark) {\n${dark}\n}`);
 if (!fs.access(`${config.application}/resource/css/theme.css`)) {
     fs.symlink("themes/default.css", `${config.application}/resource/css/theme.css`);
 }
