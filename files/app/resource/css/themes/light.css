@@ -46,6 +46,7 @@
     --menu-fg-select-color: #1278a5;
     --icon-filter: invert(75%) sepia(0%) saturate(1338%) hue-rotate(137deg) brightness(86%) contrast(87%);
     --icon-filter-select: invert(30%) sepia(27%) saturate(4907%) hue-rotate(173deg) brightness(95%) contrast(102%);
+    --map-filter: none;
     --meshpage-input-border-color: #808080;
     --meshpage-node-bg-color-hover: rgba(0,0,0,0.05);
     --meshpage-etx-fg-color: #808080;

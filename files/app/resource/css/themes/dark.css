@@ -32,6 +32,7 @@
     --menu-fg-select-color: #1278a5;
     --icon-filter: invert(75%) sepia(0%) saturate(1338%) hue-rotate(137deg) brightness(86%) contrast(87%);
     --icon-filter-select: invert(30%) sepia(27%) saturate(4907%) hue-rotate(173deg) brightness(95%) contrast(102%);
+    --map-filter: grayscale(100%) invert(100%);
 
     --service-fg-color-status: #f0f0f0;
     --service-bg-color-status-active: #356535;

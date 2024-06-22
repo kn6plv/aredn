@@ -8,6 +8,7 @@ body
     height: 100%;
     margin: 0;
     padding: 0;
+    overflow: hidden;
     color: var(--default-fg-color);
     background-color: var(--body-bg-color);
     font-family: var(--font-family);
@@ -361,6 +362,7 @@ body.authenticated .ctrl:hover
 #location .location-image iframe
 {
     border: 1px solid var(--hr-color);
+    filter: var(--map-filter);
 }
 
 /* -- end location layout -- */

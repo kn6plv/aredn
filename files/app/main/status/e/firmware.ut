@@ -426,6 +426,7 @@
         });
         htmx.on("#fetch-and-update", "click", e => {
             htmx.find("#dialog-messages-error").innerHTML = "";
+            htmx.find("#dialog-done").disabled = true;
             const upload = htmx.find("#firmware-update input[type=file]").files[0];
             const download = htmx.find("#download-firmware").value;
             if ({{sideload || false}}) {

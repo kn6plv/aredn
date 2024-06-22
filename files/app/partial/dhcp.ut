@@ -46,6 +46,17 @@
             </div>
             <div></div>
         </div>
+        <div class="cols">
+            <div>
+                <div class="t">0</div>
+                <div class="s">tags</div>
+            </div>
+            <div>
+                <div class="t">0</div>
+                <div class="s">options</div>
+            </div>
+            <div></div>
+        </div>
     </div>
 </div>
 {% } else { %}

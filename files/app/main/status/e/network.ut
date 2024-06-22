@@ -143,7 +143,6 @@ const gateway_altnet = dmz_mode === 1 ? dhcp.gateway : "";
                         <option value="3" {{dhcp.enabled && dmz_mode == 3 ? "selected" : ""}}>5 hosts</option>
                         <option value="4" {{dhcp.enabled && dmz_mode == 4 ? "selected" : ""}}>13 hosts</option>
                         <option value="5" {{dhcp.enabled && dmz_mode == 5 ? "selected" : ""}}>29 hosts</option>
-                        <option value="1" {{dhcp.enabled && dmz_mode == 1 ? "selected" : ""}}>AltNET</option>
                     </select>
                 </div>
             </div>

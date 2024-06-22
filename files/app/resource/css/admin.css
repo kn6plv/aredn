@@ -77,16 +77,16 @@
     flex: 1;
     border-color: var(--ctrl-modal-advance-options-color);
 }
-.ctrl-modal-advanced button
+#ctrl-modal dialog .ctrl-modal-advanced button
 {
     margin-left: -8px;
     font: inherit;
-    font-size: 16px;
+    font-size: 14px;
     color: var(--ctrl-modal-advance-options-color);
     border: 0 !important;
     background-color: transparent !important;
 }
-.ctrl-modal-advanced button:hover
+#ctrl-modal dialog .ctrl-modal-advanced button:hover
 {
     color: var(--ctrl-modal-textbox-fg-color);
 }
@@ -137,7 +137,8 @@
     text-align: right;
 }
 #ctrl-modal dialog input[type=text]:invalid,
-#ctrl-modal dialog input[type=password]:invalid
+#ctrl-modal dialog input[type=password]:invalid,
+#ctrl-modal dialog select:invalid
 {
     border-color: var(--ctrl-modal-border-color-error) !important;
 }
@@ -410,12 +411,18 @@
     height: 200px;
     border: 1px solid var(--hr-color);
     margin-bottom: 16px;
+    filter: var(--map-filter);
 }
 
 /* dialog customization end */
 
 /* dhcp start */
 
+#ctrl-modal dialog .noborder input,
+#ctrl-modal dialog .noborder select
+{
+    border-color: var(--ctrl-modal-textbox-bg-color);
+}
 #ctrl-modal dialog #dhcp-reservations:not(:has(.reservation)) .reservation-label
 {
     display: none;
@@ -450,7 +457,8 @@
     width: 50px;
     text-align: center;
 }
-#ctrl-modal dialog .reservation input[type=checkbox]
+#ctrl-modal dialog .reservation input[type=checkbox],
+#ctrl-modal dialog .dhcp-options .row input[type=checkbox]
 {
     width: 14px;
     height: 14px;
@@ -459,12 +467,48 @@
 }
 #ctrl-modal dialog .reservation-label div:first-child div,
 #ctrl-modal dialog .lease-label div:first-child div,
-#ctrl-modal dialog .xlink-label div:first-child div
+#ctrl-modal dialog .xlink-label div:first-child div,
+#ctrl-modal dialog .dhcptag-label div:first-child div,
+#ctrl-modal dialog .dhcpoption-label div:first-child div
 {
     display: inline-block;
     font-size: 10px;
     text-align: right;
     color: var(--ctrl-modal-fg-message-color);
+}
+#ctrl-modal dialog .dhcp-options
+{
+    padding-top: 20px;
+}
+#ctrl-modal dialog .dhcp-options .row :first-child,
+#ctrl-modal dialog .dhcp-tags .row :first-child
+{
+    width: 80px;
+    max-width: 80px;
+    overflow-x: hidden;
+}
+#ctrl-modal dialog .dhcp-options .row :nth-child(2),
+#ctrl-modal dialog .dhcp-tags .row :nth-child(2)
+{
+    width: 210px;
+}
+#ctrl-modal dialog .dhcp-options .row :nth-child(3)
+{
+    width: 120px;
+    max-width: 120px;
+    overflow-x: hidden;
+}
+#ctrl-modal dialog .dhcp-tags .row :nth-child(3)
+{
+    width: 155px;
+    max-width: 155px;
+    overflow-x: hidden;
+}
+#ctrl-modal dialog .dhcpoption-label .row :last-child
+{
+    position: relative;
+    top: -2px;
+    right: -10px;
 }
 
 /* dhcp end */
