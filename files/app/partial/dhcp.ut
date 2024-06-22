@@ -2,20 +2,36 @@
     const dhcp = configuration.getDHCP();
     let da = 0;
     let dr = 0;
+    let at = 0;
+    let ao = 0;
     if (dhcp.enabled) {
-        const f = fs.open(dhcp.leases);
+        let f = fs.open(dhcp.leases);
         if (f) {
             while (length(f.read("line"))) {
                 da++;
             }
             f.close();
         }
-        const g = fs.open(dhcp.reservations);
-        if (g) {
-            while (length(g.read("line"))) {
+        f = fs.open(dhcp.reservations);
+        if (f) {
+            while (length(f.read("line"))) {
                 dr++;
             }
-            g.close();
+            f.close();
+        }
+        f = fs.open(dhcp.dhcptags);
+        if (f) {
+            while (length(f.read("line"))) {
+                at++;
+            }
+            f.close();
+        }
+        f = fs.open(dhcp.dhcpoptions);
+        if (f) {
+            while (length(f.read("line"))) {
+                ao++;
+            }
+            f.close();
         }
     }
 %}
@@ -48,11 +64,11 @@
         </div>
         <div class="cols">
             <div>
-                <div class="t">0</div>
+                <div class="t">{{at}}</div>
                 <div class="s">tags</div>
             </div>
             <div>
-                <div class="t">0</div>
+                <div class="t">{{ao}}</div>
                 <div class="s">options</div>
             </div>
             <div></div>
