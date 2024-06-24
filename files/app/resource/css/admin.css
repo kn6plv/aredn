@@ -1317,7 +1317,9 @@ label.switch
     height: 300px;
     width: 120px;
     padding: 10px 0;
+    color: var(--ctrl-modal-fg-title-color);
     background-color: var(--ctrl-modal-bg-secondary-color);
+    color: var(--ctrl-modal-fg-title-color);
     border-radius: 10px;
     font-size: 14px;
 }

@@ -15,27 +15,27 @@ function getSshKeys()
     }
     return options;
 }
-if (request.env.REQUEST_METHOD === "PUT" && request.args.theme) {
-    const theme = request.args.theme;
-    if (fs.access(`${config.application}/resource/css/themes/${theme}.css`)) {
-        fs.unlink(`${config.application}/resource/css/theme.css`);
-        fs.symlink(`themes/${theme}.css`, `${config.application}/resource/css/theme.css`);
-        if (!config.debug) {
-            const themes = fs.lsdir(`${config.application}/resource/css/themes`);
-            const re = regexp(`^${theme}\.css\.(.+)\.gz`);
-            for (let i = 0; i < length(themes); i++) {
-                const m = match(themes[i], re);
-                if (m) {
-                    fs.unlink(`${config.application}/resource/css/theme.version`);
-                    fs.symlink(m[1], `${config.application}/resource/css/theme.version`);
-                    break;
+if (request.env.REQUEST_METHOD === "PUT") {
+    if ("theme" in request.args) {
+        const theme = request.args.theme;
+        if (fs.access(`${config.application}/resource/css/themes/${theme}.css`)) {
+            fs.unlink(`${config.application}/resource/css/theme.css`);
+            fs.symlink(`themes/${theme}.css`, `${config.application}/resource/css/theme.css`);
+            if (!config.debug) {
+                const themes = fs.lsdir(`${config.application}/resource/css/themes`);
+                const re = regexp(`^${theme}\.css\.(.+)\.gz`);
+                for (let i = 0; i < length(themes); i++) {
+                    const m = match(themes[i], re);
+                    if (m) {
+                        fs.unlink(`${config.application}/resource/css/theme.version`);
+                        fs.symlink(m[1], `${config.application}/resource/css/theme.version`);
+                        break;
+                    }
                 }
             }
         }
+        return;
     }
-    return;
-}
-if (request.env.REQUEST_METHOD === "PUT") {
     configuration.prepareChanges();
     if ("description_node" in request.args) {
         configuration.setSetting("description_node", replace(request.args.description_node || "", "'", "’"));
@@ -129,7 +129,7 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                     const themes = fs.lsdir(`${config.application}/resource/css/themes`);
                     
                 %}
-                <select name="theme" hx-put="{{request.env.REQUEST_URI}}" hx-swap="none" hx-on:htmx:xhr:loadend="location.reload()">
+                <select name="theme" hx-put="{{request.env.REQUEST_URI}}" hx-swap="none" hx-on:htmx:after-request="location.reload()">
                     <option value="default" {{theme === 'themes/default.css' ? 'selected': ''}}>default</option>
                 {%
                     for (let i = 0; i < length(themes); i++) {
