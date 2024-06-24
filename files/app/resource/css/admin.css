@@ -203,7 +203,7 @@
     white-space: nowrap;
     font-size: 14px;
 }
-#ctrl-modal button:hover
+#ctrl-modal button:hover:not(:disabled)
 {
     background-color: var(--ctrl-modal-bg-secondary-color);
 }
