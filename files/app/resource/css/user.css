@@ -144,7 +144,6 @@ body.authenticated .ctrl:hover
 }
 #main
 {
-    display: flex;
     flex: 1;
     height: 100%;
     padding: 10px;
@@ -152,6 +151,11 @@ body.authenticated .ctrl:hover
     overflow-y: scroll;
     overscroll-behavior: contain;
     border-top-left-radius: 20px;
+}
+#main-container
+{
+    display: flex;
+    flex: 1;
 }
 #c1
 {

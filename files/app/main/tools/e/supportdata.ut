@@ -58,6 +58,7 @@ const cmds = [
     `${wifiiface ? "iw dev " + wifiiface + " info" : null}`,
     `${wifiiface ? "iw dev " + wifiiface + " scan" : null}`,
     `${wifiiface ? "iw dev " + wifiiface + " station dump" : null}`,
+    "wg show all",
     "nft list ruleset",
     "md5sum /www/cgi-bin/*",
     "echo /all | nc 127.0.0.1 2006",
