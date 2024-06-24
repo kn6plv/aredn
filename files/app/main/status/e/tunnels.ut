@@ -130,11 +130,7 @@ for (let i = 0; i < 126; i++) {
 const up = { lg: {}, wg: [] };
 let f = fs.popen("ps -w | grep vtun | grep ' tun '");
 if (f) {
-    for (;;) {
-        const l = f.read("line");
-        if (!length(l)) {
-            break;
-        }
+    for (let l = f.read("line"); length(l); l = f.read("line")) {
         const m = match(l, /.*:.*-(172-.*) tun tun/);
         if (m) {
             up.lg[replace(m[1], "-", ".")] = true;
@@ -145,11 +141,7 @@ if (f) {
 const handshaketime = time();
 f = fs.popen("/usr/bin/wg show all latest-handshakes");
 if (f) {
-    for (;;) {
-        const l = f.read("line");
-        if (!length(l)) {
-            break;
-        }
+    for (let l = f.read("line"); length(l); l = f.read("line")) {
         const m = split(l, /\t/);
         if (m && int(m[2]) + 300 > handshaketime) {
             push(up.wg, m[1]);
@@ -217,7 +209,7 @@ function t2t(type)
     }
 }
 %}
-<dialog>
+<div class="dialog">
     {{_R("dialog-header", "Tunnels")}}
     <div>
         <div class="cols">
@@ -299,6 +291,7 @@ function t2t(type)
     <script>
     !function(){function w(r){var n=new Float64Array(16);if(r)for(var o=0;o<r.length;++o)n[o]=r[o];return n}function l(r){for(var n=0;n<16;++n)r[(n+1)%16]+=(n<15?1:38)*Math.floor(r[n]/65536),r[n]&=65535}function A(r,n,o){for(var a,f=~(o-1),t=0;t<16;++t)a=f&(r[t]^n[t]),r[t]^=a,n[t]^=a}function p(r,n,o){for(var a=0;a<16;++a)r[a]=n[a]+o[a]|0}function d(r,n,o){for(var a=0;a<16;++a)r[a]=n[a]-o[a]|0}function g(r,n,o){for(var a=new Float64Array(31),f=0;f<16;++f)for(var t=0;t<16;++t)a[f+t]+=n[f]*o[t];for(f=0;f<15;++f)a[f]+=38*a[f+16];for(f=0;f<16;++f)r[f]=a[f];l(r),l(r)}function U(r){r[31]=127&r[31]|64,r[0]&=248}function n(r){for(var n,o=new Uint8Array(32),a=w([1]),f=w([9]),t=w(),i=w([1]),u=w(),e=w(),c=w([56129,1]),v=w([9]),y=0;y<32;++y)o[y]=r[y];U(o);for(y=254;0<=y;--y)A(a,f,n=o[y>>>3]>>>(7&y)&1),A(t,i,n),p(u,a,t),d(a,a,t),p(t,f,i),d(f,f,i),g(i,u,u),g(e,a,a),g(a,t,a),g(t,f,u),p(u,a,t),d(a,a,t),g(f,a,a),d(t,i,e),g(a,t,c),p(a,a,i),g(t,t,a),g(a,i,e),g(i,f,v),g(f,u,u),A(a,f,n),A(t,i,n);return function(r,n){for(var o=w(),a=0;a<16;++a)o[a]=n[a];for(a=253;0<=a;--a)g(o,o,o),2!==a&&4!==a&&g(o,o,n);for(a=0;a<16;++a)r[a]=o[a]}(t,t),g(a,a,t),function(r,n){for(var o,a=w(),f=w(),t=0;t<16;++t)f[t]=n[t];l(f),l(f),l(f);for(var i=0;i<2;++i){a[0]=f[0]-65517;for(t=1;t<15;++t)a[t]=f[t]-65535-(a[t-1]>>16&1),a[t-1]&=65535;a[15]=f[15]-32767-(a[14]>>16&1),o=a[15]>>16&1,a[14]&=65535,A(f,a,1-o)}for(t=0;t<16;++t)r[2*t]=255&f[t],r[2*t+1]=f[t]>>8}(o,a),o}function o(){var r,r=(r=new Uint8Array(32),window.crypto.getRandomValues(r),r);return U(r),r}function a(r,n){for(var o=Uint8Array.from([n[0]>>2&63,63&(n[0]<<4|n[1]>>4),63&(n[1]<<2|n[2]>>6),63&n[2]]),a=0;a<4;++a)r[a]=o[a]+65+(25-o[a]>>8&6)-(51-o[a]>>8&75)-(61-o[a]>>8&15)+(62-o[a]>>8&3)}function f(r){for(var n=new Uint8Array(44),o=0;o<32/3;++o)a(n.subarray(4*o),r.subarray(3*o));return a(n.subarray(4*o),Uint8Array.from([r[3*o+0],r[3*o+1],0])),n[43]=61,String.fromCharCode.apply(null,n)}window.wireguard={generateKeypair:function(){var r=o();return{publicKey:f(n(r)),privateKey:f(r)}}}}();
     (function(){
+        {{_R("open")}}
         let server = "{{uciMesh.get("vtun", "@network[0]", "dns")}}";
         const available = {{sprintf("%J", available)}};
         function updateTunnels()
@@ -470,4 +463,4 @@ function t2t(type)
         });
     })();
     </script>
-</dialog>
+</div>

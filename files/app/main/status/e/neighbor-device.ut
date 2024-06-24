@@ -67,7 +67,7 @@ if (tracker) {
     }
 }
 %}
-<dialog>
+<div class="dialog">
     {{_R("dialog-header", "Neighborhood Device")}}
     <div>
         {%
@@ -301,4 +301,9 @@ if (tracker) {
         {% } %}
     </div>
     {{_R("dialog-footer")}}
-</dialog>
+    <script>
+    (function(){
+    {{_R("open")}}
+    })();
+    </script>
+</div>

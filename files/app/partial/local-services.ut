@@ -2,38 +2,18 @@
     const reService = regexp("^([^|]+)\\|(tcp|udp)\\|(.+)\\s+#(.*)$");
     const reUrl = regexp("^(.+://)([^:]+):(\\d+)(.*)$");
     const reNameType = regexp("^(.*)\\[(.*)\\]$");
-    const localhosts = { "my own service": 1 };
-    const trackers = lqm.getTrackers();
-    for (t in trackers) {
-        const tracker = trackers[t];
-        if (tracker.ip && tracker.type == "DtD" && tracker.distance < 50) {
-            localhosts[tracker.ip] = 2;
-            if (tracker.hostname) {
-                const ip = network.getIPAddressFromHostname(tracker.hostname);
-                if (ip) {
-                    localhosts[ip] = 2;
-                }
-            }
-        }
-    }
     const services = [];
-    const f = fs.open("/var/run/services_olsr");
+    const devices = [];
+    const leases = {};
+    let f = fs.open("/var/run/services_olsr");
     if (f) {
-        for (;;) {
-            const l = f.read("line");
-            if (!length(l)) {
-                break;
-            }
+        for (let l = f.read("line"); length(l); l = f.read("line")) {
             const v = match(l, reService);
             // v[1] == url, v[3] == name, v[4] == ip address | my own service
-            const found = v && localhosts[trim(v[4])];
-            if (found) {
+            if (v && trim(v[4]) === "my own service") {
                 const r = match(v[1], reUrl);
                 if (r) {
                     let type = "";
-                    if (found === 1) {
-                        type += '<div class="icon local"></div>';
-                    }
                     const nt = match(v[3], reNameType);
                     if (nt) {
                         v[3] = nt[1];
@@ -56,6 +36,29 @@
         }
         f.close();
     }
+    const dhcp = configuration.getDHCP();
+    f = fs.open(dhcp.leases);
+    if (f) {
+        for (let l = f.read("line"); length(l); l = f.read("line")) {
+            // ?, mac, ip, name, ?
+            const v = match(l, /^(.+) (.+) (.+) (.+) (.+)$/);
+            if (v && v[4]) {
+                leases[v[2]] = true;
+            }
+        }
+        f.close();
+    }
+    f = fs.open(dhcp.reservations);
+    if (f) {
+        for (let l = f.read("line"); length(l); l = f.read("line")) {
+            // mac, last-ip, name, flags
+            const v = match(trim(l), /^([^ ]+) ([^ ]+) ([^ ]+) ?(.*)/);
+            if (v && leases[v[1]]) {
+                push(devices, `<div class="device">${v[3]}</div>`);
+            }
+        }
+        f.close();
+    }
 %}
 <div class="ctrl" hx-get="status/e/local-services" hx-target="#ctrl-modal">
     <div class="section-title">Local Services</div>
@@ -65,9 +68,27 @@
             print("None");
         }
         else {
-            print("<div class='local-services cols'>");
+            print("<div class='cols'>");
             for (let i = 0; i < length(services); i++) {
                 print(services[i]);
+            }
+            print("</div>");
+        }
+    %}
+    </div>
+</div>
+<hr>
+<div class="noctrl">
+    <div class="section-title">Local Devices</div>
+    <div class="section">
+    {%
+        if (length(devices) === 0) {
+            print("None");
+        }
+        else {
+            print("<div class='cols'>");
+            for (let i = 0; i < length(devices); i++) {
+                print(devices[i]);
             }
             print("</div>");
         }

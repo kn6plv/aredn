@@ -36,7 +36,7 @@ for (let i = 0; i < length(stations); i++) {
     }
 }
 %}
-<dialog class="wide">
+<div class="dialog wide">
     {{_R("tool-header", "WiFi Signal")}}
     <div id="wifi-chart">
         <div class="cols">
@@ -118,6 +118,7 @@ for (let i = 0; i < length(stations); i++) {
     {{_R("tool-footer")}}
     <script>
     (function(){
+        {{_R("open")}}
         const sf = -95;
         const st = -20;
         const device = htmx.find("#wifi-device");
@@ -230,4 +231,4 @@ for (let i = 0; i < length(stations); i++) {
         });
     })();
     </script>
-</dialog>
+</div>

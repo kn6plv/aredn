@@ -23,7 +23,7 @@
     <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
 </head>
 <body class="{{auth.isAdmin ? "authenticated" : ""}}" hx-indicator="body">
-    {{_R("ctrls")}}
+    <dialog id="ctrl-modal"></dialog>
     <div id="all">
         <div id="nav">
             {{_R("nav")}}

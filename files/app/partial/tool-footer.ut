@@ -1,4 +1,4 @@
 <div class="ctrl-modal-footer">
     <hr/>
-    <button id="dialog-done" onclick="setTimeout(_ => document.getElementById('ctrl-modal').innerHTML = '', 10)">Done</button>
+    <button id="dialog-done" onclick="setTimeout(_ => document.getElementById('ctrl-modal').close(), 10)">Done</button>
 </div>

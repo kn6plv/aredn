@@ -190,7 +190,7 @@ else {
     }
 }
 %}
-<dialog class="wide">
+<div class="dialog wide">
     {{_R("tool-header", "WiFi Scan")}}
     <div id="wifi-scan">
         <table>
@@ -211,26 +211,27 @@ else {
     <div class="cols">
         <div>Last Scan: {{scan_time}}</div>
         <button hx-put="{{request.env.REQUEST_URI}}" hx-target="#ctrl-modal">Scan</button>
-        <script>
-        (function(){
-            htmx.on("#wifi-scan + div button", "click", e => {
-                const target = e.target;
-                target.style.width="100px";
-                target.innerText = "Scanning ";
-                let dots = ".";
-                const timer = setInterval(_ => {
-                    if (!document.contains(target)) {
-                        clearInterval(timer);
-                    }
-                    target.innerText = "Scanning " + dots;
-                    dots += ".";
-                    if (dots.length > 3) {
-                        dots = "";
-                    }
-                }, 300);
-            });
-        })();
-        </script>
     </div>
     {{_R("tool-footer")}}
-</dialog>
+    <script>
+    (function(){
+        {{_R("open")}}
+        htmx.on("#wifi-scan + div button", "click", e => {
+            const target = e.target;
+            target.style.width="100px";
+            target.innerText = "Scanning ";
+            let dots = ".";
+            const timer = setInterval(_ => {
+                if (!document.contains(target)) {
+                    clearInterval(timer);
+                }
+                target.innerText = "Scanning " + dots;
+                dots += ".";
+                if (dots.length > 3) {
+                    dots = "";
+                }
+            }, 300);
+        });
+    })();
+    </script>
+</div>

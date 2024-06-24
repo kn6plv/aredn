@@ -248,11 +248,7 @@ const auth = {
         if (!this.key) {
             const f = fs.open("/etc/shadow");
             if (f) {
-                for (;;) {
-                    const l = f.read("line");
-                    if (!length(l)) {
-                        break;
-                    }
+                for (let l = f.read("line"); length(l); l = f.read("line")) {
                     if (index(l, "root:") === 0) {
                         this.key = trim(l);
                         break;
@@ -482,7 +478,7 @@ global.handle_request = function(env)
             }
             catch (e) {
                 log.syslog(log.LOG_ERR, `${e.message}\n${e.stacktrace[0].context}`);
-                res = `<div id="ctrl-modal" hx-on:htmx:after-swap="const e = event.target.querySelector('dialog'); if (e) { e.showModal(); }"><dialog style="font-size:12px"><b>ERROR: ${e.message}<b><div><pre>${e.stacktrace[0].context}</pre></dialog></div>`;
+                res = `<div><b>ERROR: ${e.message}</b><div><pre>${e.stacktrace[0].context}</pre></div>`;
             }
             if (!response.override) {
                 if (index(env.HTTP_ACCEPT_ENCODING || "", "gzip") === -1 || config.debug) {

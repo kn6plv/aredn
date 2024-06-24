@@ -93,7 +93,7 @@ if (request.env.REQUEST_METHOD === "DELETE") {
     return;
 }
 %}
-<dialog class="basics">
+<div class="dialog basics">
     {{_R("dialog-header", "Name &amp; Security")}}
     <div>
         <div class="cols">
@@ -195,6 +195,7 @@ if (request.env.REQUEST_METHOD === "DELETE") {
     {{_R("dialog-footer")}}
     <script>
     (function(){
+        {{_R("open")}}
         htmx.on("dialog input[name=passwd1]", "keyup", e => {
             const v = e.target.value;
             if (v === "hsmm") {
@@ -273,4 +274,4 @@ if (request.env.REQUEST_METHOD === "DELETE") {
         });
     })();
     </script>
-</dialog>
+</div>

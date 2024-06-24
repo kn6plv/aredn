@@ -43,7 +43,7 @@
     }
 %}
 <div class="noctrl">
-    <div class="section-title">Local Devices</div>
+    <div class="section-title">Local Nodes</div>
     <div class="section" style="line-height:18px;margin-top:-16px">
         <div class="cols">
             <div class="heading" style="flex:0.75"></div>
@@ -93,7 +93,7 @@
     </div>
 </div>
 <div class="noctrl" hx-target="#ctrl-modal">
-    <div class="section-title">Neighborhood Devices</div>
+    <div class="section-title">Neighborhood Nodes</div>
     <div class="section" style="line-height:18px">
     {%
         if (length(nlist) > 0) {

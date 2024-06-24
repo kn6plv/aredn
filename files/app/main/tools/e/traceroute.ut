@@ -2,7 +2,7 @@
 const nodes = mesh.getNodeList(true);
 const mynode = configuration.getName();
 %}
-<dialog class="wide">
+<div class="dialog wide">
     {{_R("tool-header", "Traceroute")}}
     <div class="simple-tool compact client-server">
         <div class="cols">
@@ -56,8 +56,10 @@ const mynode = configuration.getName();
             </div>
         </div>
     </div>
+    {{_R("tool-footer")}}
     <script>
     (function(){
+        {{_R("open")}}
         const mynode = "{{mynode}}";
         htmx.on("#tool-select", "change", e => {
             if (e.target.value !== "") {
@@ -160,5 +162,4 @@ const mynode = configuration.getName();
         });
     })();
     </script>
-    {{_R("tool-footer")}}
-</dialog>
+</div>

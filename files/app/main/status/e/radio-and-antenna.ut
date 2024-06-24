@@ -146,7 +146,7 @@ if (request.env.REQUEST_METHOD === "DELETE") {
 }
 %}
 {% const wlan = radios.getConfiguration(); %}
-<dialog class="radio-and-antenna">
+<div class="dialog radio-and-antenna">
     {{_R("dialog-header", "Radios &amp; Antennas")}}
     <div>
         {%
@@ -260,15 +260,6 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                     </div>
                 </div>
                 {% } %}
-                <script>
-                (function(){
-                    const bws = htmx.find("#ctrl-modal dialog.radio-and-antenna select[name={{prefix}}bandwidth]");
-                    const bwssid = htmx.find("#ctrl-modal dialog.radio-and-antenna input[name={{prefix}}ssid] + span");
-                    bws.addEventListener("change", function() {
-                        bwssid.innerHTML = `-${bws.value}-v3`;
-                    });
-                })();
-                </script>
             </div>
             <div class="hideable2" {{length(wlan) > 1 ? "style='padding-left:10px'" : ""}}>
                 <div class="cols">
@@ -488,9 +479,15 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                 </div>
             </div>
         </div>
-        {% if (length(wlan) > 1) { %}
         <script>
         (function(){
+            {{_R("open")}}
+            const bws = htmx.find("#ctrl-modal .dialog.radio-and-antenna select[name={{prefix}}bandwidth]");
+            const bwssid = htmx.find("#ctrl-modal .dialog.radio-and-antenna input[name={{prefix}}ssid] + span");
+            bws.addEventListener("change", function() {
+                bwssid.innerHTML = `-${bws.value}-v3`;
+            });
+        {% if (length(wlan) > 1) { %}
             const radio0 = htmx.find("#radio0 select[name=radio0_mode]");
             const radio1 = htmx.find("#radio1 select[name=radio1_mode]");
             htmx.on(radio0, "htmx:beforeRequest", function() {
@@ -507,9 +504,9 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                 htmx.find("#radio1 select[name=radio_channel]").value = "{{wlan[1].def.channel}}";
                 htmx.find("#radio1 select[name=radio_lan_channel]").value = "{{wlan[1].def.channel}}";
             });
+        {% } %}
         })();
         </script>
-        {% } %}
     </div>
     {{_R("dialog-footer")}}
-</dialog>
+</div>

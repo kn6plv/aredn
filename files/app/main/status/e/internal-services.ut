@@ -47,7 +47,7 @@ if (request.env.REQUEST_METHOD === "DELETE") {
     return;
 }
 %}
-<dialog>
+<div class="dialog">
     {{_R("dialog-header", "Internal Services")}}
     <div>
         <div class="cols">
@@ -182,4 +182,9 @@ if (request.env.REQUEST_METHOD === "DELETE") {
         </div>
     </div>
     {{_R("dialog-footer")}}
-</dialog>
+    <script>
+    (function(){
+    {{_R("open")}}
+    })();
+    </script>
+</div>

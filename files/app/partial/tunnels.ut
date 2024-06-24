@@ -27,11 +27,7 @@
     let las = 0;
     const t = fs.popen("ps -w | grep vtun | grep ' tun '");
     if (t) {
-        for (;;) {
-            const l = t.read("line");
-            if (!length(l)) {
-                break;
-            }
+        for (let l = t.read("line"); length(l); l = t.read("line")) {
             if (index(l, "vtund[s]") !== -1) {
                 las++;
             }
@@ -43,11 +39,7 @@
     }
     const w = fs.popen("/usr/bin/wg show all latest-handshakes");
     if (w) {
-        for (;;) {
-            const l = w.read("line");
-            if (!length(l)) {
-                break;
-            }
+        for (let l = w.read("line"); length(l); l = w.read("line")) {
             const v = split(l, /\t/);
             if (v && int(v[2]) + 300 > time()) {
                 if (index(v[1], "wgc") === 0) {

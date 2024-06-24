@@ -36,7 +36,7 @@ const lon = uciMesh.get("aredn", "@location[0]", "lon") ?? -122;
 const gridsquare = uciMesh.get("aredn", "@location[0]", "gridsquare");
 const mapurl = map ? replace(replace(map, "(lat)", lat), "(lon)", lon) : null;
 %}
-<dialog>
+<div class="dialog">
     {{_R("dialog-header", "Location")}}
     <div>
         {% if (mapurl) { %}
@@ -95,10 +95,11 @@ const mapurl = map ? replace(replace(map, "(lat)", lat), "(lon)", lon) : null;
     {{_R("dialog-footer")}}
     <script>
     (function(){
-        const lat = htmx.find("#ctrl-modal dialog input[name=lat]");
-        const lon = htmx.find("#ctrl-modal dialog input[name=lon]");
-        const gridsquare = htmx.find("#ctrl-modal dialog input[name=gridsquare]");
-        const map = htmx.find("#ctrl-modal dialog iframe");
+        {{_R("open")}}
+        const lat = htmx.find("#ctrl-modal .dialog input[name=lat]");
+        const lon = htmx.find("#ctrl-modal .dialog input[name=lon]");
+        const gridsquare = htmx.find("#ctrl-modal .dialog input[name=gridsquare]");
+        const map = htmx.find("#ctrl-modal .dialog iframe");
         let mapt = null;
         if (map) {
             window.addEventListener("message", e => {
@@ -165,4 +166,4 @@ const mapurl = map ? replace(replace(map, "(lat)", lat), "(lon)", lon) : null;
         }
     })();
     </script>
-</dialog>
+</div>

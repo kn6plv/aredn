@@ -96,11 +96,7 @@ for (let i = 0; i < length(sensitive); i++) {
     const f = fs.open(file);
     if (f) {
         const lines = [];
-        for (;;) {
-            let l = f.read("line");
-            if (!length(l)) {
-                break;
-            }
+        for (let l = f.read("line"); length(l); l = f.read("line")) {
             l = replace(l, /option passwd.+/, "option passwd '***HIDDEN***'\n");
             l = replace(l, /option public_key.+/, "option public_key '***HIDDEN***'\n");
             l = replace(l, /option private_key.+/, "option private_key '***HIDDEN***'\n");

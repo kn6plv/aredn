@@ -29,9 +29,8 @@ if (auth.isAdmin) { %}
             }, 2000);
             if (e.detail.target?.id === "ctrl-modal") {
                 setTimeout(_ => {
-                    if (e.detail.target.innerHTML === "") {
-                        e.detail.target.innerHTML = "<dialog></dialog>";
-                        e.detail.target.firstElementChild.showModal();
+                    if (!e.detail.target.open) {
+                        e.detail.target.showModal();
                     }
                 }, 200);
             }

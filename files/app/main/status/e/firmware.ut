@@ -63,11 +63,7 @@
                 if (fi) {
                     const fo = fs.open("/tmp/sysupgradefilelist", "w");
                     if (fo) {
-                        for (;;) {
-                            const l = fi.read("line");
-                            if (!length(l)) {
-                                break;
-                            }
+                        for (let l = f.read("line"); length(l); l = f.read("line")) {
                             if (!match(l, "^#") && fs.access(trim(l))) {
                                 fo.write(l);
                             }
@@ -159,11 +155,7 @@
             return;
         }
         let firmware_versions = {};
-        for (;;) {
-            const l = f.read("line");
-            if (!length(l)) {
-                break;
-            }
+        for (let l = f.read("line"); length(l); l = f.read("line")) {
             const m = match(l, /versions: \{(.+)\}/);
             if (m) {
                 const kvs = split(m[1], ", ");
@@ -301,7 +293,7 @@
 
     const sideload = fs.access("/tmp/local_firmware");
 %}
-<dialog>
+<div class="dialog">
     {{_R("dialog-header", "Firmware")}}
     <div id="firmware-update">
         {{_R("dialog-messages")}}
@@ -406,6 +398,7 @@
     {{_R("dialog-footer", "nocancel" )}}
     <script>
     (function(){
+        {{_R("open")}}
         htmx.on("#firmware-update input[type='file']", "change", e => {
             if (e.target.files[0]) {
                 htmx.find("#fetch-and-update").disabled = false;
@@ -495,4 +488,4 @@
         });
     })();
     </script>
-</dialog>
+</div>

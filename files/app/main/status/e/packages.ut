@@ -195,7 +195,7 @@ else if (request.env.REQUEST_METHOD === "PUT" && "packageurl" in request.args) {
 {%
 const po = getPackageOptions();
 %}
-<dialog>
+<div class="dialog">
     {{_R("dialog-header", "Packages")}}
     <div id="package-update">
         {{_R("dialog-messages")}}
@@ -256,6 +256,7 @@ const po = getPackageOptions();
     {{_R("dialog-footer", "nocancel")}}
     <script>
     (function(){
+        {{_R("open")}}
         htmx.on("#package-update input[type='file']", "change", e => {
             htmx.find("#fetch-and-update").innerText = "Fetch and Install";
             htmx.find("#download-package").value = "-";
@@ -374,4 +375,4 @@ const po = getPackageOptions();
         });
     })();
     </script>
-</dialog>
+</div>

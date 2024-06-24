@@ -6,11 +6,7 @@ function loadPorts(type, def)
         return def;
     }
     const r = { vlan: null, ports: {} };
-    for (;;) {
-        const l = f.read("line");
-        if (!length(l)) {
-            break;
-        }
+    for (let l = f.read("line"); length(l); l = f.read("line")) {
         let m = match(l, /list ports '(.+):([ut])'/);
         if (m) {
             r.ports[m[1]] = true;
@@ -196,7 +192,7 @@ uciMesh.foreach("xlink", "interface", x => {
     });
 });
 %}
-<dialog>
+<div class="dialog">
     {{_R("dialog-header", `${haveports ? "Ports &amp; " : ""}XLinks`)}}
     <div>
         {% if (haveports) { %}
@@ -320,6 +316,7 @@ uciMesh.foreach("xlink", "interface", x => {
     {{_R("dialog-footer")}}
     <script>
     (function(){
+        {{_R("open")}}
         const patIP = "((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])\\.?\\b){4}";
         const xlinks = {{sprintf("%J", xlinks)}};
         function update()
@@ -329,7 +326,7 @@ uciMesh.foreach("xlink", "interface", x => {
                 values: { xlinks: JSON.stringify(xlinks) }
             });
         }
-        htmx.on("#ctrl-modal dialog #xlink-list", "change", event => {
+        htmx.on("#ctrl-modal .dialog #xlink-list", "change", event => {
             const target = htmx.closest(event.target, "[data-name]");
             const xlink = xlinks.find(x => x.name == target.dataset.name);
             const vlan = htmx.find(target, "[name=vlan]");
@@ -348,7 +345,7 @@ uciMesh.foreach("xlink", "interface", x => {
                 update();
             }
         });
-        htmx.on("#ctrl-modal dialog #xlink-list", "click", event => {
+        htmx.on("#ctrl-modal .dialog #xlink-list", "click", event => {
             if (event.target.nodeName === "BUTTON") {
                 const target = htmx.closest(event.target, "[data-name]");
                 const xlink = xlinks.findIndex(x => x.name == target.dataset.name);
@@ -357,11 +354,11 @@ uciMesh.foreach("xlink", "interface", x => {
                 update();
             }
         });
-        htmx.on("#ctrl-modal dialog .xlinks .add", "click", event => {
+        htmx.on("#ctrl-modal .dialog .xlinks .add", "click", event => {
             let name;
             for (let i = 0;; i++) {
                 name = `xlink${i}`;
-                if (!htmx.find(`#ctrl-modal dialog #xlink-list .xlink[data-name=${name}]`)) {
+                if (!htmx.find(`#ctrl-modal .dialog #xlink-list .xlink[data-name=${name}]`)) {
                     break;
                 }
             }
@@ -376,7 +373,7 @@ uciMesh.foreach("xlink", "interface", x => {
             };
             xlinks.push(x);
             const div = document.createElement("div");
-            const ls = htmx.find("#ctrl-modal dialog #xlink-list");
+            const ls = htmx.find("#ctrl-modal .dialog #xlink-list");
             div.innerHTML = `<div class="cols xlink" data-name="${x.name}">
 <div>
     <input name="vlan" type="text" size="5" required pattern="([4-9]|[1-9][0-9]{1,2}|[1-3][0-9]{3}|40[0-8][0-9]|409[0-5])" placeholder="VLan">
@@ -417,4 +414,4 @@ uciMesh.foreach("xlink", "interface", x => {
         });
     })();
     </script>
-</dialog>
+</div>

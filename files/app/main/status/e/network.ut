@@ -114,7 +114,7 @@ const wan_vlan = wan_iface[1] ? wan_iface[1] : "";
 const gateway_nat = dmz_mode !== 1 ? dhcp.gateway : "172.27.0.1";
 const gateway_altnet = dmz_mode === 1 ? dhcp.gateway : "";
 %}
-<dialog>
+<div class="dialog">
     {{_R("dialog-header", "Network")}}
     <div>
         <div class="cols">
@@ -347,4 +347,9 @@ const gateway_altnet = dmz_mode === 1 ? dhcp.gateway : "";
         </div>
     </div>
     {{_R("dialog-footer")}}
-</dialog>
+    <script>
+    (function(){
+    {{_R("open")}}
+    })();
+    </script>
+</div>

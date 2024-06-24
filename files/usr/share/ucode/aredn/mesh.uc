@@ -5,11 +5,7 @@ export function getNodeList(doSort)
     const nodes = [];
     const f = fs.open("/var/run/hosts_olsr");
     if (f) {
-        for (;;) {
-            const l = f.read("line");
-            if (!length(l)) {
-                break;
-            }
+        for (let l = f.read("line"); length(l); l = f.read("line")) {
             const m = match(l, re);
             if (m) {
                 push(nodes, m[1]);
@@ -29,11 +25,7 @@ export function getNodeCounts()
     let devices = 0;
     const f = fs.open("/var/run/hosts_olsr");
     if (f) {
-        for (;;) {
-            const l = f.read("line");
-            if (!length(l)) {
-                break;
-            }
+        for (let l = f.read("line"); length(l); l = f.read("line")) {
             if (substr(l, 0, 3) == "10." && index(l, "\tmid") === -1) {
                 devices++;
                 if (index(l, "\tdtdlink.") !== -1) {
