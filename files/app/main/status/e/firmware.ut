@@ -63,7 +63,7 @@
                 if (fi) {
                     const fo = fs.open("/tmp/sysupgradefilelist", "w");
                     if (fo) {
-                        for (let l = f.read("line"); length(l); l = f.read("line")) {
+                        for (let l = fi.read("line"); length(l); l = fi.read("line")) {
                             if (!match(l, "^#") && fs.access(trim(l))) {
                                 fo.write(l);
                             }
@@ -428,7 +428,7 @@
                         sideload: 1
                     },
                     swap: "none"
-                });
+                }).then( _ => htmx.find("#dialog-done").disabled = false);
             }
             else if (upload) {
                 htmx.on(e.currentTarget, "htmx:xhr:progress", e => htmx.find("#firmware-upload progress").setAttribute("value", e.detail.loaded / e.detail.total * 100));
@@ -439,7 +439,7 @@
                     },
                     target: "#dialog-done",
                     swap: "none"
-                });
+                }).then( _ => htmx.find("#dialog-done").disabled = false);
             }
             else if (download !== "-") {
                 const source = new EventSource(`{{request.env.REQUEST_URI}}?v=${download}`);
@@ -456,6 +456,7 @@
                     source.close();
                     htmx.find("#firmware-upload progress").setAttribute("value", "0");
                     htmx.find("#dialog-messages-error").innerHTML = `ERROR: ${e.data || "Unknown error"}`;
+                    htmx.find("#dialog-done").disabled = false;
                 });
                 source.addEventListener("progress", e => {
                     htmx.find("#firmware-upload progress").setAttribute("value", e.data);

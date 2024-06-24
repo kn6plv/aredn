@@ -2,9 +2,8 @@
     const d = document.querySelector('dialog');
     if (d && !d.open) {
         d.showModal();
-        d.onclose = _ => d.innerHTML = '';
     }
     else {
-        return;
+        console.log("reopen");
     }
 }

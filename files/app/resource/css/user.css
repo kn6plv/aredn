@@ -433,7 +433,7 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
     margin-left: 4px;
     background-position: center center;
     background-repeat: no-repeat;
-    filter: var(--service-icon-filter);
+    filter: var(--icon-filter);
 }
 
 /* -- end local and neighborhood devices layout -- */
@@ -466,7 +466,7 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
     top: 3px;
     width: 14px;
     height: 14px;
-    filter: var(--service-icon-filter);
+    filter: var(--icon-filter);
 }
 #services .service .status.inactive
 {
@@ -545,7 +545,7 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
     width: 32px;
     height: 32px;
     margin: 16px;
-    filter: var(--icon-filter);
+    filter: var(--nav-icon-filter);
     background-position: center center;
     background-repeat: no-repeat;
 }
@@ -554,7 +554,7 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
 #login-icon:hover .icon,
 #logout-icon:hover .icon
 {
-    filter: var(--icon-filter-select);
+    filter: var(--nav-icon-filter-select);
 }
 #nav:has(#changes:not(:empty)) #logout-icon .menu div:last-child
 {
@@ -799,7 +799,7 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
     height: 14px;
     margin: 0;
     background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M8.914 6.025a.75.75 0 0 1 1.06 0 3.5 3.5 0 0 1 0 4.95l-2 2a3.5 3.5 0 0 1-5.396-4.402.75.75 0 0 1 1.251.827 2 2 0 0 0 3.085 2.514l2-2a2 2 0 0 0 0-2.828.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M7.086 9.975a.75.75 0 0 1-1.06 0 3.5 3.5 0 0 1 0-4.95l2-2a3.5 3.5 0 0 1 5.396 4.402.75.75 0 0 1-1.251-.827 2 2 0 0 0-3.085-2.514l-2 2a2 2 0 0 0 0 2.828.75.75 0 0 1 0 1.06Z" clip-rule="evenodd" /></svg>') center center no-repeat;
-    filter: var(--service-icon-filter);
+    filter: var(--icon-filter);
 }
 .meshpage-help
 {

@@ -37,23 +37,11 @@
         f.close();
     }
     const dhcp = configuration.getDHCP();
-    f = fs.open(dhcp.leases);
-    if (f) {
-        for (let l = f.read("line"); length(l); l = f.read("line")) {
-            // ?, mac, ip, name, ?
-            const v = match(l, /^(.+) (.+) (.+) (.+) (.+)$/);
-            if (v && v[4]) {
-                leases[v[2]] = true;
-            }
-        }
-        f.close();
-    }
     f = fs.open(dhcp.reservations);
     if (f) {
         for (let l = f.read("line"); length(l); l = f.read("line")) {
-            // mac, last-ip, name, flags
             const v = match(trim(l), /^([^ ]+) ([^ ]+) ([^ ]+) ?(.*)/);
-            if (v && leases[v[1]]) {
+            if (v && v[4] !== "#NOPROP") {
                 push(devices, `<div class="device">${v[3]}</div>`);
             }
         }

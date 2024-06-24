@@ -325,7 +325,7 @@ label.switch
     border-radius: 12px;
     scale: 0.8;
     background-color: transparent;
-    filter: var(--service-icon-filter);
+    filter: var(--icon-filter);
 }
 
 /* basics end */
@@ -357,7 +357,7 @@ label.switch
 }
 #tools:hover label .icon
 {
-    filter: var(--icon-filter-select);
+    filter: var(--nav-icon-filter-select);
 }
 #tools .menu
 {
@@ -388,7 +388,7 @@ label.switch
 }
 #tools .menu > div[hx-trigger]:hover .icon
 {
-    filter: var(--icon-filter-select);
+    filter: var(--nav-icon-filter-select);
 }
 #tools .menu > div > div
 {
@@ -960,7 +960,7 @@ label.switch
     width: 24px;
     height: 24px;
     margin: 2px 0 0 4px;
-    border: 1px solid black;
+    border: 1px solid var(--ctrl-modal-textbox-border-color);
     border-radius: 4px;
     background-color: var(--ctrl-modal-bg-color);
 }
@@ -982,6 +982,7 @@ label.switch
     background-size: 16px;
     background-position: center center;
     background-repeat: no-repeat;
+    filter: var(--icon-filter);
 }
 #firmware-refresh button.rotate,
 #package-refresh button.rotate
@@ -1286,7 +1287,7 @@ label.switch
 {
     width: 20px;
     height: 20px;
-    filter: var(--service-icon-filter);
+    filter: var(--icon-filter);
 }
 
 #wifi-scan table
