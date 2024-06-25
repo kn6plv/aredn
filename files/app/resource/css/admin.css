@@ -10,6 +10,7 @@
     border: 1px solid var(--ctrl-modal-border-color);
     background-color: var(--ctrl-modal-bg-color);
     border-radius: 10px;
+    outline: none;
 }
 #ctrl-modal[open]:empty
 {

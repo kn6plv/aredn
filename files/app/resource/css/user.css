@@ -643,12 +643,15 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
 }
 #login input {
     color: inherit;
+    background-color: var(--ctrl-modal-textbox-bg-color);
     margin: 0 10px;
+    outline: none;
 }
 #login button {
     font: inherit;
     font-size: 12px;
     color: inherit;
+    background-color: var(--ctrl-modal-textbox-bg-color);
 }
 #login::backdrop
 {

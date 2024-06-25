@@ -1,4 +1,38 @@
 {%
+/*
+ * Part of AREDN® -- Used for creating Amateur Radio Emergency Data Networks
+ * Copyright (C) 2024 Tim Wilkinson
+ * See Contributors file for additional contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Additional Terms:
+ *
+ * Additional use restrictions exist on the AREDN® trademark and logo.
+ * See AREDNLicense.txt for more info.
+ *
+ * Attributions to the AREDN® Project must be retained in the source code.
+ * If importing this code into a new or existing project attribution
+ * to the AREDN® project must be added to the source code.
+ *
+ * You must not misrepresent the origin of the material contained within.
+ *
+ * Modified versions must be modified to attribute to the original source
+ * and be marked in reasonable ways as differentiate it from the original
+ * version
+ */
+%}
+{%
 if (request.env.REQUEST_METHOD === "PUT") {
     configuration.prepareChanges();
     if ("radio0_mode" in request.args || "radio1_mode" in request.args) {
@@ -180,7 +214,7 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                         <div class="m">Channel and frequency of this connection</div>
                     </div>
                     <div style="flex:0">
-                        <select hx-put="{{request.env.REQUEST_URI}}" hx-swap="none" name="radio_channel">
+                        <select hx-put="{{request.env.REQUEST_URI}}" hx-swap="none" name="radio_channel" style="direction:ltr">
                         {%
                             const channel = wlan[w].modes[1].channel;
                             for (let i = 0; i < length(wlan[w].channels); i++) {
@@ -196,7 +230,7 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                         <div class="m">Channel bandwidth</div>
                     </div>
                     <div style="flex:0">
-                        <select hx-put="{{request.env.REQUEST_URI}}" hx-swap="none" name="{{prefix}}bandwidth">
+                        <select hx-put="{{request.env.REQUEST_URI}}" hx-swap="none" name="{{prefix}}bandwidth" style="direction:ltr">
                         {%
                             const bandwidth = wlan[w].modes[1].bandwidth;
                             for (let i = 0; i < length(wlan[w].bws); i++) {
@@ -316,7 +350,7 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                         <div class="m">WAN client</div>
                     </div>
                     <div style="flex:0">
-                        <input hx-put="{{request.env.REQUEST_URI}}" name="radio_wan_ssid" type="text" size="10" maxlength="32" pattern="[^!#;+\]\/"\t][^+\]\/"\t]{0,30}[^ !#;+\]\/"\t]$|^[^ !#;+\]\/"\t]" value="{{hexdec(wlan[w].modes[3].ssid)}}">
+                        <input hx-put="{{request.env.REQUEST_URI}}" name="radio_wan_ssid" type="text" size="10" maxlength="32" pattern='[^!#;+\]\/"\t][^+\]\/"\t]{0,30}[^ !#;+\]\/"\t]$|^[^ !#;+\]\/"\t]' value="{{hexdec(wlan[w].modes[3].ssid)}}">
                     </div>
                 </div>
                 <div class="cols">
@@ -479,34 +513,37 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                 </div>
             </div>
         </div>
-        <script>
-        (function(){
-            {{_R("open")}}
-            const bws = htmx.find("#ctrl-modal .dialog.radio-and-antenna select[name={{prefix}}bandwidth]");
-            const bwssid = htmx.find("#ctrl-modal .dialog.radio-and-antenna input[name={{prefix}}ssid] + span");
-            bws.addEventListener("change", function() {
-                bwssid.innerHTML = `-${bws.value}-v3`;
-            });
-        {% if (length(wlan) > 1) { %}
-            const radio0 = htmx.find("#radio0 select[name=radio0_mode]");
-            const radio1 = htmx.find("#radio1 select[name=radio1_mode]");
-            htmx.on(radio0, "htmx:beforeRequest", function() {
-                if (radio0.value === radio1.value && radio1.value !== 0) {
-                    radio1.value = 0;
-                }
-                htmx.find("#radio0 select[name=radio_channel]").value = "{{wlan[0].def.channel}}";
-                htmx.find("#radio0 select[name=radio_lan_channel]").value = "{{wlan[0].def.channel}}";
-            });
-            htmx.on(radio1, "htmx:beforeRequest", function() {
-                if (radio1.value === radio0.value && radio0.value !== 0) {
-                    radio0.value = 0;
-                }
-                htmx.find("#radio1 select[name=radio_channel]").value = "{{wlan[1].def.channel}}";
-                htmx.find("#radio1 select[name=radio_lan_channel]").value = "{{wlan[1].def.channel}}";
-            });
-        {% } %}
-        })();
-        </script>
     </div>
     {{_R("dialog-footer")}}
+    <script>
+    (function(){
+        {{_R("open")}}
+    {%
+    for (let w = 0; w < length(wlan); w++) { %}
+        const bws{{w}} = htmx.find(`#ctrl-modal .dialog.radio-and-antenna select[name=radio{{w}}_bandwidth]`);
+        const bwssid{{w}} = htmx.find(`#ctrl-modal .dialog.radio-and-antenna input[name=radio{{w}}_ssid] + span`);
+        bws{{w}}.addEventListener("change", function() {
+            bwssid{{w}}.innerHTML = `-${bws{{w}}.value}-v3`;
+        });
+    {% }
+    if (length(wlan) > 1) { %}
+        const radio0 = htmx.find("#radio0 select[name=radio0_mode]");
+        const radio1 = htmx.find("#radio1 select[name=radio1_mode]");
+        htmx.on(radio0, "htmx:beforeRequest", function() {
+            if (radio0.value === radio1.value && radio1.value !== 0) {
+                radio1.value = 0;
+            }
+            htmx.find("#radio0 select[name=radio_channel]").value = "{{wlan[0].def.channel}}";
+            htmx.find("#radio0 select[name=radio_lan_channel]").value = "{{wlan[0].def.channel}}";
+        });
+        htmx.on(radio1, "htmx:beforeRequest", function() {
+            if (radio1.value === radio0.value && radio0.value !== 0) {
+                radio0.value = 0;
+            }
+            htmx.find("#radio1 select[name=radio_channel]").value = "{{wlan[1].def.channel}}";
+            htmx.find("#radio1 select[name=radio_lan_channel]").value = "{{wlan[1].def.channel}}";
+        });
+    {% } %}
+    })();
+    </script>
 </div>
