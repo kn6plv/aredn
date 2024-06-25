@@ -42,11 +42,14 @@
     </div>
 </div>
 <div id="c2">
+    <div hx-get="messages" hx-trigger="every 300s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
     {% if (messages.haveMessages()) { %}
     <div id="messages">
         {{_R("messages")}}
+        </div>
     </div>
     {% } %}
+    </div>
     <div id="services">
         {% if (auth.isAdmin) { %}
         {{_R("internal-services" )}}
@@ -66,7 +69,9 @@
     </div>
     <div id="mesh-summary">
         <hr>
+        <div hx-get="mesh-summary" hx-trigger="every 120s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
         {{_R("mesh-summary")}}
+        </div>
     </div>
     <div id="dhcp">
         <hr>

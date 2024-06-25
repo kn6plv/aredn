@@ -119,6 +119,27 @@ if (!config.debug) {
     fs.unlink(`${config.application}/resource/css/theme.version`);
     fs.symlink(cthemeversion, `${config.application}/resource/css/theme.version`);
 }
+else {
+    let dir = fs.lsdir(`${config.application}/resource/css`);
+    for (let i = 0; i < length(dir); i++) {
+        if (match(dir[i], /\.gz$/)) {
+            fs.unlink(`${config.application}/resource/css/${dir[i]}`);
+        }
+    }
+    dir = fs.lsdir(`${config.application}/resource/css/themes`);
+    for (let i = 0; i < length(dir); i++) {
+        if (match(dir[i], /\.gz$/)) {
+            fs.unlink(`${config.application}/resource/css/themes/${dir[i]}`);
+        }
+    }
+    dir = fs.lsdir(`${config.application}/resource/js`);
+    for (let i = 0; i < length(dir); i++) {
+        if (match(dir[i], /\.gz$/) && dir[i] !== "htmx.min.js.gz") {
+            fs.unlink(`${config.application}/resource/js/${dir[i]}`);
+        }
+    }
+    fs.unlink(`${config.application}/resource/css/theme.version`);
+}
 
 global._R = function(path, arg)
 {
