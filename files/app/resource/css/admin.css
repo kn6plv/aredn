@@ -642,6 +642,7 @@ label.switch
 #local-services .service
 {
     padding-top: 10px;
+    color: var(--ctrl-modal-textbox-fg-color);
 }
 #local-services .service .cols:first-child input
 {
