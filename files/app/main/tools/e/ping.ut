@@ -33,7 +33,7 @@
  */
 %}
 {%
-const nodes = mesh.getNodeList(true);
+const nodes = mesh.getNodeList();
 const mynode = configuration.getName();
 %}
 <div class="dialog wide">

@@ -31,24 +31,29 @@
  * version
  */
 
-export function getNodeList(doSort)
+import * as fs from "fs";
+
+export function getNodeList()
 {
     const re = /^10.+\tdtdlink\.(.+)\.local\.mesh\t#.+$/;
     const nodes = [];
     const f = fs.open("/var/run/hosts_olsr");
-    if (f) {
-        for (let l = f.read("line"); length(l); l = f.read("line")) {
-            const m = match(l, re);
-            if (m) {
-                push(nodes, m[1]);
-            }
+    if (!f) {
+        return nodes;
+    }
+    const hash = {};
+    for (let l = f.read("line"); length(l); l = f.read("line")) {
+        const m = match(l, re);
+        if (m) {
+            const n = m[1];
+            const ln = lc(n);
+            push(nodes, ln);
+            hash[ln] = n;
         }
-        f.close();
     }
-    if (doSort) {
-        sort(nodes, (a, b) => lc(a) === lc(b) ? 0 : lc(a) < lc(b) ? -1 : 1);
-    }
-    return nodes;
+    f.close();
+    sort(nodes);
+    return map(nodes, n => hash[n]);
 };
 
 export function getNodeCounts()

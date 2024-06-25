@@ -75,7 +75,7 @@
     {% if (auth.isAdmin) { %}
     <script>
         (function(){
-            htmx.on("body", "click", e => {
+            document.body.addEventListener("click", e => {
                 const a = htmx.findAll(".popup-menu input[type=checkbox]:checked");
                 for (let i = 0; i < a.length; i++) {
                     if (a[i] !== e.target) {

@@ -57,3 +57,8 @@ export function getTrackers()
     initLQM();
     return lqm?.trackers || {};
 };
+
+export function reset()
+{
+    lqm = null;
+};
