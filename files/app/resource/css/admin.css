@@ -533,6 +533,11 @@ label.switch
     top: -2px;
     right: -10px;
 }
+#ctrl-modal .dhcp-tags:has(.list:empty) .dhcptag-label,
+#ctrl-modal .dhcp-options:has(.list:empty) .dhcpoption-label
+{
+    display: none;
+}
 
 /* dhcp end */
 
