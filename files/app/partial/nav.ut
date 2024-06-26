@@ -56,12 +56,13 @@ if (auth.isAdmin) { %}
     const logo = htmx.find("#icon-logo");
     htmx.on("htmx:beforeRequest", function(e) {
         if (e.detail.requestConfig.triggeringEvent?.type === "click") {
+            const ismodal = e.detail.target?.id === "ctrl-modal";
             setTimeout(_ => {
                 if (document.body.classList.contains("htmx-request")) {
                     logo.classList.add("animate");
                 }
-            }, 2000);
-            if (e.detail.target?.id === "ctrl-modal") {
+            }, ismodal ? 1000 : 500);
+            if (ismodal) {
                 setTimeout(_ => {
                     if (!e.detail.target.open) {
                         e.detail.target.showModal();
