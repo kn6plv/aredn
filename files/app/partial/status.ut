@@ -44,10 +44,9 @@
 <div id="c2">
     <div hx-get="messages" hx-trigger="every 300s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
     {% if (messages.haveMessages()) { %}
-    <div id="messages">
+        <div id="messages">
         {{_R("messages")}}
         </div>
-    </div>
     {% } %}
     </div>
     <div id="services">

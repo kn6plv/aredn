@@ -681,6 +681,7 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
 }
 #messages .section > div
 {
+    color: var(--message-fg-color);
     padding: 0 0 4px 2px;
 }
 
