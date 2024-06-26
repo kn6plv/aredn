@@ -94,7 +94,7 @@
 }
 #ctrl-modal .ctrl-modal-advanced button:hover
 {
-    color: var(--ctrl-modal-textbox-fg-color);
+    color: var(--ctrl-modal-fg-color);
 }
 .ctrl-modal-advanced + div
 {
@@ -131,7 +131,7 @@
 #ctrl-modal input[type=password],
 #ctrl-modal input[type=file]
 {
-    color: var(--ctrl-modal-textbox-fg-color);
+    color: var(--ctrl-modal-fg-color);
     background-color: var(--ctrl-modal-textbox-bg-color);
     border: 1px solid var(--ctrl-modal-textbox-border-color);
     padding: 5px;
@@ -150,7 +150,7 @@
 }
 #ctrl-modal input[type=file]::file-selector-button
 {
-    color: var(--ctrl-modal-textbox-fg-color);
+    color: var(--ctrl-modal-fg-color);
     background-color: var(--ctrl-modal-textbox-bg-color);
     border: 1px solid var(--ctrl-modal-textbox-border-color);
 }
@@ -168,7 +168,7 @@
     appearance: none;
     outline: none;
     padding: 5px 5px 5px 10px;
-    color: var(--ctrl-modal-textbox-fg-color);
+    color: var(--ctrl-modal-fg-color);
     background-color: var(--ctrl-modal-textbox-bg-color);
     border: 1px solid var(--ctrl-modal-textbox-border-color);
     border-radius: .2em;
@@ -184,7 +184,7 @@
 {
     font: inherit;
     font-size: 14px;
-    color: var(--ctrl-modal-textbox-fg-color);
+    color: var(--ctrl-modal-fg-color);
     border: 1px solid var(--ctrl-modal-textbox-border-color);
     background-color: var(--ctrl-modal-textbox-bg-color);
     padding: 5px;
@@ -647,7 +647,7 @@ label.switch
 #local-services .service
 {
     padding-top: 10px;
-    color: var(--ctrl-modal-textbox-fg-color);
+    color: var(--ctrl-modal-fg-color);
 }
 #local-services .service .cols:first-child input
 {
@@ -1125,6 +1125,7 @@ label.switch
 
 #ctrl-modal .ports
 {
+    color: var(--ctrl-modal-fg-color);
     background-color: var(--ctrl-modal-bg-secondary-color);
     border-radius: 10px;
     padding: 20px;

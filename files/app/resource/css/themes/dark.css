@@ -13,6 +13,7 @@
     --section-link-fg-color: #0078a8;
     --ctrl-bg-color-hover: #202020;
     --ctrl-modal-backdrop-color: rgba(43, 32, 32, 0.7);
+    --ctrl-modal-fg-color: #f0f0f0;
     --ctrl-modal-bg-color: #101010;
     --ctrl-modal-border-color: #404040;
     --ctrl-modal-border-color-error: hsl(0, 100%, 37%);
@@ -21,7 +22,6 @@
     --ctrl-modal-fg-option-color: #f0f0f0;
     --ctrl-modal-fg-message-color: #808080;
     --ctrl-modal-fg-help-color: #808080;
-    --ctrl-modal-textbox-fg-color: #f0f0f0;
     --ctrl-modal-textbox-bg-color: #282828;
     --ctrl-modal-textbox-border-color: #a0a0a0;
     --ctrl-modal-advance-options-color: #a0a0a0;

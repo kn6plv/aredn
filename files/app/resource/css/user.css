@@ -644,7 +644,7 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
     font: inherit;
     font-size: 16px;
     padding: 50px;
-    color: var(--ctrl-modal-textbox-fg-color);
+    color: var(--ctrl-modal-fg-color);
     border-radius: 20px;
     background-color: var(--ctrl-modal-bg-tertiary-color);
 }
@@ -709,7 +709,7 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
     outline: none;
     font: inherit;
     padding: 5px;
-    color: var(--ctrl-modal-textbox-fg-color);
+    color: var(--ctrl-modal-fg-color);
     background-color: var(--ctrl-modal-textbox-bg-color);
     border: 1px solid var(--ctrl-modal-textbox-border-color);
 }

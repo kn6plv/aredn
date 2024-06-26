@@ -262,7 +262,7 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                         <div class="m">AREDN mesh identifier</div>
                     </div>
                     <div style="flex:0;white-space:nowrap">
-                        <input hx-put="{{request.env.REQUEST_URI}}" name="{{prefix}}ssid" type="text" size="10" maxlength="32" pattern="[^!#;+\]\/"\t][^+\]\/"\t]{0,30}[^ !#;+\]\/"\t]$|^[^ !#;+\]\/"\t]" value="{{wlan[w].modes[1].ssid}}"><span style="color:var(--ctrl-modal-textbox-fg-color)">-{{wlan[w].modes[1].bandwidth}}-v3</span>
+                        <input hx-put="{{request.env.REQUEST_URI}}" name="{{prefix}}ssid" type="text" size="10" maxlength="32" pattern="[^!#;+\]\/"\t][^+\]\/"\t]{0,30}[^ !#;+\]\/"\t]$|^[^ !#;+\]\/"\t]" value="{{wlan[w].modes[1].ssid}}"><span style="color:var(--ctrl-modal-fg-color)">-{{wlan[w].modes[1].bandwidth}}-v3</span>
                     </div>
                 </div>
                 {% if (uciMesh.get("aredn", "@lqm[0]", "lqm_enable") !== "0") { %}
