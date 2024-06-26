@@ -246,7 +246,7 @@ body.authenticated .ctrl:hover
     font-weight: bold;
     margin: auto 0 auto 20px;
 }
-.nav-status
+#nav-status
 {
     color: var(--subtitle-fg-color);
     font-size: 12px;

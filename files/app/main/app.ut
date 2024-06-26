@@ -89,18 +89,14 @@
 </body>
 </html>
 {% } else { %}
-<div id="all" hx-swap-oob="true">
-    <div id="nav">
-        {{_R("nav")}}
+{{_R("nav-status")}}
+<div id="panel" hx-swap-oob="true">
+    <div id="select">
+        {{_R("selection")}}
     </div>
-    <div id="panel">
-        <div id="select">
-            {{_R("selection")}}
-        </div>
-        <div id="main">
-            <div id="main-container">
-                {{_R(request.page)}}
-            </div>
+    <div id="main">
+        <div id="main-container">
+            {{_R(request.page)}}
         </div>
     </div>
 </div>
