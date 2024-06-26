@@ -36,19 +36,16 @@
 print("<script>\n");
 print("window.mesh = {hosts:{");
 
-const reHostsOlsr = regexp("^([0-9.]+)[ \t]+([^ \t]+)[ \t]+#[ \t]+([^ \t]+)");
-const reServices = regexp("^([^|]+)\\|(tcp|udp)\\|(.+)[ \t]+#[ \t]*([^ \t]+).*$");
+const reHostsOlsr = /^([0-9.]+)[ \t]+([^ \t]+)[ \t]+#[ \t]+([^ \t]+)/;
+const reServices = /^([^|]+)\|(tcp|udp)\|(.+)[ \t]+#[ \t]*([^ \t\n]+)/;
+const reRoutes = /^([0-9.]+)\/([0-9]+)\t[0-9.]+\t[0-9]+\t([0-9.]+)/;
 
 let myself = null;
 const h = fs.open("/var/run/hosts_olsr");
 if (h) {
     let originator = null;
     let first = true;
-    for (;;) {
-        const line = h.read("line");
-        if (!length(line)) {
-            break;
-        }
+    for (let line = h.read("line"); length(line); line = h.read("line")) {
         const v = match(trim(line), reHostsOlsr);
         if (v) {
             if (originator !== v[3]) {
@@ -88,12 +85,8 @@ const s = fs.open("/var/run/services_olsr");
 if (s) {
     let first = true;
     let ip = null;
-    for (;;) {
-        const line = s.read("line");
-        if (!length(line)) {
-            break;
-        }
-        const v = match(trim(line), reServices);
+    for (let line = s.read("line"); length(line); line = s.read("line")) {
+        const v = match(line, reServices);
         if (v) {
             if (ip !== v[4]) {
                 if (ip) {
@@ -119,12 +112,14 @@ if (s) {
     s.close();
 }
 print(`},etx:[["${myself}",0.0],`);
-const routes = olsr.getRoutes();
-for (let i = 0; i < length(routes); i++) {
-    const node = routes[i];
-    if (node.genmask > 8 && node.etx <= 50) {
-        print(`["${node.destination}",${sprintf("%.1f", node.etx)}],`);
+const f = fs.popen("exec /usr/bin/curl http://127.0.0.1:2006/rou -o - 2> /dev/null");
+if (f) {
+  for (let l = f.read("line"); length(l); l = f.read("line")) {
+    const m = match(l, reRoutes);
+    if (m && m[2] > 8 && m[3] <= 50) {
+        print(`["${m[1]}",${sprintf("%.1f", m[3])}],`);
     }
+  }
 }
 print("].sort((a,b)=>a[1]-b[1])};\n");
 print("</script>\n");

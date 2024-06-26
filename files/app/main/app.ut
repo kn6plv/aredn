@@ -33,7 +33,7 @@
  */
 %}
 {% if (!request.headers["hx-boosted"]) { %}
-<!DOCTYPE>
+<!DOCTYPE html>
 <html>
 <head>
     {% if (config.debug) { %}
