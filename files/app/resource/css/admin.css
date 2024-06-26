@@ -1117,6 +1117,7 @@ label.switch
     width: 16px;
     height: 16px;
     pointer-events: none;
+    filter: var(--icon-filter);
 }
 
 /* tunnel end */
