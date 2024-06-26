@@ -78,8 +78,9 @@ function serv(ip, hostname)
     return view;
 }
 
-const blocks = [ 1, 2, 3, 5, 10, 10000 ];
-let data = `<div class="block block1">`;
+const blocks = [ 1, 2, 3, 5, 10, 1000 ];
+const labels = [ "Excellent", "Good", "Fair", "Okay", "Slow", "Improbable" ];
+let data = `<div class="block block1"><div class="label">${labels[0]}</div>`;
 for (let i = 0; i < etx.length; i++) {
     const item = etx[i];
     const ip = item[0];
@@ -90,8 +91,9 @@ for (let i = 0; i < etx.length; i++) {
             if (item[1] >= blocks[0]) {
                 while (item[1] >= blocks[0]) {
                     blocks.shift();
+                    labels.shift();
                 }
-                data += `</div><div class="block block${blocks[0]}">`;
+                data += `</div><div class="block block${blocks[0]}"><div class="label">${labels[0]}</div>`;
             }
             let lanview = "";
             for (let j = 0; j < hostlist.length; j++) {

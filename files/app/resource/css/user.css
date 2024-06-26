@@ -732,9 +732,10 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
 }
 #meshpage .block
 {
+    position: relative;
     display: flex;
     flex-flow: wrap;
-    padding: 30px 20px;
+    padding: 40px 20px 30px 20px;
     border-radius: 10px;
     margin-bottom: 10px;
     border-width: 2px;
@@ -743,6 +744,18 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
 #meshpage .block:empty
 {
     display: none;
+}
+#meshpage .block .label
+{
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    padding: 4px 10px;
+    font-size: 14px;
+    text-transform: uppercase;
+    color: var(--body-bg-color);
+    border-top-left-radius: 10px;
+    border-bottom-right-radius: 10px;
 }
 #meshpage .node
 {
@@ -847,9 +860,33 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
 {
     border-color: var(--meshpage-block10-border-color);
 }
-.block10000
+.block1000
 {
     border-color: var(--meshpage-block1000-border-color);
+}
+.block1 .label
+{
+    background-color: var(--meshpage-block1-border-color);
+}
+.block2 .label
+{
+    background-color: var(--meshpage-block2-border-color);
+}
+.block3 .label
+{
+    background-color: var(--meshpage-block3-border-color);
+}
+.block5 .label
+{
+    background-color: var(--meshpage-block5-border-color);
+}
+.block10 .label
+{
+    background-color: var(--meshpage-block10-border-color);
+}
+.block1000 .label
+{
+    background-color: var(--meshpage-block1000-border-color);
 }
 
 #meshpage.filtering .service,
