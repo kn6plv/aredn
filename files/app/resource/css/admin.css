@@ -1405,5 +1405,10 @@ label.switch
     font-size: 4px;
     text-anchor: end;
 }
+#wifi-chart input[type=range]::-webkit-slider-runnable-track
+{
+    background-color: var(--ctrl-modal-bg-secondary-color);
+    border-radius: 5px;
+}
 
 /* tools end */
