@@ -501,3 +501,34 @@ export function getDefaultNetworkConfiguration()
     }
     return c;
 };
+
+export function hasPOE()
+{
+    const board = getBoard();
+    if (board?.gpioswitch?.poe_passthrough?.pin) {
+        return true;
+    }
+    // Handle typo
+    if (board?.gpioswitch?.poe_passtrough?.pin) {
+        return true;
+    }
+    const gpios = fs.lsdir("/sys/class/gpio/");
+    for (let i = 0; i < length(gpios); i++) {
+        if (match(gpios[i], /^enable-poe:/)) {
+            return true;
+        }
+    }
+    return false;
+};
+
+export function hasUSBPower()
+{
+    const board = getBoard();
+    if (board?.gpioswitch?.usb_power_switch?.pin) {
+        return true;
+    }
+    if (fs.access("/sys/class/gpio/usb-power")) {
+        return true;
+    }
+    return false;
+};
