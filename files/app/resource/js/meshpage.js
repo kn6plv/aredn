@@ -79,7 +79,7 @@ function serv(ip, hostname)
 }
 
 const blocks = [ 1, 2, 3, 5, 10, 1000 ];
-const labels = [ "Excellent", "Good", "Fair", "Okay", "Slow", "Improbable" ];
+const labels = [ "Excellent", "Good", "Fair", "Slow", "Poor", "Improbable" ];
 let data = `<div class="block block1"><div class="label">${labels[0]}</div>`;
 for (let i = 0; i < etx.length; i++) {
     const item = etx[i];

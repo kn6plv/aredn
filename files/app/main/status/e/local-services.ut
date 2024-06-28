@@ -35,7 +35,7 @@
 {%
 if (request.env.REQUEST_METHOD === "PUT") {
     configuration.prepareChanges();
-    if ("services" in request.args.services) {
+    if ("services" in request.args) {
         const services = json(request.args.services);
         const dhcp = configuration.getDHCP();
         let f = fs.open(dhcp.services, "w");
