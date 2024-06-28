@@ -281,7 +281,7 @@ if (tracker) {
                 <div></div>
             </div>
             {%
-            const snr = `/tmp/snrlog/${uc(selected)}-${lc(n.hostname)}.local.mesh`;
+            const snr = `/tmp/snrlog/${uc(selected)}-${lc(n.hostname)}`;
             if (fs.access(snr)) {
                 let signal = "<polyline class='signal' points='";
                 let noise = "<polyline class='noise' points='";
@@ -289,7 +289,7 @@ if (tracker) {
                 const f = fs.open(snr);
                 if (f) {
                     const s = [];
-                    const re = /^([^,]+),([-0-9]+),([-0-9]+),([0-9]+),([0-9\.]+),([-0-9]+),([0-9\.]+)$/;
+                    const re = /^([^,]+),([-0-9]+),([-0-9]+),([-0-9]+),([-0-9\.]+),([-0-9]+),([-0-9\.]+)$/;
                     for (let l = f.read("line"); length(l); l = f.read("line")) {
                         const m = match(trim(l), re);
                         if (m) {

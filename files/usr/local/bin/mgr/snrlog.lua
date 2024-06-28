@@ -123,9 +123,9 @@ function run_snrlog()
         local arp = arpcache[mac]
         if arp then
             local ip = arp["IP address"]
-            local hostname = nslookup(ip)
+            local hostname = nixio.getnameinfo(ip)
             if hostname then
-                datafile = datafile..hostname:lower()
+                datafile = datafile..hostname:lower():gsub("^dtdlink%.", ""):gsub("^mid%d+%.", ""):gsub("^xlink%d+%.", ""):gsub("%.local%.mesh$", "")
             elseif ip then
                 datafile = datafile..ip
             end
