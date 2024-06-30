@@ -1251,6 +1251,15 @@ label.switch
     margin: 0;
     overflow: hidden scroll;
 }
+.tool-console pre a
+{
+    color: inherit;
+    text-decoration: none;
+}
+.tool-console pre a:hover
+{
+    text-decoration: underline;
+}
 .simple-tool
 {
     display: flex;

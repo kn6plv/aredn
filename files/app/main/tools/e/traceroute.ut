@@ -119,7 +119,7 @@ const mynode = configuration.getName();
                 const con = htmx.find(".tool-console pre");
                 con.innerText = "";
                 function out(line) {
-                    con.innerText += `${line}\n`;
+                    con.innerHTML += `${line}\n`;
                 }
                 out("Traceroute test started");
                 out("");
@@ -173,6 +173,10 @@ const mynode = configuration.getName();
                                         out("Traceroute done");
                                     }
                                     else {
+                                        const m = line.match(/^[0-9]+ +(.+\.local\.mesh) /);
+                                        if (m) {
+                                            line = line.replace(m[1], `<a href="http://${m[1]}">${m[1]}</a>`);
+                                        }
                                         out(line);
                                     }
                                 }
