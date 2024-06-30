@@ -161,6 +161,11 @@
 {
     border-color: transparent;
 }
+#ctrl-modal input[type=file]
+{
+    max-width: 350px;
+    text-align: left;
+}
 
 #ctrl-modal select
 {
