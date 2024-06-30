@@ -387,6 +387,7 @@
                 </div>
             </div>
             {{_R("dialog-advanced")}}
+            {% if (includeAdvanced) { %}
             <div>
                 {% if (fs.access("/rom/etc")) { %}
                 <div class="cols">
@@ -418,6 +419,7 @@
                     </div>
                 </div>
             </div>
+            {% } %}
             <div style="flex:1"></div>
             <div class="cols" style="padding-top:16px">
                 <div id="firmware-upload">

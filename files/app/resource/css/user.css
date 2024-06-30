@@ -671,9 +671,11 @@ body.authenticated #local-and-neighbor-devices .status.ctrl:hover
 
 #messages
 {
+    position: relative;
     background-color: var(--message-bg-color);
     padding: 10px;
     border-radius: 10px;
+    z-index: 1;
 }
 #messages .section-title
 {

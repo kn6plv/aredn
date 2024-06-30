@@ -333,6 +333,7 @@ const gateway_altnet = dmz_mode === 1 ? dhcp.gateway : "";
         </div>
         {{_H("For hosts not on the Mesh, use these DNS servers to resolve names to IP addresses.")}}
         {{_R("dialog-advanced")}}
+        {% if (includeAdvanced) { %}
         <div class="compact">
             {% if (length(hardware.getEthernetPorts()) < 2) { %}
             <div class="cols">
@@ -379,6 +380,7 @@ const gateway_altnet = dmz_mode === 1 ? dhcp.gateway : "";
             {{_H("Provide a default route to a LAN connected device, even if our local WAN is disabled. By default this is only provided to
             devices if our local WAN is available.")}}
         </div>
+        {% } %}
     </div>
     {{_R("dialog-footer")}}
     <script>

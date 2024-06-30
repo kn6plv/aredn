@@ -517,6 +517,7 @@ global.handle_request = function(env)
                     ubus: ubusMethods,
                     auth: auth,
                     includeHelp: (env.headers || {})["include-help"] === "1",
+                    includeAdvanced: (env.headers || {})["include-advanced"] === "1",
                     fs: fs,
                     configuration: configuration,
                     hardware: hardware,

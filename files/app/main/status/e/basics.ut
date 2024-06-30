@@ -199,6 +199,7 @@ if (request.env.REQUEST_METHOD === "DELETE") {
             </div>
         </div>
         {{_R("dialog-advanced")}}
+        {% if (includeAdvanced) { %}
         <div>
             <div class="cols">
                 <div>
@@ -225,6 +226,7 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                 </div>
             </div>
         </div>
+        {% } %}
     </div>
     {{_R("dialog-footer")}}
     <script>
@@ -261,6 +263,7 @@ if (request.env.REQUEST_METHOD === "DELETE") {
         }
         htmx.on("dialog input[name=passwd1] + button", "click", toggle);
         htmx.on("dialog input[name=passwd2] + button", "click", toggle);
+        {% if (includeAdvanced) { %}
         htmx.on("dialog input[name=ssh_add]", "change", e => {
             htmx.find("dialog select[name=ssh_remove]").value = "-";
             if (e.target.value === "-") {
@@ -306,6 +309,7 @@ if (request.env.REQUEST_METHOD === "DELETE") {
             htmx.find("dialog #ssh_change").disabled = true;
             htmx.find("dialog #ssh_change").innerHTML = "Upload or Remove Key";
         });
+        {% } %}
     })();
     </script>
 </div>

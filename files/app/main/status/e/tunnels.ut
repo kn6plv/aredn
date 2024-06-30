@@ -300,6 +300,7 @@ function t2t(type)
             }
         %}</div>
         {{_R("dialog-advanced")}}
+        {% if (includeAdvanced) { %}
         <div>
             <div class="cols">
                 <div>
@@ -320,6 +321,7 @@ function t2t(type)
                 </div>
             </div>
         </div>
+        {% } %}
     </div>
     {{_R("dialog-footer")}}
     <script>
