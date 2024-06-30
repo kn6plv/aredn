@@ -630,12 +630,14 @@ label.switch
 }
 #neighbor-device-chart .hints rect:hover
 {
-    fill: rgba(0,0,0,0.1);
+    fill: var(--ctrl-modal-fg-color);
+    opacity: 0.1;
 }
 #neighbor-device-chart .hints g text
 {
     display: none;
     font-size: 4px;
+    fill: var(--ctrl-modal-fg-color);
 }
 #neighbor-device-chart .hints g:hover text
 {
