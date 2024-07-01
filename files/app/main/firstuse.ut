@@ -43,7 +43,7 @@ if (request.env.REQUEST_METHOD === "PUT") {
 <!DOCTYPE>
 <html>
 <head>
-    <link href="/a/css/aredn.css" rel="stylesheet">
+    <link href="/a/css/theme.css" rel="stylesheet">
     <link href="/a/css/user.css" rel="stylesheet">
     <link href="/a/css/admin.css" rel="stylesheet">
     <script src="/a/js/htmx.min.js"></script>
@@ -67,7 +67,7 @@ if (request.env.REQUEST_METHOD === "PUT") {
                 <div>
                     <div class="cols">
                         <div>Node Name</div>
-                        <div><input type="text" name="name" required pattern="[A-Z][A-Z0-9]+-[\-_a-zA-Z0-9]+"></div>
+                        <div><input type="text" name="name" required pattern="[0-9]?[A-Z]{1,2}[0-9]{1,4}[A-Z]{1,3}-[\-_a-zA-Z0-9]+"></div>
                     </div>
                     <div>
                         <small>This is the unique name given to your node. It must start with your callsign. For example, <b>K6AH-Home</b></small>

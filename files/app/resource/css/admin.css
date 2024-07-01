@@ -842,6 +842,7 @@ label.switch
 .firstuse > div:nth-child(2) > div:nth-child(3) .cols div:first-child
 {
     margin: auto 0;
+    white-space: nowrap;
 }
 .firstuse .cols div:nth-child(2)
 {

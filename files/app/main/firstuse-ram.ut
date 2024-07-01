@@ -42,7 +42,7 @@ if (request.env.REQUEST_METHOD === "POST") {
 <!DOCTYPE>
 <html>
 <head>
-    <link href="/a/css/aredn.css" rel="stylesheet">
+    <link href="/a/css/theme.css" rel="stylesheet">
     <link href="/a/css/user.css" rel="stylesheet">
     <link href="/a/css/admin.css" rel="stylesheet">
     <script src="/a/js/htmx.min.js"></script>
