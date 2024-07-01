@@ -654,6 +654,10 @@ function lqm()
                                 track.distance = calc_distance(lat, lon, track.lat, track.lon)
                             end
 
+                            -- Keep some useful info
+                            track.model = info.node_details.model
+                            track.firmware_version = info.node_details.firmware_version
+
                             if track.type == "RF" then
                                 rflinks[track.mac] = nil
                                 if info.lqm and info.lqm.enabled and info.lqm.info and info.lqm.info.trackers then

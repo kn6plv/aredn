@@ -181,6 +181,20 @@ if (tracker) {
                     <div>ip address</div>
                 </div>
             </div>
+            {% if (n.model && n.firmware_version) { %}
+            <div class="cols">
+                <div class="i">
+                    <div>{{n.model}}</div>
+                    <div>model</div>
+                </div>
+                <div class="i">
+                    <div>{{n.firmware_version}}</div>
+                    <div>firmware</div>
+                </div>
+                <div>
+                </div>
+            </div>
+            {% } %}
             <div class="cols">
                 <div class="i">
                     <div>{{map(n, n.lat) || "-"}}</div>
