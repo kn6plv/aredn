@@ -54,6 +54,7 @@
     {% } %}
     {% } %}
     <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+    <title>{{configuration.getName()}} {{auth.isAdmin && request.page === "status" ? "admin" : request.page}}</title>
 </head>
 <body class="{{auth.isAdmin ? "authenticated" : ""}}" hx-indicator="body">
     <dialog id="ctrl-modal" onclose="event.target.innerHTML = ''"></dialog>
@@ -89,6 +90,7 @@
 </body>
 </html>
 {% } else { %}
+<title>{{configuration.getName()}} {{auth.isAdmin && request.page === "status" ? "admin" : request.page}}</title>
 {{_R("nav-status")}}
 <div id="panel" hx-swap-oob="true">
     <div id="select">
