@@ -313,13 +313,24 @@ if (tracker) {
                     if (length(s) > 90) {
                         splice(s, 0, length(s) - 90);
                     }
-                    const step = 180.0 / length(s);
+                    const slength = length(s);
+                    const slength2 = slength * 0.75;
+                    const step = 180.0 / slength;
                     let o = 10.0;
-                    for (let i = 0; i < length(s); i++) {
+                    let i;
+                    for (i = 0; i < slength2; i++) {
                         signal += `${o},${10.0 + (s[i][2] / -120.0 * 80.0)} `;
                         noise += `${o},${10.0 + (s[i][3] / -120.0 * 80.0)} `;
                         const hx = o + 4;
                         hints += `<g><rect width="${step}" height="85" x="${o - step / 2}" y="5"></rect><text y="10"><tspan x="${hx}">${s[i][1]}</tspan><tspan x="${hx}" dy="6px">Signal: ${s[i][2]} dBm</tspan><tspan x="${hx}" dy="6px">Noise: ${s[i][3]} dBm</tspan></text></g>`;
+                        o += step;
+                    }
+                    for (; i < slength; i++) {
+                        signal += `${o},${10.0 + (s[i][2] / -120.0 * 80.0)} `;
+                        noise += `${o},${10.0 + (s[i][3] / -120.0 * 80.0)} `;
+                        const hx = o + 4;
+                        const hx2 = o - 4;
+                        hints += `<g class="r"><rect width="${step}" height="85" x="${o - step / 2}" y="5"></rect><text y="10"><tspan x="${hx2}">${s[i][1]}</tspan><tspan x="${hx2}" dy="6px">Signal: ${s[i][2]} dBm</tspan><tspan x="${hx2}" dy="6px">Noise: ${s[i][3]} dBm</tspan></text></g>`;
                         o += step;
                     }
                     f.close();

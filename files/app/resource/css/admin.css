@@ -639,6 +639,10 @@ label.switch
     font-size: 4px;
     fill: var(--ctrl-modal-fg-color);
 }
+#neighbor-device-chart .hints g.r text
+{
+    text-anchor: end;
+}
 #neighbor-device-chart .hints g:hover text
 {
     display: block;

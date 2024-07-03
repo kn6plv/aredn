@@ -94,6 +94,7 @@ const mynode = configuration.getName();
     <script>
     (function(){
         {{_R("open")}}
+        htmx.find("#tool-target").focus();
         const mynode = "{{mynode}}";
         htmx.on("#tool-select", "change", e => {
             if (e.target.value !== "") {
