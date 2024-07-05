@@ -40,6 +40,12 @@
         <div class="t">{{configuration.getSettingAsString("description_node", "None")}}</div>
         <div class="s">description</div>
     </div>
+    {% if (auth.isAdmin) { %}
+    <div>
+        <div class="t">{{uci.get("aredn", "@notes[0]", "private") || "-"}}</div>
+        <div class="s">notes</div>
+    </div>
+    {% } %}
 </div>
 <div id="health" hx-get="health" hx-trigger="every 30s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
 {{_R("health")}}

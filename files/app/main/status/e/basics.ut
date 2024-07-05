@@ -74,6 +74,10 @@ if (request.env.REQUEST_METHOD === "PUT") {
     if ("description_node" in request.args) {
         configuration.setSetting("description_node", replace(request.args.description_node || "", "'", "’"));
     }
+    if ("notes" in request.args) {
+        uciMesh.set("aredn", "@notes[0]", "private", replace(request.args.notes || "", "'", "’"));
+        uciMesh.commit("aredn");
+    }
     if ("node_name" in request.args) {
         const name = request.args.node_name;
         configuration.setName(name);
@@ -152,6 +156,18 @@ if (request.env.REQUEST_METHOD === "DELETE") {
         People include various thing, such as some basic information about the location or hardware or
         the services this node provides. Some people include alternate ways to reach the owner (e.g email
         address).")}}
+        <div class="cols">
+            <div>
+                <div class="o">Notes</div>
+                <div class="m">Private notes about this node</div>
+            </div>
+            <div style="flex:0">
+                <textarea name="notes" style="width:340px" rows="2" columns="80" hx-put="{{request.env.REQUEST_URI}}">{{uciMesh.get("aredn", "@notes[0]", "private") || ""}}</textarea>
+            </div>
+        </div>
+        {{_H("Private notes about this node which are only visible to the operator. This can be anything
+        thought relevant or useful. For example it might include information about custom configurations
+        or attached devices.")}}
         <div class="cols">
             <div>
                 <div class="o">Theme</div>

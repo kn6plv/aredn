@@ -99,6 +99,7 @@ local config = {
             lowmem = 10000,
             lowroutes = 1000
         },
+        notes = {},
         ntp = {
             period = "daily",
         },
