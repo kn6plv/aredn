@@ -80,20 +80,22 @@ if (request.env.REQUEST_METHOD === "PUT") {
     }
     if ("node_name" in request.args) {
         const name = request.args.node_name;
-        configuration.setName(name);
-        uciMesh.foreach("vtun", "server", s => {
-            const netip = s.netip;
-            if (index(net, ":") === -1) {
-                const np = split(netip, ":");
-                const n = iptoarr(np[0]);
-                uciMesh.set("vtun", s[".name"], "node", `${uc(substr(name, 0, 23))}-${n[0]}-${n[1]}-${n[2]}-${n[3]}:${np[1]}`);
-            }
-            else {
-                const n = iptoarr(netip);
-                uciMesh.set("vtun", s[".name"], "node", `${uc(substr(name, 0, 23))}-${n[0]}-${n[1]}-${n[2]}-${n[3]}`);
-            }
-        });
-        uciMesh.commit("vtun");
+        if (match(name, constants.reNodename)) {
+            configuration.setName(name);
+            uciMesh.foreach("vtun", "server", s => {
+                const netip = s.netip;
+                if (index(net, ":") === -1) {
+                    const np = split(netip, ":");
+                    const n = iptoarr(np[0]);
+                    uciMesh.set("vtun", s[".name"], "node", `${uc(substr(name, 0, 23))}-${n[0]}-${n[1]}-${n[2]}-${n[3]}:${np[1]}`);
+                }
+                else {
+                    const n = iptoarr(netip);
+                    uciMesh.set("vtun", s[".name"], "node", `${uc(substr(name, 0, 23))}-${n[0]}-${n[1]}-${n[2]}-${n[3]}`);
+                }
+            });
+            uciMesh.commit("vtun");
+        }
     }
     if ("passwd" in request.args) {
         configuration.setPassword(request.args.passwd);
@@ -140,9 +142,10 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                 <div class="m">This node's unique name</div>
             </div>
             <div style="flex:0">
-                <input name="node_name" hx-put="{{request.env.REQUEST_URI}}" hx-swap="none" type="text" minlength="4" maxlength="63" size="30" required pattern="[^']+" value="{{configuration.getName()}}">
+                <input name="node_name" hx-put="{{request.env.REQUEST_URI}}" hx-swap="none" type="text" minlength="4" maxlength="63" size="30" required pattern="{{constants.patNodename}}" value="{{configuration.getName()}}">
             </div>
         </div>
+        {{_H("Change the node's unique name. The name must start with your callsign and be less than 64 characters long.")}}
         <div class="cols">
             <div>
                 <div class="o">Description</div>
@@ -154,7 +157,7 @@ if (request.env.REQUEST_METHOD === "DELETE") {
         </div>
         {{_H("Some optional descriptive text about this node. This can be anything you think relevant.
         People include various thing, such as some basic information about the location or hardware or
-        the services this node provides. Some people include alternate ways to reach the owner (e.g email
+        the services this node provides. Some people include alternate ways to reach the owner (e.g em&zwnj;ail
         address).")}}
         <div class="cols">
             <div>
@@ -193,6 +196,8 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                 </select>
             </div>
         </div>
+        {{_H("Select the display theme for this node. This theme determines how everyone see this node when they visit. The
+        default theme automatically selects either Light or Dark depending on the viewers browser settings.")}}
         <hr>
         <div class="password">
             <div class="cols">
@@ -201,7 +206,7 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                     <div class="m">Change the node password</div>
                 </div>
                 <div>
-                    <input name="passwd1" type="password" pattern="`[^#'"]+"><button class="icon eye"></button>
+                    <input name="passwd1" type="password" pattern="[^#'"]+"><button class="icon eye"></button>
                 </div>
             </div>
             <div class="cols">
@@ -213,6 +218,8 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                     <input name="passwd2" type="password" pattern=""><button class="icon eye"></button>
                 </div>
             </div>
+            {{_H("Set a new password for this device by entering it twice in the boxes. Don't use the # or any quote character. This password
+            is used for logging into the UI as well as telnet and ssh access.")}}
         </div>
         {{_R("dialog-advanced")}}
         {% if (includeAdvanced) { %}
@@ -235,6 +242,8 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                     <select name="ssh_remove">{{getSshKeys()}}</select>
                 </div>
             </div>
+            {{_H("Console access to the node is possible using SSH. To avoid typing a password you can upload an SSH public key which allows
+            password-less login. Multiple keys can be uploaded above, and keys can also be selectively removed.")}}
             <div class="cols">
                 <div></div>
                 <div style="flex:0">
