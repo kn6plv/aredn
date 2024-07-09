@@ -366,6 +366,9 @@
                     <div id="firmware-refresh"><button class="icon refresh"></button></div>
                 </div>
             </div>
+            {{_H("Download firmware directly from a central server, either on the Internet or a locally configured mesh server.
+            Refresh the list of available firmware version using the refresh button to the right of the firmware list. Once a
+            firmware is selected it can be downloaded and installed using the button at the base of the dialog.")}}
             <br>
             <div class="cols">
                 <div>
@@ -376,6 +379,8 @@
                     <input type="file" accept=".bin,.gz" {{sideload ? 'disabled' : ''}}>
                 </div>
             </div>
+            {{_H("Upload a firmware file from your computer. Once the firmware has been succesfully uploaded it can be installed
+            using the button at the base of the dialog.")}}
             <br>
             <div class="cols">
                 <div>
@@ -386,6 +391,8 @@
                     <input id="sideload-firmware" type="text" disabled placeholder="/tmp/local_firmware" value="{{sideload ? '/tmp/local_firmware' : ''}}">
                 </div>
             </div>
+            {{_H("Sideload a firmware file by transferring it onto the node by some other means (e.g. scp) and putting it in the /tmp directory
+            with the name local_firmware. It can then be installed using the button at the base of the dialog.")}}
             {{_R("dialog-advanced")}}
             {% if (includeAdvanced) { %}
             <div>
@@ -399,6 +406,8 @@
                         {{_R("switch", { name: "keepconfig", value: true })}}
                     </div>
                 </div>
+                {{_H("Keep the current configuration when updating the node's firmware. This is usually what you want to do, but on
+                rare occasions you might want to return the node to its first boot state.")}}
                 {% } %}
                 <div class="cols">
                     <div>
@@ -409,6 +418,8 @@
                         {{_R("switch", { name: "dangerousupgrade", value: false })}}
                     </div>
                 </div>
+                {{_H("Force the firmware to be installed, even if the system thinks it is not compatible. You almost never
+                want to do this so this should be used with care.")}}
                 <div class="cols">
                     <div>
                         <div class="o">Firmware URL</div>
@@ -418,6 +429,8 @@
                         <input hx-put="{{request.env.REQUEST_URI}}" hx-swap="none" name="firmwareurl" type="text" size="45" pattern="{{constants.patUrl}}" value="{{uciMesh.get("aredn", "@downloads[0]", "firmware_aredn")}}">
                     </div>
                 </div>
+                {{_H("The base URL used to download firmware. By default this points to the main AREDN repository, but you can change this
+                to a local server, especially if you'd like to do this without a connection to the Internet.")}}
             </div>
             {% } %}
             <div style="flex:1"></div>
@@ -429,6 +442,7 @@
                     <button id="fetch-and-update" {{sideload ? '' : 'disabled'}} hx-trigger="none" hx-encoding="multipart/form-data">{{sideload ? 'Update' : 'Fetch and Update'}}</button>
                 </div>
             </div>
+            {{_H("<br>Depending on how the firmware it to be installed using the options above, this button will initiate the process.")}}
         </div>
     </div>
     {{_R("dialog-footer", "nocancel" )}}
