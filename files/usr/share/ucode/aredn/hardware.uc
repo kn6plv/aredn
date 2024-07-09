@@ -73,7 +73,7 @@ export function getBoardId()
                 f.seek(12);
                 const d = f.read(2);
                 f.close();
-                name = sprintf("0x%02x%02x", d[0], d[1]);
+                name = sprintf("0x%02x%02x", ord(d, 0), ord(d, 1));
             }
         }
     }
