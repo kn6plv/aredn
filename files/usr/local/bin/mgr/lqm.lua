@@ -623,8 +623,8 @@ function lqm()
                     -- Refresh the hostname periodically as it can change
                     track.hostname = canonical_hostname(nixio.getnameinfo(track.ip)) or track.hostname
 
-                    if track.blocked or not track.routable then
-                        -- Remote is blocked not directly routable
+                    if track.blocked then
+                        -- Remote is blocked
                         -- We cannot update so invalidate any information considered stale and set time to attempt refresh
                         track.refresh = is_pending(track) and 0 or now + refresh_retry_timeout
                         track.rev_snr = nil
