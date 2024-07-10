@@ -36,7 +36,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    {% if (config.debug) { %}
+    {% if (!config.resourcehash) { %}
     <link href="/a/css/theme.css" rel="stylesheet">
     <link href="/a/css/user.css" rel="stylesheet">
     {% if (auth.isAdmin) { %}

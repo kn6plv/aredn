@@ -55,7 +55,7 @@ if (request.env.REQUEST_METHOD === "PUT") {
         if (fs.access(`${config.application}/resource/css/themes/${theme}.css`)) {
             fs.unlink(`${config.application}/resource/css/theme.css`);
             fs.symlink(`themes/${theme}.css`, `${config.application}/resource/css/theme.css`);
-            if (!config.debug) {
+            if (config.resourcehash) {
                 const themes = fs.lsdir(`${config.application}/resource/css/themes`);
                 const re = regexp(`^${theme}\.css\.(.+)\.gz`);
                 for (let i = 0; i < length(themes); i++) {

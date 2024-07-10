@@ -63,7 +63,7 @@ if (!fs.access(`${config.application}/resource/css/theme.css`)) {
     fs.symlink("themes/default.css", `${config.application}/resource/css/theme.css`);
 }
 
-if (!config.debug) {
+if (config.preload) {
     function cp(path) {
         const dir = fs.opendir(`${config.application}${path}`);
         for (;;) {
@@ -80,9 +80,12 @@ if (!config.debug) {
     cp("/main/");
     cp("/partial/");
     cp("/main/status/e/");
+    cp("/main/tools/e/");
 
     radios.getCommonConfiguration();
+}
 
+if (config.resourcehash) {
     function prepareResource(id, resource)
     {
         const path = `${config.application}/resource/${resource}`;
@@ -376,9 +379,11 @@ const ubusMethods =
     }
 };
 
+const rePath = /^\/([-a-z]*)(.*)$/;
+
 global.handle_request = function(env)
 {
-    const path = match(env.PATH_INFO, /^\/([-a-z]*)(.*)$/);
+    const path = match(env.PATH_INFO, rePath);
     const page = path[1] || "status";
     const secured = index(path[2], "/e/") === 0;
     const firstuse = !!fs.access("/etc/config/unconfigured");
@@ -403,14 +408,14 @@ global.handle_request = function(env)
         }
         else {
             tpath = `${config.application}/main/${page}.ut`;
-            if (!((config.debug && fs.access(tpath)) || (!config.debug && pageCache[tpath]))) {
+            if (!pageCache[tpath] && !fs.access(tpath)) {
                 tpath = `${config.application}/main/app.ut`;
             }
         }
 
         if (pageCache[tpath] || fs.access(tpath)) {
             auth.runAuthentication(env);
-            if (secured && !auth.isAdmin && !config.debug) {
+            if (secured && !auth.isAdmin && config.authenable) {
                 uhttpd.send("Status: 401 Unauthorized\r\n\r\n");
                 return;
             }
@@ -537,7 +542,7 @@ global.handle_request = function(env)
                 res = `<div><b>ERROR: ${e.message}</b><div><pre>${e.stacktrace[0].context}</pre></div>`;
             }
             if (!response.override) {
-                if (index(env.HTTP_ACCEPT_ENCODING || "", "gzip") === -1 || config.debug) {
+                if (index(env.HTTP_ACCEPT_ENCODING || "", "gzip") === -1 || !config.compress) {
                     response.headers["Content-Length"] = `${length(res)}`;
                     uhttpd.send(
                         `Status: ${response.statusCode} OK\r\n`,
@@ -592,7 +597,7 @@ global.handle_request = function(env)
         else if (substr(rpath, -4) === ".css") {
             uhttpd.send("Content-Type: text/css\r\n");
         }
-        if (config.debug) {
+        if (!config.resourcehash) {
             uhttpd.send("Cache-Control: no-store\r\n");
         }
         else {
@@ -618,7 +623,7 @@ global.handle_request = function(env)
         else if (substr(rpath, -4) === ".css") {
             uhttpd.send("Content-Type: text/css\r\n");
         }
-        if (config.debug) {
+        if (!config.resourcehash) {
             uhttpd.send("Cache-Control: no-store\r\n");
         }
         else {
@@ -630,7 +635,7 @@ global.handle_request = function(env)
         return;
     }
 
-    if (config.debug) {
+    if (!config.resourcehash) {
         uhttpd.send("Status: 404 Not Found\r\nCache-Control: no-store\r\n\r\n");
     }
     else {

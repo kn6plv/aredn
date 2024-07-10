@@ -70,20 +70,22 @@
         }
         t.close();
     }
-    const w = fs.popen("/usr/bin/wg show all latest-handshakes");
-    if (w) {
-        for (let l = w.read("line"); length(l); l = w.read("line")) {
-            const v = split(l, /\t/);
-            if (v && int(v[2]) + 300 > time()) {
-                if (index(v[1], "wgc") === 0) {
-                    wac++;
-                }
-                else {
-                    was++;
+    if (fs.access("/usr/bin/wg")) {
+        const w = fs.popen("/usr/bin/wg show all latest-handshakes");
+        if (w) {
+            for (let l = w.read("line"); length(l); l = w.read("line")) {
+                const v = split(l, /\t/);
+                if (v && int(v[2]) + 300 > time()) {
+                    if (index(v[1], "wgc") === 0) {
+                        wac++;
+                    }
+                    else {
+                        was++;
+                    }
                 }
             }
+            w.close();
         }
-        w.close();
     }
 %}
 <div class="ctrl" hx-get="status/e/tunnels" hx-target="#ctrl-modal" hx-swap="innerHTML">

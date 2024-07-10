@@ -84,10 +84,12 @@
         {{_R("ports-and-xlinks")}}
     </div>
     {% } %}
+    {% if (fs.access("/usr/bin/wg") || fs.access("/usr/sbin/vtund")) { %}
     <div id="tunnels">
         <hr>
         <div hx-get="tunnels" hx-trigger="every 120s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
         {{_R("tunnels")}}
         </div>
     </div>
+    {% } %}
 </div>

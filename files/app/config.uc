@@ -31,5 +31,23 @@
  * version
  */
 
-export const application = "/app";
+import * as hardware from "aredn.hardware";
+
 export const debug = true;
+
+export const application = "/app";
+export let preload = true;
+export let compress = true;
+export let resourcehash = true;
+export let authenable = true;
+
+
+if (hardware.isLowMemNode()) {
+    preload = false;
+}
+if (debug) {
+    preload = false;
+    compress = false;
+    resourcehash = false;
+    authenable = false;
+}
