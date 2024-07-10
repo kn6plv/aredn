@@ -137,7 +137,8 @@ local changes = {
     firewall = false,
     tunnels = false,
     wireless = false,
-    localservices = false
+    localservices = false,
+    wpad = false
 }
 
 function valid_config(config)
@@ -1331,6 +1332,12 @@ do
         elseif file == "wireless" then
             local oc = uci:cursor()
             if oc:get("wireless", "@wifi-iface[0]", "mode") ~= config_special.wifi_mode_0 or oc:get("wireless", "@wifi-iface[1]", "mode") ~= config_special.wifi_mode_1 then
+                -- Only start the hostapd (etc) if we need to
+                if oc:get("wireless", "@wifi-iface[0]", "mode") == "ap" or oc:get("wireless", "@wifi-iface[1]", "mode") == "ap" then
+                    os.execute("/etc/init.d/wpad enable > /dev/null 2>&1")
+                else
+                    os.execute("/etc/init.d/wpad disable > /dev/null 2>&1")
+                end
                 changes.reboot = true
             else
                 changes.wireless = true
