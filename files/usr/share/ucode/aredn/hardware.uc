@@ -481,21 +481,28 @@ export function getEthernetPortInfo(port)
 export function getDefaultNetworkConfiguration()
 {
     const c = {
-        dtdlink: { vlan: 2, ports: { eth0: true } },
-        lan: { vlan: 0, ports: { eth0: true } },
-        wan: { vlan: 1, ports: { eth0: true } },
+        dtdlink: { vlan: 2, ports: {} },
+        lan: { vlan: 0, ports: {} },
+        wan: { vlan: 1, ports: {} }
     };
     const board = getBoard();
     const network = board.network;
     for (let k in network) {
-        if (c[k]) {
+        const net = c[k];
+        if (net) {
             const devices = split(network[k].device, " ");
             for (let i = 0; i < length(devices); i++) {
-                const m = match(devices[i], /^([^\.])\.?(\d*)$/);
+                const m = match(devices[i], /^([^\.]+)\.?(\d*)$/);
                 if (m) {
-                    c[k].ports[m[1]] = true;
-                    c[k].vlan = int(m[2] || 0);
+                    net.ports[m[1]] = true;
+                    if (m[2]) {
+                        net.vlan = int(m[2]);
+                    }
                 }
+            }
+            const ports = network[k].ports || [];
+            for (let i = 0; i < length(ports); i++) {
+                net.ports[ports[i]] = true;
             }
         }
     }
