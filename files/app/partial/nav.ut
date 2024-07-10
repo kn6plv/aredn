@@ -40,11 +40,13 @@
 {{_R("login")}}
 {% if (auth.isAdmin) { %}
 <script>
-(function()
+(function navinit()
 {
     if (!window.htmx) {
+        document.body.addEventListener("htmx:load", navinit);
         return;
     }
+    document.body.removeEventListener("htmx:load", navinit);
     const logo = htmx.find("#icon-logo");
     htmx.on("htmx:beforeRequest", function(e) {
         if (e.detail.requestConfig.triggeringEvent?.type === "click") {
