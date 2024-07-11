@@ -340,6 +340,17 @@
                 <input type="text" disabled size="35" value="{{configuration.getFirmwareVersion()}}">
             </div>
         </div>
+        <div class="cols">
+            <div>
+                <div class="o">Hardware</div>
+                <div class="m">Hardware type</div>
+            </div>
+            <div style="flex:0">
+                <input type="text" disabled size="35" value="{{hardware.getHardwareType()}}">
+            </div>
+        </div>
+        {{_H("The hardware type is useful when finding firmware files to upload or sideload. When using the download feature
+        the node will automatically find the correct firmware.")}}
         <hr>
         <div>
             <div class="cols">

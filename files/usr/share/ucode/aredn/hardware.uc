@@ -33,6 +33,7 @@
 
 import * as fs from "fs";
 import * as uci from "uci";
+import * as ubus from "ubus";
 
 let radioJson;
 let boardJson;
@@ -552,4 +553,27 @@ export function isLowMemNode()
         }
     }
     return false;
+};
+
+export function getHardwareType()
+{
+    const model = getBoard().model;
+    const targettype = ubus.connect().call("system", "board", {}).release.target;
+    let hardwaretype = model.id;
+    let m = match(hardwaretype, /,(.*)/);
+    if (m) {
+        hardwaretype = m[1];
+    }
+    const mfg = trim(model.name);
+    let mfgprefix = "";
+    if (match(mfg, /[Uu]biquiti/)) {
+        mfgprefix = "ubnt";
+    }
+    else if (match(mfg, /[Mm]ikro[Tt]ik/)) {
+        mfgprefix = "mikrotik";
+    }
+    else if (match(mfg, /[Tt][Pp]-[Ll]ink/)) {
+        mfgprefix = "cpe";
+    }
+    return `(${targettype}) ${mfgprefix ? mfgprefix + " " : ""}(${hardwaretype})`;
 };
