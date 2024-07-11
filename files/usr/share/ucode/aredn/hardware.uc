@@ -516,10 +516,6 @@ export function hasPOE()
     if (board?.gpioswitch?.poe_passthrough?.pin) {
         return true;
     }
-    // Handle typo
-    if (board?.gpioswitch?.poe_passtrough?.pin) {
-        return true;
-    }
     const gpios = fs.lsdir("/sys/class/gpio/");
     for (let i = 0; i < length(gpios); i++) {
         if (match(gpios[i], /^enable-poe:/)) {
