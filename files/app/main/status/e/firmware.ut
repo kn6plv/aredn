@@ -122,6 +122,20 @@
         }
         return { error: error };
     };
+    function shutdownServices()
+    {
+        system([ "/etc/init.d/manager", "stop" ]);
+        system([ "/etc/init.d/telnet", "stop" ]);
+        system([ "/etc/init.d/dropbear", "stop" ]);
+        system([ "/etc/init.d/urngd", "stop" ]);
+    };
+    function restoreServices()
+    {
+        system([ "/etc/init.d/urngd", "start" ]);
+        system([ "/etc/init.d/telnet", "start" ]);
+        system([ "/etc/init.d/dropbear", "start" ]);
+        system([ "/etc/init.d/manager", "start" ]);
+    };
     if (request.env.REQUEST_METHOD === "PUT") {
         if (request.args.keepconfig) {
             if (request.args.keepconfig === "off") {
@@ -160,11 +174,15 @@
                 print(_R("reboot-firmware"));
             }
         }
-        else {
+        else if (request.args.firmwarefileprepare) {
+            shutdownServices();
+        }
+        else if (request.args.firmwarefile) {
             const upgrade = prepareUpgrade(request.args.firmwarefile);
             if (upgrade.error) {
                 fs.unlink(request.args.firmwarefile);
                 print(`<div id="dialog-messages-error" hx-swap-oob="true">ERROR: ${upgrade.error}</div>`);
+                restoreServices();
             }
             else {
                 response.upgrade = upgrade.upgrade;
@@ -306,15 +324,18 @@
             uhttpd.send(`event: error\r\ndata: missing firmware\r\n\r\n`);
             return;
         }
+        shutdownServices();
         let r = curl(fwimage.url, "/tmp/firmwarefile", 5, 95);
         if (!r) {
             uhttpd.send(`event: error\r\ndata: failed to start firmware download\r\n\r\n`);
+            restoreServices();
             return;
         }
         const upgrade = prepareUpgrade("/tmp/firmwarefile");
         if (upgrade.error) {
             fs.unlink("/tmp/firmwarefile");
             uhttpd.send(`event: error\r\ndata: ${upgrade.error}\r\n\r\n`);
+            restoreServices();
         }
         else {
             response.upgrade = upgrade.upgrade;
@@ -492,15 +513,23 @@
                 }).then( _ => htmx.find("#dialog-done").disabled = false);
             }
             else if (upload) {
-                htmx.on(e.currentTarget, "htmx:xhr:progress", e => htmx.find("#firmware-upload progress").setAttribute("value", e.detail.loaded / e.detail.total * 100));
+                const currentTarget = e.currentTarget;
                 htmx.ajax("POST", "{{request.env.REQUEST_URI}}", {
-                    source: e.currentTarget,
                     values: {
-                        firmwarefile: upload
+                        firmwarefileprepare: 1
                     },
-                    target: "#dialog-done",
                     swap: "none"
-                }).then( _ => htmx.find("#dialog-done").disabled = false);
+                }).then(_ => {
+                    htmx.on(currentTarget, "htmx:xhr:progress", e => htmx.find("#firmware-upload progress").setAttribute("value", e.detail.loaded / e.detail.total * 100));
+                    htmx.ajax("POST", "{{request.env.REQUEST_URI}}", {
+                        source: currentTarget,
+                        values: {
+                            firmwarefile: upload
+                        },
+                        target: "#dialog-done",
+                        swap: "none"
+                    }).then( _ => htmx.find("#dialog-done").disabled = false);
+                });
             }
             else if (download !== "-") {
                 const source = new EventSource(`{{request.env.REQUEST_URI}}?v=${download}`);
