@@ -124,17 +124,21 @@
     };
     function shutdownServices()
     {
-        system([ "/etc/init.d/manager", "stop" ]);
-        system([ "/etc/init.d/telnet", "stop" ]);
-        system([ "/etc/init.d/dropbear", "stop" ]);
-        system([ "/etc/init.d/urngd", "stop" ]);
+        if (hardware.isLowMemNode()) {
+            system([ "/etc/init.d/manager", "stop" ]);
+            system([ "/etc/init.d/telnet", "stop" ]);
+            system([ "/etc/init.d/dropbear", "stop" ]);
+            system([ "/etc/init.d/urngd", "stop" ]);
+        }
     };
     function restoreServices()
     {
-        system([ "/etc/init.d/urngd", "start" ]);
-        system([ "/etc/init.d/telnet", "start" ]);
-        system([ "/etc/init.d/dropbear", "start" ]);
-        system([ "/etc/init.d/manager", "start" ]);
+        if (hardware.isLowMemNode()) {
+            system([ "/etc/init.d/urngd", "start" ]);
+            system([ "/etc/init.d/telnet", "start" ]);
+            system([ "/etc/init.d/dropbear", "start" ]);
+            system([ "/etc/init.d/manager", "start" ]);
+        }
     };
     if (request.env.REQUEST_METHOD === "PUT") {
         if (request.args.keepconfig) {
@@ -182,6 +186,7 @@
             if (upgrade.error) {
                 fs.unlink(request.args.firmwarefile);
                 print(`<div id="dialog-messages-error" hx-swap-oob="true">ERROR: ${upgrade.error}</div>`);
+                print(`<div id="firmware-upload" hx-swap-oob="true><progress value="0" max="100"></div>`);
                 restoreServices();
             }
             else {
@@ -467,9 +472,7 @@
             {% } %}
             <div style="flex:1"></div>
             <div class="cols" style="padding-top:16px">
-                <div id="firmware-upload">
-                    <progress value="0" max="100">
-                </div>
+                <div id="firmware-upload"><progress value="0" max="100"></div>
                 <div style="flex:0">
                     <button id="fetch-and-update" {{sideload ? '' : 'disabled'}} hx-trigger="none" hx-encoding="multipart/form-data">{{sideload ? 'Update' : 'Fetch and Update'}}</button>
                 </div>
@@ -514,13 +517,24 @@
             }
             else if (upload) {
                 const currentTarget = e.currentTarget;
+                {% if (hardware.isLowMemNode()) { %}
                 htmx.ajax("POST", "{{request.env.REQUEST_URI}}", {
                     values: {
                         firmwarefileprepare: 1
                     },
                     swap: "none"
                 }).then(_ => {
-                    htmx.on(currentTarget, "htmx:xhr:progress", e => htmx.find("#firmware-upload progress").setAttribute("value", e.detail.loaded / e.detail.total * 100));
+                {% } %}
+                    htmx.on(currentTarget, "htmx:xhr:progress", e => {
+                        const p = htmx.find("#firmware-upload progress");
+                        const v = e.detail.loaded / e.detail.total * 100;
+                        if (v > 99) {
+                            p.removeAttribute("value");
+                        }
+                        else {
+                            p.setAttribute("value", v);
+                        }
+                    });
                     htmx.ajax("POST", "{{request.env.REQUEST_URI}}", {
                         source: currentTarget,
                         values: {
@@ -529,7 +543,9 @@
                         target: "#dialog-done",
                         swap: "none"
                     }).then( _ => htmx.find("#dialog-done").disabled = false);
+                {% if (hardware.isLowMemNode()) { %}
                 });
+                {% } %}
             }
             else if (download !== "-") {
                 const source = new EventSource(`{{request.env.REQUEST_URI}}?v=${download}`);
@@ -549,7 +565,13 @@
                     htmx.find("#dialog-done").disabled = false;
                 });
                 source.addEventListener("progress", e => {
-                    htmx.find("#firmware-upload progress").setAttribute("value", e.data);
+                    const p = htmx.find("#firmware-upload progress");
+                    if (e.data > 99) {
+                        p.removeAttribute("value");
+                    }
+                    else {
+                        p.setAttribute("value", e.data);
+                    }
                 });
             }
         });
