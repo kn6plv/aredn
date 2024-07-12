@@ -47,7 +47,7 @@
     </div>
     {% } %}
 </div>
-<div id="health" hx-get="health" hx-trigger="every 30s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
+<div id="health" hx-get="health" hx-trigger="every 30s [document.visibilityState === 'visible' && document.body.getAttribute('htmx-request') !== ''], visibilitychange[document.visibilityState === 'visible'] from:document">
 {{_R("health")}}
 </div>
 {{_R("firmware")}}
