@@ -35,6 +35,7 @@
 {%
     const firstuse = fs.access("/tmp/do-not-keep-configuration");
 %}
+<title>{{configuration.getName()}} firmware updating</title>
 <div id="all" hx-swap-oob="true">
     <div class="reboot">
         <div>
