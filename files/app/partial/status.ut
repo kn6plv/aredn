@@ -42,7 +42,7 @@
     </div>
 </div>
 <div id="c2">
-    <div hx-get="messages" hx-trigger="every 300s [document.visibilityState === 'visible' && document.body.getAttribute('htmx-request') !== ''], visibilitychange[document.visibilityState === 'visible'] from:document">
+    <div hx-get="messages" hx-trigger="every 300s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
     {% if (messages.haveMessages()) { %}
         <div id="messages">
         {{_R("messages")}}
@@ -57,7 +57,7 @@
     </div>
     <div id="local-and-neighbor-devices">
         <hr>
-        <div hx-get="local-and-neighbor-devices" hx-trigger="every 60s [document.visibilityState === 'visible' && document.body.getAttribute('htmx-request') !== ''], visibilitychange[document.visibilityState === 'visible'] from:document">
+        <div hx-get="local-and-neighbor-devices" hx-trigger="every 60s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
         {{_R("local-and-neighbor-devices")}}
         </div>
     </div>
@@ -68,13 +68,13 @@
     </div>
     <div id="mesh-summary">
         <hr>
-        <div hx-get="mesh-summary" hx-trigger="every 120s [document.visibilityState === 'visible' && document.body.getAttribute('htmx-request') !== ''], visibilitychange[document.visibilityState === 'visible'] from:document">
+        <div hx-get="mesh-summary" hx-trigger="every 120s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
         {{_R("mesh-summary")}}
         </div>
     </div>
     <div id="dhcp">
         <hr>
-        <div hx-get="dhcp" hx-trigger="every 120s [document.visibilityState === 'visible' && document.body.getAttribute('htmx-request') !== ''], visibilitychange[document.visibilityState === 'visible'] from:document">
+        <div hx-get="dhcp" hx-trigger="every 120s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
         {{_R("dhcp")}}
         </div>
     </div>
@@ -87,7 +87,7 @@
     {% if (fs.access("/usr/bin/wg") || fs.access("/usr/sbin/vtund")) { %}
     <div id="tunnels">
         <hr>
-        <div hx-get="tunnels" hx-trigger="every 120s [document.visibilityState === 'visible' && document.body.getAttribute('htmx-request') !== ''], visibilitychange[document.visibilityState === 'visible'] from:document">
+        <div hx-get="tunnels" hx-trigger="every 120s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">
         {{_R("tunnels")}}
         </div>
     </div>
