@@ -112,8 +112,8 @@ const mapurl = map ? replace(replace(map, "(lat)", lat), "(lon)", lon) : null;
         {{_H("A gridsquare is a 6 character (2 uppercase letters, 2 digits, 2 lowercase letters) designation of the node's location.
         A gridsquare is approximately 3x4 miles in size.")}}
         {{_R("dialog-advanced")}}
-        {% if (includeAdvanced) { %}
         <div>
+        {% if (includeAdvanced) { %}
             <div class="cols">
                 <div>
                     <div class="o">Map URL</div>
@@ -125,8 +125,8 @@ const mapurl = map ? replace(replace(map, "(lat)", lat), "(lon)", lon) : null;
             </div>
             {{_H("The map URL is used to embed maps in this page (see above) and in other node pages. The (lat) and (lon) parameters in
             the URL are expanded before the URL is used.")}}
-        </div>
         {% } %}
+        </div>
     </div>
     {{_R("dialog-footer")}}
     <script>

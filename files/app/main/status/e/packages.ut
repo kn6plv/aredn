@@ -268,8 +268,8 @@ const po = getPackageOptions();
             </div>
         </div>
         {{_R("dialog-advanced")}}
-        {% if (includeAdvanced) { %}
         <div>
+        {% if (includeAdvanced) { %}
             <div class="cols">
                 <div>
                     <div class="o">Package URL</div>
@@ -279,8 +279,8 @@ const po = getPackageOptions();
                     <input hx-put="{{request.env.REQUEST_URI}}" hx-swap="none" name="packageurl" type="text" size="45" pattern="{{constants.patUrl}}" value="{{uciMesh.get("aredn", "@downloads[0]", "packages_default")}}">
                 </div>
             </div>
-        </div>
         {% } %}
+        </div>
         <div style="flex:1"></div>
         <div class="cols" style="padding-top:16px">
             <div id="package-upload">

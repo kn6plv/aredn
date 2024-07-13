@@ -431,8 +431,8 @@
             {{_H("Sideload a firmware file by transferring it onto the node by some other means (e.g. scp) and putting it in the /tmp directory
             with the name local_firmware. It can then be installed using the button at the base of the dialog.")}}
             {{_R("dialog-advanced")}}
-            {% if (includeAdvanced) { %}
             <div>
+            {% if (includeAdvanced) { %}
                 {% if (fs.access("/rom/etc")) { %}
                 <div class="cols">
                     <div>
@@ -468,8 +468,8 @@
                 </div>
                 {{_H("The base URL used to download firmware. By default this points to the main AREDN repository, but you can change this
                 to a local server, especially if you'd like to do this without a connection to the Internet.")}}
-            </div>
             {% } %}
+            </div>
             <div style="flex:1"></div>
             <div class="cols" style="padding-top:16px">
                 <div id="firmware-upload"><progress value="0" max="100"></div>

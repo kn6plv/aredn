@@ -300,8 +300,8 @@ function t2t(type)
             }
         %}</div>
         {{_R("dialog-advanced")}}
-        {% if (includeAdvanced) { %}
         <div>
+        {% if (includeAdvanced) { %}
             <div class="cols">
                 <div>
                     <div class="o">Tunnel Server Network</div>
@@ -320,8 +320,8 @@ function t2t(type)
                     <input hx-put="{{request.env.REQUEST_URI}}" name="tunnel_weight" type="text" size="4" placeholder="1" pattern="\d+" value="{{uciMesh.get("aredn", "@tunnel[0]", "weight")}}">
                 </div>
             </div>
-        </div>
         {% } %}
+        </div>
     </div>
     {{_R("dialog-footer")}}
     <script>

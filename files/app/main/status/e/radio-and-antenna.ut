@@ -443,8 +443,8 @@ if (request.env.REQUEST_METHOD === "DELETE") {
             </div>
         {% } %}
         {{_R("dialog-advanced")}}
-        {% if (includeAdvanced) { %}
         <div>
+        {% if (includeAdvanced) { %}
             <div class="cols">
                 <div>
                     <div class="o">LQM enable</div>
@@ -519,8 +519,8 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                     <input hx-put="{{request.env.REQUEST_URI}}" name="radio_min_routes" type="text" size="2" pattern="\d\d?" value="{{uciMesh.get("aredn", "@lqm[0]", "min_routes")}}">
                 </div>
             </div>
-        </div>
         {% } %}
+        </div>
     </div>
     {{_R("dialog-footer")}}
     <script>

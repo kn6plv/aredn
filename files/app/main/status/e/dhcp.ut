@@ -234,8 +234,8 @@ if (f) {
             } %}
         </div>
         {{_R("dialog-advanced")}}
-        {% if (includeAdvanced) { %}
         <div>
+        {% if (includeAdvanced) { %}
             <div class="dhcp-tags">
                 <div class="cols">
                     <div>
@@ -369,8 +369,8 @@ if (f) {
                 }
                 %}</div>
             </div>
-        </div>
         {% } %}
+        </div>
     </div>
     {{_R("dialog-footer")}}
     <script>
