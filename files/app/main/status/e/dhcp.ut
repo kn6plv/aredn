@@ -174,6 +174,8 @@ if (f) {
                     <button {{length(options) === reservations ? "disabled" : ""}}>+</button>
                 </div>
             </div>
+            {{_H("Creates a permenant mapping between a device MAC address and an IP address on the LAN network.
+            The given hostname is available to everyone on the mesh unless the entry is marked as <b>do not propagate</b>")}}
             <div id="dhcp-reservations">
                 <div class="cols reservation-label">
                     <div style="white-space:nowrap">
@@ -206,6 +208,8 @@ if (f) {
             <hr>
             <div class="o">Active Leases</div>
             <div class="m">Addresses currently in use</div>
+            {{_H("The list of active leases currently allocated to LAN devices. Any of these leases can be promoted
+            to a permanent mapping to allow IP Addresses to be fixed to specific devices.")}}
             {% if (active > 0) {
             %}
                         <div class="cols lease-label">

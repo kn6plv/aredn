@@ -98,7 +98,7 @@ const templates = [
     { name: "Streaming video", type: "video", protocol: "rtsp", port: 554 },
     { name: "Winlink Server", type: "winlink", protocol: "winlink", port: 8772 },
     { name: "Phone info", type: "phone", link: false, text: "xYOUR-PHONE-EXTENSION" },
-    { name: "Text message", link: false },
+    { name: "Simple text", link: false },
     { name: "Map", type: "map", protocol: "http", port: 80 },
     { name: "MeshChat", type: "chat", protocol: "http", port: 80, path: "meshchat" },
     { name: "Proxmox Server", type: "server", protocol: "https", port: 8006 },
@@ -199,6 +199,9 @@ if (f) {
             </div>
             <button>+</button>
         </div>
+        {{_H("Create a service by selecting from the templates above and hitting +. The two most generic templates are
+        <b>Generic URL</b> and <b>Simple text</b> and can be used for any services. You can also use the other templates to
+        help create services for specific cameras, mail servers, phones, etc. and these will pre-populate various service fields.")}}
         <div id="local-services">{%
                 for (let i = 0; i < length(services); i++) {
                     const s = services[i];
@@ -263,6 +266,8 @@ if (f) {
             </div>
             <button>+</button>
         </div>
+        {{_H("Assign a hostname to an LAN IP address on this node. Multiple hostnames can be assigned to the same IP address. You are
+        encouraged to prefix your hostnames with your callsign so it will be unique on the network.")}}
         <div id="host-aliases">{%
             for (let i = 0; i < length(aliases.map); i++) {
             %}
@@ -296,6 +301,13 @@ if (f) {
             </div>
             <button>+</button>
         </div>
+        {% if (dhcp.mode === 0) { %}
+        {{_H("For specific ports (or port ranges) from the WAN or Mesh network to the LAN network. TCP, UDP or both kinds of
+        traffic may be included. When forwarding a port range, specify the range as <b>start-end</b>.")}}
+        {% } else { %}
+        {{_H("For specific ports (or port ranges) from the WAN network to the LAN network. TCP, UDP or both kinds of
+        traffic may be included. When forwarding a port range, specify the range as <b>start-end</b>.")}}
+        {% } %}
         <div class="cols port-forwards-label">
             <div class="row">
                 <div>addresses</div>

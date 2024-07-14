@@ -276,6 +276,10 @@ uciMesh.foreach("xlink", "interface", x => {
                 </table>
             </div>
         </div>
+        {{_H("<p>AREDN nodes have three primary networks; dtdlink, lan and wan. Above you can modify the default assignment
+        of these networks to ports using these configuration options. You can also choose the VLAN to assign to the WAN network.
+        Networks can be assigned to multiple ports, or no ports.
+        <p>Active network ports, where a cable is present and attached to another device, are shown in green.")}}
         <hr>
         {% } %}
         <div class="xlinks">
@@ -346,6 +350,10 @@ uciMesh.foreach("xlink", "interface", x => {
                 {% } %}
             </div>
         </div>
+        {{_H("<p>XLinks provide a way of routing AREDN traffic across external non-AREDN networks. Each is created with a specific VLAN,
+        IP address for both ends, a weight of how likely to link is to be used, and an optional network size and port (on multi-port
+        devices). Think of xlinks as extra dtdlinks between devices. How xlink traffic is routed once it leaves the node is dependent
+        on the non-AREDN network, which allows for the greatest flexibility.")}}
     </div>
     {{_R("dialog-footer")}}
     <script>
