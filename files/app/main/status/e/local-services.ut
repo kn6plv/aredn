@@ -88,6 +88,7 @@ const types = {
 };
 const templates = [
     { name: "Generic URL" },
+    { name: "Simple text", link: false },
     { name: "Ubiquiti camera", type: "camera", protocol: "http", port: 80, path: "snap.jpeg" },
     { name: "Reolink camera", type: "camera", protocol: "http", port: 80, path: "cgi-bin/api.cgi?cmd=Snap&channel=0&rs=abcdef&user=USERNAME&password=PASSWORD" },
     { name: "Axis camera", type: "camera", protocol: "http", port: 80, path: "jpg/image.jpg" },
@@ -98,7 +99,6 @@ const templates = [
     { name: "Streaming video", type: "video", protocol: "rtsp", port: 554 },
     { name: "Winlink Server", type: "winlink", protocol: "winlink", port: 8772 },
     { name: "Phone info", type: "phone", link: false, text: "xYOUR-PHONE-EXTENSION" },
-    { name: "Simple text", link: false },
     { name: "Map", type: "map", protocol: "http", port: 80 },
     { name: "MeshChat", type: "chat", protocol: "http", port: 80, path: "meshchat" },
     { name: "Proxmox Server", type: "server", protocol: "https", port: 8006 },
