@@ -255,6 +255,8 @@ function t2t(type)
                 <input hx-put="{{request.env.REQUEST_URI}}" name="tunnel_server" type="text" size="25" required placeholder="DNS name or IP address" value="{{uciMesh.get("vtun", "@network[0]", "dns")}}">
             </div>
         </div>
+        {{_H("Set either the hostname or the Internet IP Address for this tunnel server. This is the target for any tunnels
+        created which will connect to this node (legacy or wireguard).")}}
         <hr>
         <div id="tunnel-templates" class="cols">
             <div>
@@ -271,6 +273,9 @@ function t2t(type)
             </div>
             <button>+</button>
         </div>
+        {{_H("Create a tunnel by selecting the specific type and hitting the +. The tunnel configuration will auto-populate with as much
+        information as possible. For tunnel clients all the fields can be easily populated by copy-n-pasting the entire server configuration
+        from another node into any field.")}}
         <br>
         <div id="tunnels">{%
             for (let i = 0; i < length(tunnels); i++) {
@@ -308,9 +313,18 @@ function t2t(type)
                     <div class="m">IP range to use for tunnel connections</div>
                 </div>
                 <div style="flex:0">
+                    {% if (uciMesh.get("aredn", "@supernode[0]", "enable") === "1") { %}
+                    <input hx-put="{{request.env.REQUEST_URI}}" name="tunnel_range_start" type="text" size="14" placeholder="172.30.X.X" pattern="172\.30\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.([4-9]|[1-9]\d|1\d{2}|2[0-3]\d|24[0-8])" value="{{uciMesh.get("vtun", "@network[0]", "start")}}">
+                    {% } else { %}
                     <input hx-put="{{request.env.REQUEST_URI}}" name="tunnel_range_start" type="text" size="14" placeholder="172.31.X.X" pattern="172\.31\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.([4-9]|[1-9]\d|1\d{2}|2[0-3]\d|24[0-8])" value="{{uciMesh.get("vtun", "@network[0]", "start")}}">
+                    {% } %}
                 </div>
             </div>
+            {% if (uciMesh.get("aredn", "@supernode[0]", "enable") === "1") { %}
+            {{_H("The range of IP addresses allocated to the tunnels. Tunnels always start 172.30")}}
+            {% } else { %}
+            {{_H("The range of IP addresses allocated to the tunnels. Tunnels always start 172.31")}}
+            {% } %}
             <div class="cols">
                 <div>
                     <div class="o">Tunnel Weight</div>
@@ -320,6 +334,7 @@ function t2t(type)
                     <input hx-put="{{request.env.REQUEST_URI}}" name="tunnel_weight" type="text" size="4" placeholder="1" pattern="\d+" value="{{uciMesh.get("aredn", "@tunnel[0]", "weight")}}">
                 </div>
             </div>
+            {{_H("The tunnel weight is the cost of routing traffic via a tunnel. The higher the weight, the less likely a tunnel is used to reach a destination.")}}
         {% } %}
         </div>
     </div>
