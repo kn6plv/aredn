@@ -71,7 +71,7 @@
 %}
 {% if (dhcp.enabled) { %}
 <div class="ctrl" hx-get="status/e/dhcp" hx-target="#ctrl-modal">
-    <div class="section-title">DHCP</div>
+    <div class="section-title">LAN DHCP</div>
     <div class="section">
         <div class="t">Active</div>
         <div class="s">status</div>
@@ -111,7 +111,7 @@
 </div>
 {% } else { %}
 <div class="noctrl">
-    <div class="section-title">DHCP</div>
+    <div class="section-title">LAN DHCP</div>
     <div class="section">
         <div class="t">Disabled</div>
         <div class="s">status</div>

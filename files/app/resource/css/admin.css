@@ -1334,6 +1334,10 @@ label.switch
 {
     padding-bottom: 4px;
 }
+#wifi-scan table tbody tr
+{
+    vertical-align: top;
+}
 #wifi-scan + div button
 {
     text-align: left;

@@ -63,7 +63,7 @@ const mynode = configuration.getName();
         <div class="cols">
             <div>
                 <div class="o">Source A&zwnj;ddress</div>
-                <div class="m">IP A&zwnj;ddress, Hostname or Node</div>
+                <div class="m">Node name or a&zwnj;ddress</div>
             </div>
             <div>
                 <input id="tool-client" type="text" size="40" required value="{{mynode}}">

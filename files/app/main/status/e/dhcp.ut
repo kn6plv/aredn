@@ -162,7 +162,7 @@ if (f) {
 }
 %}
 <div class="dialog">
-    {{_R("dialog-header", "DHCP")}}
+    {{_R("dialog-header", "LAN DHCP")}}
     <div>
         <div class="dhcp">
             <div>

@@ -104,6 +104,9 @@ if (tracker) {
 <div class="dialog">
     {{_R("dialog-header", "Neighborhood Device")}}
     <div>
+        {{_H("Provides more detailed information about the state of a link from this node to a neighbor. The current blocked
+        state is show in the top/right corner. This can be changed to either <b>always block</b> or <b>never block</b> to override
+        the automatic management of the link's use.")}}
         {%
         function state(n)
         {
