@@ -95,10 +95,7 @@ local config = {
             min_routes = 8
         },
         map = DELETE,
-        meshstatus = {
-            lowmem = 10000,
-            lowroutes = 1000
-        },
+        meshstatus = DELETE,
         notes = {},
         ntp = {
             period = "daily",

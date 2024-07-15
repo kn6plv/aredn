@@ -213,6 +213,8 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                     </select>
                 </div>
             </div>
+            {{_H("Select the purpose of the radio. Each radio can be assigned to a specific purpose, but devices with multiple radios
+            cannot have the same purpose for multiple radios (except <b>off</b>).")}}
             <div class="hideable1" {{length(wlan) > 1 ? "style='padding-left:10px'" : ""}}>
                 <div class="cols">
                     <div>
@@ -230,6 +232,7 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                         </select>
                     </div>
                 </div>
+                {{_H("Select the central channel/frequency for the radio.")}}
                 <div class="cols">
                     <div>
                         <div class="o">Channel Width</div>
@@ -246,6 +249,8 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                         </select>
                     </div>
                 </div>
+                {{_H("Select the bandwidth of the radio. Be aware that larger bandwidth settings will consume more channels. Avoid overlapping
+                channels as this will impact performance.")}}
                 <div class="cols">
                     <div>
                         <div class="o">Transmit Power</div>
@@ -262,6 +267,7 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                         </select>
                     </div>
                 </div>
+                {{_H("Select the transmission power for the radio. Ideally use only enough power to maintain the link at the capacity required.")}}
                 <div class="cols">
                     <div>
                         <div class="o">SSID</div>
@@ -281,6 +287,8 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                         <input hx-put="{{request.env.REQUEST_URI}}" name="radio_minsnr" type="text" size="3" pattern="\d\d?" value="{{uciMesh.get("aredn", "@lqm[0]", "min_snr")}}">
                     </div>
                 </div>
+                {{_H("Low SNR results in higher latency, lower bandwidth and high retranmissions. Setting a minimum SNR allows links with
+                these characteristics to be ignored.")}}
                 <div class="cols">
                     <div>
                         <div class="o">Maximum Distance</div>
@@ -290,6 +298,8 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                         <input hx-put="{{request.env.REQUEST_URI}}" name="radio_maxdistance" type="text" size="3" pattern="\d+" value="{{int(0.5 + units.meters2distance(uciMesh.get("aredn", "@lqm[0]", "max_distance")))}}">
                     </div>
                 </div>
+                {{_H("Distance beyond which neighbor node connections will be ignored. Longer distances to nodes can result in poor performance.
+                This will effect all neighbors, not just the distant ones, so it often makes sense to keep this distance to a minimum.")}}
                 <div class="cols">
                     <div>
                         <div class="o">Minimum Quality</div>
@@ -299,9 +309,13 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                         <input hx-put="{{request.env.REQUEST_URI}}" name="radio_minquality" type="text" size="3" pattern="\d\d?" value="{{uciMesh.get("aredn", "@lqm[0]", "min_quality")}}">
                     </div>
                 </div>
+                {{_H("The node management system maintains an estimate of how well each neighbor link performs. This link <b>quality</b> is used
+                to determine which links to use. Lowering the minimum quality can impact performance, but may also be necessary under specific
+                circumstances.")}}
                 {% } %}
             </div>
             <div class="hideable2" {{length(wlan) > 1 ? "style='padding-left:10px'" : ""}}>
+                {{_H("In LAN Hotpot mode, the WiFi acts as a wireless hotspot. Any device connecting will appear as a LAN device attached to the node.")}}
                 <div class="cols">
                     <div>
                         <div class="o">SSID</div>
@@ -350,6 +364,8 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                 </div>
             </div>
             <div class="hideable3" {{length(wlan) > 1 ? "style='padding-left:10px'" : ""}}>
+                {{_H("In WAN Client mode, the WiFi connection is used to connect to another wireless network. This network is expected to provide
+                access to the Internet.")}}
                 <div class="cols">
                     <div>
                         <div class="o">SSID</div>
@@ -391,6 +407,9 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                         {% } %}
                     </div>
                 </div>
+                {% if (length(wlan[w].ants) !== 1) { %}
+                {{_H("Select the external antenna attached to the primary radio.")}}
+                {% } %}
                 {% if (w === 0) { %}
                 {% if (!(length(wlan[w].ants) === 1 && wlan[w].ants[0].beamwidth === 360)) { %}
                 <div class="cols">
@@ -402,6 +421,7 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                         <input hx-put="{{request.env.REQUEST_URI}}" name="radio_azimuth" type="text" size="10" pattern="\d+" value="{{uciMesh.get("aredn", "@location[0]", "azimuth")}}">
                     </div>
                 </div>
+                {{_H("The azimuth, or heading, of the primary radio antenna measured in degrees from north.")}}
                 {% } %}
                 <div class="cols">
                     <div>
@@ -412,6 +432,7 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                         <input hx-put="{{request.env.REQUEST_URI}}" name="radio_height" type="text" size="10" pattern="\d+" value="{{uciMesh.get("aredn", "@location[0]", "height")}}">
                     </div>
                 </div>
+                {{_H("The height of the antenna above ground level in meters.")}}
                 <div class="cols">
                     <div>
                         <div class="o">Elevation</div>
@@ -421,6 +442,7 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                         <input hx-put="{{request.env.REQUEST_URI}}" name="radio_elevation" type="text" size="10" pattern="\d+" value="{{uciMesh.get("aredn", "@location[0]", "elevation")}}">
                     </div>
                 </div>
+                {{_H("Elevation of the antenna, measured in degress, above or below the horizontal.")}}
                 {% } %}
             </div>
         </div>
@@ -454,6 +476,9 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                     {{_R("switch", { name: "radio_lqm_enable", value: uciMesh.get("aredn", "@lqm[0]", "lqm_enable") !== "0" })}}
                 </div>
             </div>
+            {{_H("Link Quality Management (LQM) is an automatic management system which monitors the efficiency of each neighbor link
+            and optimizes their use for best performance. When disabled, it still gathers data on each link, but this information is
+            not used to effect operation.")}}
             {% if (hasradios) { %}
             <div class="cols">
                 <div>
@@ -464,24 +489,30 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                     <input hx-put="{{request.env.REQUEST_URI}}" name="radio_mindistance" type="text" size="3" pattern="\d+" value="{{int(0.5 + units.meters2distance(uciMesh.get("aredn", "@lqm[0]", "min_distance")))}}">
                 </div>
             </div>
+            {{_H("Exclude nodes which are too close to this node.")}}
             <div class="cols">
                 <div>
                     <div class="o">RTS Threshold</div>
-                    <div class="m">RTS Threshold in bytes before using RTS/CTS when hidden nodes are detected (1 to 2347)</div>
+                    <div class="m">RTS Threshold in bytes before using RTS/CTS when hidden nodes are detected</div>
                 </div>
                 <div style="flex:0">
                     <input hx-put="{{request.env.REQUEST_URI}}" name="radio_rts_threshold" type="text" size="4" pattern="([1-9]|[1-9]\d{1,2}|1\d{3}|2[0-2]\d{2}|23[0-3]\d|234[0-7])" value="{{uciMesh.get("aredn", "@lqm[0]", "rts_threshold")}}">
                 </div>
             </div>
+            {{_H("When hidden nodes are detected, the RTS/CTS protocol is automatically enabled to improve performance. By default this is used for all packets
+            being sent, but this can be optimized to only packets over a specific size (between 1 and 2347 bytes).  Setting the value to
+            2347 disables the protocol.")}}
             <div class="cols">
                 <div>
                     <div class="o">Max Packet Size</div>
-                    <div class="m">Maximum packet size in bytes sent over WiFi (256 to 1500 or leave blank for the default)</div>
+                    <div class="m">Maximum packet size in bytes sent over WiFi</div>
                 </div>
                 <div style="flex:0">
                     <input hx-put="{{request.env.REQUEST_URI}}" name="radio_mtu" type="text" size="4" pattern="(25[6-9]|2[6-9]\d|[3-9]\d{2}|1[0-4]\d{2}|1500)" placeholder="1500" value="{{uciMesh.get("aredn", "@lqm[0]", "mtu")}}">
                 </div>
             </div>
+            {{_H("By default, WiFi uses the same packet size (1500 bytes) as Ethernet. However, in some noisy environment performance can be
+            improved by reducing the packet size. A value must be between 256 and 1500.")}}
             <div class="cols">
                 <div>
                     <div class="o">SNR Margin</div>
@@ -491,6 +522,8 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                     <input hx-put="{{request.env.REQUEST_URI}}" name="radio_margin_snr" type="text" size="1" pattern="\d" value="{{uciMesh.get("aredn", "@lqm[0]", "margin_snr")}}">
                 </div>
             </div>
+            {{_H("The SNR margin avoids a link switching quickly between blocked and unblocked when the SNR is the same as the minimum SNR. Once
+            a link falls below the minimum SNR, it must move above minimum SNR + SNR margin to become active again.")}}
             {% } %}
             <div class="cols">
                 <div>

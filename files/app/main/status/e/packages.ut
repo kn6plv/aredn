@@ -247,6 +247,9 @@ const po = getPackageOptions();
                 <div id="package-refresh"><button class="icon refresh"></button></div>
             </div>
         </div>
+        {{_H("Download packages directly from a central server, either on the Internet or a locally configured mesh server.
+        Refresh the list of available packages using the refresh button to the right of the packages list. Once a
+        package is selected it can be downloaded and installed using the button at the base of the dialog.")}}
         <div id="package-info"></div>
         <div class="cols">
             <div>
@@ -257,6 +260,8 @@ const po = getPackageOptions();
                 <input type="file" accept=".ipk">
             </div>
         </div>
+        {{_H("Upload a package file from your computer. Once the package has been selected it can be uploaded and installed
+        using the button at the base of the dialog.")}}
         <div><hr></div>
         <div class="cols">
             <div>
@@ -267,6 +272,8 @@ const po = getPackageOptions();
                 <select id="remove-package">{{po.r}}</select>
             </div>
         </div>
+        {{_H("Remove a currently installed package from the node by first selecting it and
+        then using the button at the based of the dialog to remove it.")}}
         {{_R("dialog-advanced")}}
         <div>
         {% if (includeAdvanced) { %}
@@ -279,6 +286,8 @@ const po = getPackageOptions();
                     <input hx-put="{{request.env.REQUEST_URI}}" hx-swap="none" name="packageurl" type="text" size="45" pattern="{{constants.patUrl}}" value="{{uciMesh.get("aredn", "@downloads[0]", "packages_default")}}">
                 </div>
             </div>
+            {{_H("The base URL used to download packages. By default this points to the main AREDN repository, but you can change this
+            to a local server, especially if you'd like to do this without a connection to the Internet.")}}
         {% } %}
         </div>
         <div style="flex:1"></div>
@@ -290,6 +299,7 @@ const po = getPackageOptions();
                 <button id="fetch-and-update" disabled hx-trigger="none" hx-encoding="multipart/form-data">Fetch and Install</button>
             </div>
         </div>
+        {{_H("<br>Depending on the package option selected above, this button will initiate the download, upload, install or remove process.")}}
     </div>
     {{_R("dialog-footer", "nocancel")}}
     <script>

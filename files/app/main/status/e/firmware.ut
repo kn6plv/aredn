@@ -416,7 +416,7 @@
                     <input type="file" accept=".bin,.gz" {{sideload ? 'disabled' : ''}}>
                 </div>
             </div>
-            {{_H("Upload a firmware file from your computer. Once the firmware has been succesfully uploaded it can be installed
+            {{_H("Upload a firmware file from your computer. Once the firmware has been selected it can be uploaded and installed
             using the button at the base of the dialog.")}}
             <br>
             <div class="cols">
