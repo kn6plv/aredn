@@ -124,78 +124,83 @@ const mynode = configuration.getName();
                 }
                 out("Traceroute test started");
                 out("");
-                const r = await fetch(`http://${client}${client.indexOf(".") == -1 ? ".local.mesh" : ""}/cgi-bin/traceroute?server=${server}${server.indexOf(".") == -1 ? ".local.mesh" : ""}`);
-                const reader = r.body.getReader();
-                let state = "BEGIN";
-                for (;;) {
-                    const { done, value } = await reader.read();
-                    if (done) {
-                        if (state !== "DONE") {
-                            out("Traceroute Terminated.");
-                        }
-                        break;
-                    }
-                    const lines = String.fromCharCode.apply(null, value).split("\n");
-                    lines.forEach(line => {
-                        line = line.trim();
-                        switch (state) {
-                            case "BEGIN":
-                            {
-                                const m = line.match(/<title>(.*)<\/title>/);
-                                if (m) {
-                                    if (m[1] === "SUCCESS") {
-                                        state = "CONNECTING";
-                                        out(`Source: ${client}`);
-                                        out(`Target: ${server}`);
-                                        out("");
-                                    }
-                                    else {
-                                        state = "ERROR";
-                                        const m = line.match(/<pre>(.*)<\/pre>/);
-                                        if (m) {
-                                            out(`ERROR: ${m[1]}`);
-                                            state = "DONE";
-                                        }
-                                    }
-                                }
-                                break;
+                try {
+                    const r = await fetch(`http://${client}${client.indexOf(".") == -1 ? ".local.mesh" : ""}/cgi-bin/traceroute?server=${server}${server.indexOf(".") == -1 ? ".local.mesh" : ""}`);
+                    const reader = r.body.getReader();
+                    let state = "BEGIN";
+                    for (;;) {
+                        const { done, value } = await reader.read();
+                        if (done) {
+                            if (state !== "DONE") {
+                                out("Traceroute Terminated.");
                             }
-                            case "CONNECTING":
-                                if (line.match(/^traceroute/)) {
-                                    state = "PRINT";
-                                    out(line);
-                                }
-                                break;
-                            case "PRINT":
-                                if (line) {
-                                    if (line === "</pre></body></html>") {
-                                        state = "DONE";
-                                        out("");
-                                        out("Traceroute done");
-                                    }
-                                    else {
-                                        const m = line.match(/^[0-9]+ +(.+\.local\.mesh) /);
-                                        if (m) {
-                                            line = line.replace(m[1], `<a href="http://${m[1]}">${m[1]}</a>`);
+                            break;
+                        }
+                        const lines = String.fromCharCode.apply(null, value).split("\n");
+                        lines.forEach(line => {
+                            line = line.trim();
+                            switch (state) {
+                                case "BEGIN":
+                                {
+                                    const m = line.match(/<title>(.*)<\/title>/);
+                                    if (m) {
+                                        if (m[1] === "SUCCESS") {
+                                            state = "CONNECTING";
+                                            out(`Source: ${client}`);
+                                            out(`Target: ${server}`);
+                                            out("");
                                         }
+                                        else {
+                                            state = "ERROR";
+                                            const m = line.match(/<pre>(.*)<\/pre>/);
+                                            if (m) {
+                                                out(`ERROR: ${m[1]}`);
+                                                state = "DONE";
+                                            }
+                                        }
+                                    }
+                                    break;
+                                }
+                                case "CONNECTING":
+                                    if (line.match(/^traceroute/)) {
+                                        state = "PRINT";
                                         out(line);
                                     }
+                                    break;
+                                case "PRINT":
+                                    if (line) {
+                                        if (line === "</pre></body></html>") {
+                                            state = "DONE";
+                                            out("");
+                                            out("Traceroute done");
+                                        }
+                                        else {
+                                            const m = line.match(/^[0-9]+ +(.+\.local\.mesh) /);
+                                            if (m) {
+                                                line = line.replace(m[1], `<a href="http://${m[1]}">${m[1]}</a>`);
+                                            }
+                                            out(line);
+                                        }
+                                    }
+                                    break;
+                                case "ERROR":
+                                {
+                                    const m = line.match(/<pre>(.*)<\/pre>/);
+                                    if (m) {
+                                        out(`ERROR: ${m[1]}`);
+                                        state = "DONE";
+                                    }
+                                    break;
                                 }
-                                break;
-                            case "ERROR":
-                            {
-                                const m = line.match(/<pre>(.*)<\/pre>/);
-                                if (m) {
-                                    out(`ERROR: ${m[1]}`);
-                                    state = "DONE";
-                                }
-                                break;
+                                case "DONE":
+                                default:
+                                    break;
                             }
-                            case "DONE":
-                            default:
-                                break;
-                        }
-                    });
+                        });
+                    }
+                }
+                catch (_) {
+                    out("Traceroute Failed.");
                 }
             }
         });

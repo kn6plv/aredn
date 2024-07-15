@@ -124,71 +124,76 @@ const mynode = configuration.getName();
                 }
                 out("Ping test started");
                 out("");
-                const r = await fetch(`http://${client}${client.indexOf(".") == -1 ? ".local.mesh" : ""}/cgi-bin/ping?server=${server}${server.indexOf(".") == -1 ? ".local.mesh" : ""}`);
-                const reader = r.body.getReader();
-                let state = "BEGIN";
-                for (;;) {
-                    const { done, value } = await reader.read();
-                    if (done) {
-                        if (state !== "DONE") {
-                            out("Ping Terminated.");
+                try {
+                    const r = await fetch(`http://${client}${client.indexOf(".") == -1 ? ".local.mesh" : ""}/cgi-bin/ping?server=${server}${server.indexOf(".") == -1 ? ".local.mesh" : ""}`);
+                    const reader = r.body.getReader();
+                    let state = "BEGIN";
+                    for (;;) {
+                        const { done, value } = await reader.read();
+                        if (done) {
+                            if (state !== "DONE") {
+                                out("Ping Terminated.");
+                            }
+                            break;
                         }
-                        break;
-                    }
-                    const lines = String.fromCharCode.apply(null, value).split("\n");
-                    lines.forEach(line => {
-                        line = line.trim();
-                        switch (state) {
-                            case "BEGIN":
-                            {
-                                const m = line.match(/<title>(.*)<\/title>/);
-                                if (m) {
-                                    if (m[1] === "SUCCESS") {
-                                        state = "CONNECTING";
-                                        out(`Source: ${client}`);
-                                        out(`Target: ${server}`);
-                                        out("");
-                                    }
-                                    else {
-                                        state = "ERROR";
-                                        const m = line.match(/<pre>(.*)<\/pre>/);
-                                        if (m) {
-                                            out(`ERROR: ${m[1]}`);
-                                            state = "DONE";
+                        const lines = String.fromCharCode.apply(null, value).split("\n");
+                        lines.forEach(line => {
+                            line = line.trim();
+                            switch (state) {
+                                case "BEGIN":
+                                {
+                                    const m = line.match(/<title>(.*)<\/title>/);
+                                    if (m) {
+                                        if (m[1] === "SUCCESS") {
+                                            state = "CONNECTING";
+                                            out(`Source: ${client}`);
+                                            out(`Target: ${server}`);
+                                            out("");
+                                        }
+                                        else {
+                                            state = "ERROR";
+                                            const m = line.match(/<pre>(.*)<\/pre>/);
+                                            if (m) {
+                                                out(`ERROR: ${m[1]}`);
+                                                state = "DONE";
+                                            }
                                         }
                                     }
+                                    break;
                                 }
-                                break;
-                            }
-                            case "CONNECTING":
-                                if (line.match(/^PING/)) {
-                                    state = "PRINT";
-                                    out(line);
-                                }
-                                break;
-                            case "PRINT":
-                                if (line) {
-                                    if (line.match(/round-trip/)) {
-                                        state = "DONE";
-                                        out("");
+                                case "CONNECTING":
+                                    if (line.match(/^PING/)) {
+                                        state = "PRINT";
+                                        out(line);
                                     }
-                                    out(line);
+                                    break;
+                                case "PRINT":
+                                    if (line) {
+                                        if (line.match(/round-trip/)) {
+                                            state = "DONE";
+                                            out("");
+                                        }
+                                        out(line);
+                                    }
+                                    break;
+                                case "ERROR":
+                                {
+                                    const m = line.match(/<pre>(.*)<\/pre>/);
+                                    if (m) {
+                                        out(`ERROR: ${m[1]}`);
+                                        state = "DONE";
+                                    }
+                                    break;
                                 }
-                                break;
-                            case "ERROR":
-                            {
-                                const m = line.match(/<pre>(.*)<\/pre>/);
-                                if (m) {
-                                    out(`ERROR: ${m[1]}`);
-                                    state = "DONE";
-                                }
-                                break;
+                                case "DONE":
+                                default:
+                                    break;
                             }
-                            case "DONE":
-                            default:
-                                break;
-                        }
-                    });
+                        });
+                    }
+                }
+                catch (_) {
+                    out("Ping Failed.");
                 }
             }
         });
