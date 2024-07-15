@@ -81,6 +81,7 @@ const mynode = configuration.getName();
                 <div style="width:42px"></div>
             </div>
         </div>
+        {{_H("Use iperf3 to measure the bandwidth between a client and a server. The client and server must be nodes on the mesh. By default the client is the current node.")}}
         <div class="cols">
             <div class="tool-console">
                 <pre></pre>
