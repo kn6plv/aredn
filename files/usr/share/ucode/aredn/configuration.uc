@@ -59,7 +59,7 @@ const configFiles = [
     "/etc/config.mesh/_setup.dhcp.nat",
     "/etc/config.mesh/_setup.dhcpoptions.dmz",
     "/etc/config.mesh/_setup.dhcpoptions.nat",
-    "/etc/config.mesh/.dhcptags.dmz",
+    "/etc/config.mesh/_setup.dhcptags.dmz",
     "/etc/config.mesh/_setup.dhcptags.nat",
     "/etc/config.mesh/_setup.ports.dmz",
     "/etc/config.mesh/_setup.ports.nat",

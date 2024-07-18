@@ -52,7 +52,6 @@ if (request.env.REQUEST_METHOD === "PUT") {
             }
             f.close();
         }
-        configuration.saveSettings();
     }
     if ("advtags" in request.args) {
         configuration.prepareChanges();
@@ -516,7 +515,7 @@ if (f) {
             const tagnames = [];
             const names = htmx.findAll("#ctrl-modal .dialog .dhcp-tags .list .row input[name=tag_name]");
             for (let i = 0; i < names.length; i++) {
-                if (names[i].validity.valid) {
+                if (names[i].validity.valid && tagnames.indexOf(names[i].value) === -1) {
                     tagnames.push(names[i].value);
                 }
             }
