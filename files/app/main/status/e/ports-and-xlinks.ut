@@ -53,6 +53,9 @@ function loadPorts(type, def)
             r.vlan = int(m[1]);
         }
     }
+    if ((type === "wan" && r.vlan === 1) || (type === "lan" && r.vlan === 3)) {
+        r.vlan = 0;
+    }
     f.close();
     return r;
 }
@@ -152,6 +155,13 @@ if (request.env.REQUEST_METHOD === "PUT") {
                     }
                 }
             }
+            if (nets.wan.vlan === 0) {
+                for (let p in nets.wan.ports) {
+                    if (nets.lan.ports[p]) {
+                        delete nets.wan.ports[p];
+                    }
+                }
+            }
             function savePort(type, c)
             {
                 const f = fs.open(`/etc/aredn_include/${type}.network.user`, "w");
@@ -246,7 +256,7 @@ uciMesh.foreach("xlink", "interface", x => {
                     </thead>
                     <tbody>
                         <tr>
-                            <td><div>dtdlink</div><div>vlan: 2</div></td>
+                            <td><div>dtd</div><div>vlan: 2</div></td>
                             {%
                                 for (let i = 0; i < length(ports); i++) {
                                     const p = ports[i];
@@ -264,7 +274,7 @@ uciMesh.foreach("xlink", "interface", x => {
                             %}
                         </tr>
                         <tr>
-                            <td><div>wan</div><div>vlan: <input hx-put="{{request.env.REQUEST_URI}}" type="text" name="port_wan_vlan" size="5" placeholder="untagged" value="{{wan_vlan != 0 ? wan_vlan : ''}}"></div></td>
+                            <td><div>wan</div><div>vlan: <input hx-put="{{request.env.REQUEST_URI}}" type="text" name="port_wan_vlan" size="5" placeholder="untagged" pattern="([4-9]|[1-9][0-9]{1,2}|[1-3][0-9]{3}|40[0-8][0-9]|409[0-4])" value="{{wan_vlan != 0 ? wan_vlan : ''}}"></div></td>
                             {%
                                 for (let i = 0; i < length(ports); i++) {
                                     const p = ports[i];
@@ -276,9 +286,11 @@ uciMesh.foreach("xlink", "interface", x => {
                 </table>
             </div>
         </div>
-        {{_H("<p>AREDN nodes have three primary networks; dtdlink, lan and wan. Above you can modify the default assignment
-        of these networks to ports using these configuration options. You can also choose the VLAN to assign to the WAN network.
-        Networks can be assigned to multiple ports, or no ports.
+        {{_H("<p>AREDN nodes have three primary networks; DTD, LAN and WAN (shown above in the left column). You can modify the default assignment
+        of these networks to ports (shown across the top) using the checkboxes at the intersection of a network and a port. You can also choose the
+        VLAN to assign to the WAN network. Networks can be assigned to multiple ports, or no ports.
+        Note that on some devices, ports may have names like <i>WAN</i> or <i>LAN</i>. These are just arbitrary names given by the manufacturer
+        and you are not forced to assign networks of the same name to these ports.
         <p>Active network ports, where a cable is present and attached to another device, are shown in green.")}}
         <hr>
         {% } %}
@@ -352,7 +364,7 @@ uciMesh.foreach("xlink", "interface", x => {
         </div>
         {{_H("<p>XLinks provide a way of routing AREDN traffic across external non-AREDN networks. Each is created with a specific VLAN,
         IP address for both ends, a weight of how likely to link is to be used, and an optional network size and port (on multi-port
-        devices). Think of xlinks as extra dtdlinks between devices. How xlink traffic is routed once it leaves the node is dependent
+        devices). Think of xlinks as extra dtds between devices. How xlink traffic is routed once it leaves the node is dependent
         on the non-AREDN network, which allows for the greatest flexibility.")}}
     </div>
     {{_R("dialog-footer")}}
