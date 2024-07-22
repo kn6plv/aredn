@@ -115,7 +115,7 @@ if (request.env.REQUEST_METHOD === "PUT") {
         uciMesh.set("aredn", "@lqm[0]", "min_snr", request.args.radio_minsnr);
     }
     if ("radio_maxdistance" in request.args) {
-        uciMesh.set("aredn", "@lqm[0]", "min_maxdistance", units.distance2meters(request.args.radio_maxdistance));
+        uciMesh.set("aredn", "@lqm[0]", "max_distance", units.distance2meters(request.args.radio_maxdistance));
     }
     if ("radio_minquality" in request.args) {
         uciMesh.set("aredn", "@lqm[0]", "min_quality", request.args.radio_minquality);
