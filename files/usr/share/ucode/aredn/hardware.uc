@@ -434,8 +434,8 @@ export function supportsXLink()
     }
 };
 
-const default5PortLayout = [ "wan", "lan1", "lan2", "lan3", "lan4" ];
-const default3PortLayout = [ "lan2", "lan1", "wan" ];
+const default5PortLayout = [ { k: "wan", d: "port1" }, { k: "lan1", d: "port2" }, { k: "lan2", d: "port3" }, { k: "lan3", d: "port4" }, { k: "lan4", d: "port5" } ];
+const default3PortLayout = [ { k: "lan2", d: "port1" }, { k: "lan1", d: "port2" }, { k: "wan", d: "port3" } ];
 const defaultNPortLayout = [];
 
 export function getEthernetPorts()
@@ -457,11 +457,11 @@ export function getEthernetPorts()
                             break;
                         }
                         if (match(file, /^eth\d+$/)) {
-                            push(defaultNPortLayout, file);
+                            push(defaultNPortLayout, { k: file, d: file });
                         }
                     }
                     dir.close();
-                    sort(defaultNPortLayout);
+                    sort(defaultNPortLayout, (a, b) => a.d == b.d ? 0 : a.d < b.d ? -1 : 1);
                 }
             }
             return defaultNPortLayout;

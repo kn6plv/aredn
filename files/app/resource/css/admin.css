@@ -1169,7 +1169,7 @@ label.switch
 #ctrl-modal .ports table thead td:first-child,
 #ctrl-modal .ports table tbody td:first-child
 {
-    width: 200px;
+    width: 160px;
     padding: 10px 25px;
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;

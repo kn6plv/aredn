@@ -36,7 +36,7 @@
     const ports = hardware.getEthernetPorts();
     let active = 0;
     for (let i = 0; i < length(ports); i++) {
-        const state = hardware.getEthernetPortInfo(ports[i]);
+        const state = hardware.getEthernetPortInfo(ports[i].k);
         if (state.active) {
             active++;
         }

@@ -130,8 +130,7 @@ if (request.env.REQUEST_METHOD === "PUT") {
     }
     const k = keys(request.args);
     if (length(k) > 0) {
-        const ports = hardware.getEthernetPorts();
-        if (length(ports) > 1) {
+        if (length(hardware.getEthernetPorts()) > 1) {
             const defnet = hardware.getDefaultNetworkConfiguration();
             const nets = {
                 wan: loadPorts("wan", defnet.wan),
@@ -213,11 +212,12 @@ if (length(ports) > 1) {
     const dtdlink = loadPorts("dtdlink", defnet.dtdlink);
     for (let i = 0; i < length(ports); i++) {
         const v = {
-            name: ports[i],
-            info: hardware.getEthernetPortInfo(ports[i]),
-            dtdlink: dtdlink.ports[ports[i]],
-            lan: lan.ports[ports[i]],
-            wan: wan.ports[ports[i]]
+            name: ports[i].k,
+            display: ports[i].d,
+            info: hardware.getEthernetPortInfo(ports[i].k),
+            dtdlink: dtdlink.ports[ports[i].k],
+            lan: lan.ports[ports[i].k],
+            wan: wan.ports[ports[i].k]
         };
         ports[i] = v;
     }
@@ -249,7 +249,7 @@ uciMesh.foreach("xlink", "interface", x => {
                             {%
                                 for (let i = 0; i < length(ports); i++) {
                                     const p = ports[i];
-                                    print(`<td ${p.info.active ? 'class="active"' : ''}><div>${p.name}</div></td>`);
+                                    print(`<td ${p.info.active ? 'class="active"' : ''}><div>${p.display}</div></td>`);
                                 }
                             %}
                         </tr>
@@ -351,7 +351,7 @@ uciMesh.foreach("xlink", "interface", x => {
                             {%
                                 for (let i = 0; i < length(ports); i++) {
                                     const p = ports[i];
-                                    print(`<option value="${p.name}" ${x.port === p.name ? "selected" : ""}>${p.name}</option>`);
+                                    print(`<option value="${p.name}" ${x.port === p.name ? "selected" : ""}>${p.display}</option>`);
                                 }
                             %}
                             </select>
@@ -457,7 +457,7 @@ uciMesh.foreach("xlink", "interface", x => {
     {%
         for (let i = 0; i < length(ports); i++) {
             const p = ports[i];
-            print(`<option value="${p.name}">${p.name}</option>`);
+            print(`<option value="${p.name}">${p.display}</option>`);
         }
     %}
     </select>{% } %}

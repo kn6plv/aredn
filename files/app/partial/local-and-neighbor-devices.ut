@@ -47,13 +47,13 @@
             return "idle";
         }
         const quality = tracker.quality;
-        if (quality < 50) {
+        if (quality < 40) {
             return "bad";
         }
-        else if (quality < 75) {
+        else if (quality < 50) {
             return "poor";
         }
-        else if (quality < 80) {
+        else if (quality < 75) {
             return "okay";
         }
         else if (quality < 95) {
