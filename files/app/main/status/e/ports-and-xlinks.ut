@@ -276,7 +276,7 @@ uciMesh.foreach("xlink", "interface", x => {
                             %}
                         </tr>
                         <tr>
-                            <td><div>wan</div><div>vlan: <input hx-put="{{request.env.REQUEST_URI}}" type="text" name="port_wan_vlan" size="5" placeholder="untagged" pattern="([14-9]|[1-9][0-9]{1,2}|[1-3][0-9]{3}|40[0-8][0-9]|409[0-4])" value="{{wan_vlan != 0 ? wan_vlan : ''}}"></div></td>
+                            <td><div>wan</div><div>vlan: <input hx-put="{{request.env.REQUEST_URI}}" type="text" name="port_wan_vlan" hx-include=".ports [name^='port_wan_']" size="5" placeholder="untagged" pattern="([14-9]|[1-9][0-9]{1,2}|[1-3][0-9]{3}|40[0-8][0-9]|409[0-4])" value="{{wan_vlan != 0 ? wan_vlan : ''}}"></div></td>
                             {%
                                 for (let i = 0; i < length(ports); i++) {
                                     const p = ports[i];
