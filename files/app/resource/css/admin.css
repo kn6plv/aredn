@@ -1077,10 +1077,10 @@ label.switch
 {
     width: 50%;
 }
-.tunnel .cols .cols.pwnw input:last-child
+.tunnel .cols .cols.pwnw input:nth-child(2)
 {
-    width: calc(50% - 4px);
-    margin-left: 4px;
+    width: calc(50% - 50px);
+    margin-left: 3px;
 }
 .tunnel .switch input[type=checkbox]
 {
@@ -1114,6 +1114,11 @@ label.switch
 .tunnel input[name=network]
 {
     width: 115px;
+    margin-right: 3px;
+}
+.tunnel input[name=weight]
+{
+    width: 53px;
     margin-right: 3px;
 }
 .tunnel input[name=notes]

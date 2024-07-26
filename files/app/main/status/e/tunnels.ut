@@ -68,6 +68,7 @@ if (request.env.REQUEST_METHOD === "PUT") {
                     uciMesh.set("vtun", t.index, "clientip", `${n[0]}.${n[1]}.${n[2]}.${n[3] + 1}`);
                     uciMesh.set("vtun", t.index, "serverip", `${n[0]}.${n[1]}.${n[2]}.${n[3] + 2}`);
                     uciMesh.set("vtun", t.index, "netip", t.network);
+                    uciMesh.set("vtun", t.index, "weight", t.weight);
                     break;
                 }
                 case "lc":
@@ -83,6 +84,7 @@ if (request.env.REQUEST_METHOD === "PUT") {
                     uciMesh.set("vtun", t.index, "clientip", `${n[0]}.${n[1]}.${n[2]}.${n[3] + 1}`);
                     uciMesh.set("vtun", t.index, "serverip", `${n[0]}.${n[1]}.${n[2]}.${n[3] + 2}`);
                     uciMesh.set("vtun", t.index, "netip", t.network);
+                    uciMesh.set("vtun", t.index, "weight", t.weight);
                     break;
                 }
                 case "ws":
@@ -94,6 +96,7 @@ if (request.env.REQUEST_METHOD === "PUT") {
                     uciMesh.set("wireguard", t.index, "name", t.name);
                     uciMesh.set("wireguard", t.index, "key", t.passwd);
                     uciMesh.set("wireguard", t.index, "clientip", t.network);
+                    uciMesh.set("wireguard", t.index, "weight", t.weight);
                     break;
                 }
                 case "ls":
@@ -108,6 +111,7 @@ if (request.env.REQUEST_METHOD === "PUT") {
                     uciMesh.set("vtun", t.index, "clientip", `${n[0]}.${n[1]}.${n[2]}.${n[3] + 1}`);
                     uciMesh.set("vtun", t.index, "serverip", `${n[0]}.${n[1]}.${n[2]}.${n[3] + 2}`);
                     uciMesh.set("vtun", t.index, "netip", t.network);
+                    uciMesh.set("vtun", t.index, "weight", t.weight);
                     break;
                 }
                 default:
@@ -194,6 +198,7 @@ uciMesh.foreach("vtun", "server", a => {
         notes: a.comment || "",
         network: a.netip,
         passwd: a.passwd,
+        weight: a.weight ?? "",
         up: wireguard ? (length(filter(up.wg, v => index(a.key, v) !== -1)) === 0 ? false : true) : (up.lg[a.netip] ? true : false)
     });
     delete available.l[a.clientip];
@@ -210,6 +215,7 @@ uciMesh.foreach("vtun", "client", a => {
         notes: a.comment || "",
         network: a.netip,
         passwd: a.passwd,
+        weight: a.weight ?? "",
         up: up.lg[a.netip] ? true : false
     });
     delete available.l[a.clientip];
@@ -223,6 +229,7 @@ uciMesh.foreach("wireguard", "client", a => {
         notes: a.comment || "",
         network: a.clientip,
         passwd: a.key,
+        weight: a.weight ?? "",
         up: length(filter(up.wg, v => index(a.key, v) !== -1)) === 0 ? false : true
     });
     delete available.w[a.clientip];
@@ -293,6 +300,7 @@ function t2t(type)
                             <div class="cols pwnw">
                                 <input type="text" name="password" required pattern="{{wireguard ? '[A-Za-z0-9+\/=]+' : '[\\w@]+'}}" placeholder="{{wireguard ? 'Wireguard key' : 'Password'}}" value="{{t.passwd}}" {{t.type === "ws" ? "disabled" : ""}}>
                                 <input type="text" name="network" required pattern="{{constants.patIP}}{{wireguard ? ':' + constants.patPort : ''}}" placeholder="{{wireguard ? 'Network:Port' : 'Network'}}" value="{{t.network}}" {{client ? "" : "disabled"}}>
+                                <input type="text" name="weight" pattern="([0-9]|[1-9][0-9])" placeholder="Wgt" value="{{t.weight}}">
                             </div>
                             <div class="cols">
                                 <input type="text" name="notes" placeholder="Notes..." value="{{t.notes}}">
@@ -358,7 +366,8 @@ function t2t(type)
                 const network = htmx.find(t, "input[name=network]");
                 const notes = htmx.find(t, "input[name=notes]");
                 const enable = htmx.find(t, "input[name=enable]");
-                if (name.validity.valid && password.validity.valid && network.validity.valid && notes.validity.valid) {
+                const weight = htmx.find(t, "input[name=weight]");
+                if (name.validity.valid && password.validity.valid && network.validity.valid && notes.validity.valid && weight.validity.valid) {
                     tunnels.push({
                         index: index,
                         type: type,
@@ -366,7 +375,8 @@ function t2t(type)
                         enabled: enable.checked,
                         notes: notes.value || "",
                         network: network.value,
-                        passwd: password.value
+                        passwd: password.value,
+                        weight: weight.value
                     });
                 }
             }
@@ -443,6 +453,7 @@ function t2t(type)
         <div class="cols pwnw">
             <input type="text" name="password" required pattern="${wireguard ? '[A-Za-z0-9+\/=]+' : '[\\w@]+'}" placeholder="${wireguard ? 'Wireguard key' : 'Password'}" ${type === "ws" ? "disabled" : ""} value="${password}">
             <input type="text" name="network" required pattern="((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])\\.?\\b){4}${wireguard ? ':{{constants.patPort}}' : ''}" placeholder="${wireguard ? 'Network:Port' : 'Network'}" ${client ? "" : "disabled"} value="${network}">
+            <input type="text" name="weight" pattern="([0-9]|[1-9][0-9])" placeholder="Wgt" value="">
         </div>
         <div class="cols">
             <input type="text" name="notes" placeholder="Notes..." value="">

@@ -540,12 +540,23 @@ if tun_start or tun_dns then
     end
     cfg.tun_network_config = cfg.tun_network_config .. "\n"
 end
+local def_tun_weight = tonumber(cm:get("aredn", "@tunnel[0]", "weight") or 1) or 0
+local is_supernode = cm:get("aredn", "@supernode[0]", "enable") == "1"
+if is_supernode then
+    def_tun_weight = 0
+end
+local tun_weights = {}
 local vtunclients = 0
 cm:foreach("vtun", "client",
     function(s)
         if s.enabled == "1" then
             cfg.tun_network_config = cfg.tun_network_config .. string.format("config client\n\toption enabled '1'\n\toption node '%s'\n\toption passwd '%s'\n\toption clientip '%s'\n\toption serverip '%s'\n\toption netip '%s'\n\n",
                 s.node:upper(), s.passwd, s.clientip, s.serverip, s.netip)
+            local w = s.weight or def_tun_weight
+            if not tun_weights[w] then
+                tun_weights[w] = {}
+            end
+            table.insert(tun_weights[w], string.format("tun%d", 50 + vtunclients))
             vtunclients = vtunclients + 1
         end
     end
@@ -562,6 +573,11 @@ cm:foreach("wireguard", "client",
             cfg.wireguard_network_config = cfg.wireguard_network_config ..
                 string.format("config wireguard_wgc%d\n\toption public_key '%s'\n\toption persistent_keepalive '25'\n\tlist allowed_ips '0.0.0.0/0'\n\n",
                     wgclients, client_pub)
+            local w = s.weight or def_tun_weight
+            if not tun_weights[w] then
+                tun_weights[w] = {}
+            end
+            table.insert(tun_weights[w], string.format("wgc%d", wgclients))
             wgclients = wgclients + 1
         end
     end
@@ -581,11 +597,21 @@ cm:foreach("vtun", "server",
                 cfg.wireguard_network_config = cfg.wireguard_network_config ..
                     string.format("config wireguard_wgs%d\n\toption public_key '%s'\n\toption endpoint_host '%s'\n\toption endpoint_port '%s'\n\toption persistent_keepalive '25'\n\tlist allowed_ips '0.0.0.0/0'\n\n",
                         wgservers, server_pub, s.host, p)
+                local w = s.weight or def_tun_weight
+                if not tun_weights[w] then
+                    tun_weights[w] = {}
+                end
+                table.insert(tun_weights[w], string.format("wgs%d", wgservers))
                 wgservers = wgservers + 1
             else
                 cfg.tun_network_config = cfg.tun_network_config ..
                     string.format("config server\n\toption enabled '1'\n\toption host '%s'\n\toption node '%s'\n\toption passwd '%s'\n\toption clientip '%s'\n\toption serverip '%s'\n\toption netip '%s'\n\n",
                         s.host, s.node:upper(), s.passwd, s.clientip, s.serverip, s.netip)
+                local w = s.weight or def_tun_weight
+                if not tun_weights[w] then
+                    tun_weights[w] = {}
+                end
+                table.insert(tun_weights[w], string.format("tun%d", 50 + vtunclients + vtunservers))
                 vtunservers = vtunservers + 1
             end
         end
@@ -1153,39 +1179,25 @@ if nixio.fs.access("/etc/config.mesh/olsrd", "r") then
     
         -- add all the tunnel interfaces
         if vtunclients + vtunservers + wgclients + wgservers > 0 then
-            of:write("config Interface\n")
-            for dev = 50, 50 + vtunclients - 1
+            for weight, ifaces in pairs(tun_weights)
             do
-                of:write("\tlist interface 'tun" .. dev .. "'\n")
-            end
-            for dev = 50 + maxclients, 50 + maxclients + vtunservers - 1
-            do
-                of:write("\tlist interface 'tun" .. dev .. "'\n")
-            end
-            if wgclients > 0 then
-                for dev = 0, wgclients - 1
+                of:write("\nconfig Interface\n")
+                for _, iface in ipairs(ifaces)
                 do
-                    of:write("\tlist interface 'wgc" .. dev .. "'\n")
+                    of:write("\tlist interface '" .. iface .. "'\n")
                 end
-            end
-            if wgservers > 0 then
-                for dev = 0, wgservers - 1
-                do
-                    of:write("\tlist interface 'wgs" .. dev .. "'\n")
+                of:write("\toption Ip4Broadcast '255.255.255.255'\n")
+                weight = tonumber(weight)
+                if weight < 1 then
+                    of:write("\toption Mode 'ether'\n")
+                elseif weight > 1 then
+                    of:write("\toption LinkQualityMult 'default " .. (1 / weight) .. "'\n")
                 end
+                of:write("\toption HelloInterval '" .. cfg.hello_interval .. "'\n")
+                of:write("\toption TcInterval '" .. cfg.tc_interval .. "'\n")
+                of:write("\toption MidInterval '" .. cfg.mid_interval .. "'\n")
+                of:write("\toption HnaInterval '" .. cfg.hna_interval .. "'\n")
             end
-            of:write("\toption Ip4Broadcast '255.255.255.255'\n")
-            local tun_weight = tonumber(nc:get("aredn", "@tunnel[0]", "weight") or 1)
-            local is_supernode = nc:get("aredn", "@supernode[0]", "enable") == "1"
-            if not tun_weight or tun_weight < 1 or is_supernode then
-                of:write("\toption Mode 'ether'\n")
-            elseif tun_weight > 1 then
-                of:write("\toption LinkQualityMult 'default " .. (1 / tun_weight) .. "'\n")
-            end
-            of:write("\toption HelloInterval '" .. cfg.hello_interval .. "'\n")
-            of:write("\toption TcInterval '" .. cfg.tc_interval .. "'\n")
-            of:write("\toption MidInterval '" .. cfg.mid_interval .. "'\n")
-            of:write("\toption HnaInterval '" .. cfg.hna_interval .. "'\n")
         end
         nc:set("aredn", "@tunnel[0]", "maxclients", maxclients)
         nc:set("aredn", "@tunnel[0]", "maxservers", maxservers)
