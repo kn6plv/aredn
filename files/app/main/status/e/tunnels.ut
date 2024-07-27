@@ -332,7 +332,7 @@ function t2t(type)
             {{_H("The range of IP addresses allocated to the tunnels. Tunnels always start 172.30")}}
             {% } else { %}
             {{_H("The range of IP addresses allocated to the tunnels. Tunnels always start 172.31")}}
-            {% } %}
+            {% if (uciMesh.get("aredn", "@supernode[0]", "enable") !== "1") { %}
             <div class="cols">
                 <div>
                     <div class="o">Tunnel Weight</div>
@@ -343,6 +343,7 @@ function t2t(type)
                 </div>
             </div>
             {{_H("The tunnel weight is the cost of routing traffic via a tunnel. The higher the weight, the less likely a tunnel is used to reach a destination.")}}
+            {% } %}
         {% } %}
         </div>
     </div>
