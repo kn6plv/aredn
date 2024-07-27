@@ -584,6 +584,7 @@ cm:foreach("wireguard", "client",
 )
 local vtunservers = 0
 local wgservers = 0
+local vtunclients_roundup = 10 * math.ceil(vtunclients / 10)
 cm:foreach("vtun", "server",
     function(s)
         if s.enabled == "1" then
@@ -611,7 +612,7 @@ cm:foreach("vtun", "server",
                 if not tun_weights[w] then
                     tun_weights[w] = {}
                 end
-                table.insert(tun_weights[w], string.format("tun%d", 50 + vtunclients + vtunservers))
+                table.insert(tun_weights[w], string.format("tun%d", 50 + vtunclients_roundup + vtunservers))
                 vtunservers = vtunservers + 1
             end
         end
