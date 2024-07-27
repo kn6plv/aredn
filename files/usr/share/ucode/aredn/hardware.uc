@@ -484,7 +484,7 @@ export function getDefaultNetworkConfiguration()
     const c = {
         dtdlink: { vlan: 2, ports: {} },
         lan: { vlan: 0, ports: {} },
-        wan: { vlan: 1, ports: {} }
+        wan: { vlan: 0, ports: {} }
     };
     const board = getBoard();
     const network = board.network;
