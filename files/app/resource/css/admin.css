@@ -583,7 +583,7 @@ label.switch
 }
 #ctrl-modal .neighbor .i div:last-child
 {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--subtitle-fg-color);
 }
 #ctrl-modal .neighbor select
