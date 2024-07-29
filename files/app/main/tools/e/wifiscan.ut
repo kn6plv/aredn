@@ -244,7 +244,7 @@ else {
     </div>
     <div class="cols">
         <div>Last Scan: {{scan_time}}</div>
-        <button hx-put="{{request.env.REQUEST_URI}}" hx-target="#ctrl-modal">Scan</button>
+        <button hx-put="{{request.env.REQUEST_URI}}" hx-target="#ctrl-modal">Rescan</button>
     </div>
     {{_H("<br>Scan the appropriate radio spectrum for other nodes and wifi devices. What a node can find while scanning is highly dependent
     on the hardware itself. Also, due to the nature of wireless scanning and beaconing, multiple scans are something required for a
