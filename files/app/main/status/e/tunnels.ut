@@ -336,14 +336,16 @@ function t2t(type)
             {% if (uciMesh.get("aredn", "@supernode[0]", "enable") !== "1") { %}
             <div class="cols">
                 <div>
-                    <div class="o">Tunnel Weight</div>
-                    <div class="m">Cost of using a tunnel</div>
+                    <div class="o">Default Tunnel Weight</div>
+                    <div class="m">Default cost of using a tunnel</div>
                 </div>
                 <div style="flex:0">
                     <input hx-put="{{request.env.REQUEST_URI}}" name="tunnel_weight" type="text" size="4" placeholder="1" pattern="\d+" value="{{uciMesh.get("aredn", "@tunnel[0]", "weight")}}">
                 </div>
             </div>
-            {{_H("The tunnel weight is the cost of routing traffic via a tunnel. The higher the weight, the less likely a tunnel is used to reach a destination.")}}
+            {{_H("The tunnel weight is the cost of routing traffic via a tunnel. The higher the weight, the less likely a tunnel is used to reach a destination.
+This value is used by default, but each tunnel may overide it.
+")}}
             {% } %}
         {% } %}
         </div>
