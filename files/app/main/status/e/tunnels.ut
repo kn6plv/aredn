@@ -94,7 +94,7 @@ if (request.env.REQUEST_METHOD === "PUT") {
                     }
                     uciMesh.set("wireguard", t.index, "enabled", t.enabled ? "1" : "0");
                     uciMesh.set("wireguard", t.index, "name", t.name);
-                    uciMesh.set("wireguard", t.index, "key", t.passwd);
+                    uciMesh.set("wireguard", t.index, "key", t.key);
                     uciMesh.set("wireguard", t.index, "clientip", t.network);
                     uciMesh.set("wireguard", t.index, "weight", t.weight);
                     break;
@@ -228,7 +228,8 @@ uciMesh.foreach("wireguard", "client", a => {
         enabled: a.enabled === "1",
         notes: a.comment || "",
         network: a.clientip,
-        passwd: a.key,
+        key: a.key,
+        passwd: replace(a.key, /^[A-Za-z0-9+\/]+=/, ""),
         weight: a.weight ?? "",
         up: length(filter(up.wg, v => index(a.key, v) !== -1)) === 0 ? false : true
     });
@@ -298,7 +299,10 @@ function t2t(type)
                                 <label class="switch {{t.up ? 'up' : ''}}"><input type="checkbox" name="enable" {{t.enabled ? "checked" : ""}}></label>
                             </div>
                             <div class="cols pwnw">
-                                <input type="text" name="password" required pattern="{{wireguard ? '[A-Za-z0-9+\/=]+' : '[\\w@]+'}}" placeholder="{{wireguard ? 'Wireguard key' : 'Password'}}" value="{{t.passwd}}" {{t.type === "ws" ? "disabled" : ""}}>
+                                {% if (t.type === "ws") { %}
+                                <input type="hidden" name="key" value="{{t.key}}">
+                                {% } %}
+                                <input type="text" name="password" required pattern="{{wireguard ? '[A-Za-z0-9+\/=]+' : '[\\w@\-]+'}}" placeholder="{{wireguard ? 'Wireguard key' : 'Password'}}" value="{{t.passwd}}" {{t.type === "ws" ? "disabled" : ""}}>
                                 <input type="text" name="network" required pattern="{{constants.patIP}}{{wireguard ? ':' + constants.patPort : ''}}" placeholder="{{wireguard ? 'Network:Port' : 'Network'}}" value="{{t.network}}" {{client ? "" : "disabled"}}>
                                 <input type="text" name="weight" pattern="([0-9]|[1-9][0-9])" placeholder="Wgt" value="{{t.weight}}">
                             </div>
@@ -366,6 +370,7 @@ This value is used by default, but each tunnel may overide it.
                 const index = t.dataset.index;
                 const name = htmx.find(t, "input[name=name]");
                 const password = htmx.find(t, "input[name=password]");
+                const key = htmx.find(t, "input[name=key]");
                 const type = htmx.find(t, "div[data-type]").dataset.type;
                 const network = htmx.find(t, "input[name=network]");
                 const notes = htmx.find(t, "input[name=notes]");
@@ -380,6 +385,7 @@ This value is used by default, but each tunnel may overide it.
                         notes: notes.value || "",
                         network: network.value,
                         passwd: password.value,
+                        key: key && key.value,
                         weight: weight.value
                     });
                 }
@@ -407,6 +413,7 @@ This value is used by default, but each tunnel may overide it.
                 delete available.w[network];
             }
             let password = "";
+            let key = "";
             let index = "";
             let htype = type;
             switch (type) {
@@ -414,7 +421,8 @@ This value is used by default, but each tunnel may overide it.
                     htype = "Wireguard<br>Server";
                     const ks = window.wireguard.generateKeypair();
                     const kc = window.wireguard.generateKeypair();
-                    password = `${ks.privateKey}${ks.publicKey}${kc.privateKey}${kc.publicKey}`;
+                    key = `${ks.privateKey}${ks.publicKey}${kc.privateKey}${kc.publicKey}`;
+                    password = `${ks.publicKey}${kc.privateKey}${kc.publicKey}`;
                     for (let i = 0; i < 256; i++) {
                         index = `server_${i}`;
                         if (!htmx.find(`.tunnel[data-index="${index}"]`)) {
@@ -455,7 +463,8 @@ This value is used by default, but each tunnel may overide it.
             <label class="switch"><input type="checkbox" name="enable" checked></label>
         </div>
         <div class="cols pwnw">
-            <input type="text" name="password" required pattern="${wireguard ? '[A-Za-z0-9+\/=]+' : '[\\w@]+'}" placeholder="${wireguard ? 'Wireguard key' : 'Password'}" ${type === "ws" ? "disabled" : ""} value="${password}">
+            ${type === "ws" ? '<input type="hidden" name="key" value="' + key + '">' : ''}
+            <input type="text" name="password" required pattern="${wireguard ? '[A-Za-z0-9+\/=]+' : '[\\w@\-]+'}" placeholder="${wireguard ? 'Wireguard key' : 'Password'}" ${type === "ws" ? "disabled" : ""} value="${password}">
             <input type="text" name="network" required pattern="((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])\\.?\\b){4}${wireguard ? ':{{constants.patPort}}' : ''}" placeholder="${wireguard ? 'Network:Port' : 'Network'}" ${client ? "" : "disabled"} value="${network}">
             <input type="text" name="weight" pattern="([0-9]|[1-9][0-9])" placeholder="Wgt" value="">
         </div>
