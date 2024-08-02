@@ -46,6 +46,7 @@ if (request.env.REQUEST_METHOD === "PUT") {
     if ("lat" in request.args) {
         if (request.args.lat > -90 && request.args.lat < 90) {
             uciMesh.set("aredn", "@location[0]", "lat", request.args.lat);
+            uciMesh.set("aredn", "@location[0]", "source", "manual");
         }
         else if (request.args.lat === "") {
             uciMesh.delete("aredn", "@location[0]", "lat");
@@ -54,6 +55,7 @@ if (request.env.REQUEST_METHOD === "PUT") {
     if ("lon" in request.args) {
         if (request.args.lon > -180 && request.args.lon < 180) {
             uciMesh.set("aredn", "@location[0]", "lon", request.args.lon);
+            uciMesh.set("aredn", "@location[0]", "source", "manual");
         }
         else if (request.args.lon === "") {
             uciMesh.delete("aredn", "@location[0]", "lon");
