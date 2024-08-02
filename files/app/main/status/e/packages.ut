@@ -305,7 +305,12 @@ const po = getPackageOptions();
     <script>
     (function(){
         {{_R("open")}}
+        function clearStatus() {
+            htmx.find("#dialog-messages-error").innerHTML = "";
+            htmx.find("#dialog-messages-success").innerHTML = "";
+        }
         htmx.on("#package-update input[type='file']", "change", e => {
+            clearStatus();
             htmx.find("#fetch-and-update").innerText = "Fetch and Install";
             htmx.find("#download-package").value = "-";
             htmx.find("#remove-package").value = "-";
@@ -318,6 +323,7 @@ const po = getPackageOptions();
             }
         });
         htmx.on("#download-package", "change", e => {
+            clearStatus();
             htmx.find("#fetch-and-update").innerText = "Fetch and Install";
             htmx.find("#package-info").innerHTML = "";
             htmx.find("#remove-package").value = "-";
@@ -335,6 +341,7 @@ const po = getPackageOptions();
             
         });
         htmx.on("#remove-package", "change", e => {
+            clearStatus();
             htmx.find("#download-package").value = "-";
             htmx.find("#package-update input[type=file]").value = null;
             htmx.find("#package-info").innerHTML = "";
@@ -347,8 +354,7 @@ const po = getPackageOptions();
             }
         });
         htmx.on("#fetch-and-update", "click", e => {
-            htmx.find("#dialog-messages-error").innerHTML = "";
-            htmx.find("#dialog-messages-success").innerHTML = "";
+            clearStatus();
             const upload = htmx.find("#package-update input[type=file]").files[0];
             const download = htmx.find("#download-package").value;
             const remove = htmx.find("#remove-package").value;
@@ -391,8 +397,7 @@ const po = getPackageOptions();
         });
         htmx.on("#package-refresh", "click", e => {
             htmx.find("#package-refresh button").classList.add("rotate");
-            htmx.find("#dialog-messages-error").innerHTML = "";
-            htmx.find("#dialog-messages-success").innerHTML = "";
+            clearStatus();
             htmx.find("#package-update input[type=file]").value = null;
             htmx.find("#fetch-and-update").disabled = true;
             htmx.find("#fetch-and-update").innerText = "Fetch and Install";
