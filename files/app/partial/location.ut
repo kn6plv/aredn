@@ -61,5 +61,5 @@
         <div class="t">Unknown</div>
     {% } %}
     </div>
-    <div class="s">location{{source === "gps" ? " (gps)" : ""}}</div>
+    <div class="s">location{{source ? " (" + source + ")" : ""}}</div>
 </div>
