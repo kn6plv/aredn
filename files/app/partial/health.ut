@@ -51,10 +51,11 @@
         f.close();
     }
     const tm = localtime();
+    const tmsource = fs.readfile("/tmp/timesync");
 %}
 <div class="ctrl" hx-get="status/e/time" hx-target="#ctrl-modal">
     <div class="t">{{tm.hour === 0 ? "12" : tm.hour > 12 ? tm.hour - 12 : tm.hour}}:{{sprintf("%02d", tm.min)}} {{tm.hour >= 12 ? "pm" : "am"}}</div>
-    <div class="s">time</div>
+    <div class="s">time{{tmsource === "ntp" ? " (ntp)" : tmsource === "gps" ? " (gps)" : ""}}</div>
 </div>
 <div class="noctrl">
     <div class="t">{{uptime}}</div>
