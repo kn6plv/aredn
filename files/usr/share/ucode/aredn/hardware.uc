@@ -569,7 +569,7 @@ export function getHardwareType()
         mfgprefix = "mikrotik";
         const bv = fs.open("/sys/firmware/mikrotik/soft_config/bios_version");
         if (bv) {
-            const v = json(bv.read("all"));
+            const v = bv.read("all");
             bv.close();
             if (substr(v, 2) === "7.") {
                 targettype += "-v7"
