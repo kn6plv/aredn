@@ -319,7 +319,7 @@
         let booter_version = null;
         const bv = fs.open("/sys/firmware/mikrotik/soft_config/bios_version");
         if (bv) {
-            const v = json(bv.read("all"));
+            const v = bv.read("all");
             bv.close();
             if (substr(v, 2) === "7.") {
                 booter_version = "v7"
