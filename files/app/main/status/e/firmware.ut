@@ -315,9 +315,20 @@
         const overview = json(f.read("all"));
         f.close();
         let fwimage = null;
+
+        let booter_version = null;
+        const bv = fs.open("/sys/firmware/mikrotik/soft_config/bios_version");
+        if (bv) {
+            const v = json(bv.read("all"));
+            bv.close();
+            if (substr(v, 2) === "7.") {
+                booter_version = "v7"
+            }
+        }
         for (let i = 0; i < length(overview.images); i++) {
             const image = overview.images[i];
-            if (image.type === "sysupgrade" || image.type === "nand-sysupgrade" || image.type == "combined") {
+            if ((!booter_version && (image.type === "sysupgrade" || image.type === "nand-sysupgrade" || image.type == "combined")) ||
+               (booter_version === "v7" && image.type === "sysupgrade-v7")) {
                 fwimage = {
                     url: `${inst.target}/${image.name}`,
                     sha: image.sha256

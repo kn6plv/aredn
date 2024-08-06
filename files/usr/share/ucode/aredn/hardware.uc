@@ -554,7 +554,7 @@ export function isLowMemNode()
 export function getHardwareType()
 {
     const model = getBoard().model;
-    const targettype = ubus.connect().call("system", "board", {}).release.target;
+    let targettype = ubus.connect().call("system", "board", {}).release.target;
     let hardwaretype = model.id;
     let m = match(hardwaretype, /,(.*)/);
     if (m) {
@@ -567,6 +567,14 @@ export function getHardwareType()
     }
     else if (match(mfg, /[Mm]ikro[Tt]ik/)) {
         mfgprefix = "mikrotik";
+        const bv = fs.open("/sys/firmware/mikrotik/soft_config/bios_version");
+        if (bv) {
+            const v = json(bv.read("all"));
+            bv.close();
+            if (substr(v, 2) === "7.") {
+                targettype += "-v7"
+            }
+        }
     }
     else if (match(mfg, /[Tt][Pp]-[Ll]ink/)) {
         mfgprefix = "cpe";
