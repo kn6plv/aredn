@@ -58,6 +58,12 @@ export function getTrackers()
     return lqm?.trackers || {};
 };
 
+export function getHidden()
+{
+    initLQM();
+    return lqm?.hidden_nodes || [];
+};
+
 export function reset()
 {
     lqm = null;

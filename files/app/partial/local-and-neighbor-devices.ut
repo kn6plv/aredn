@@ -89,6 +89,7 @@
             const trackers = lqm.getTrackers();
             const llist = [];
             const nlist = [];
+            const hlist = lqm.getHidden();
             for (mac in trackers) {
                 const tracker = trackers[mac];
                 if (tracker.hostname || (tracker.ip && tracker.routable)) {
@@ -192,3 +193,17 @@
     %}
     </div>
 </div>
+{% if (length(hlist) > 0) { %}
+<div class="noctrl">
+    <div class="section-title">Hidden Nodes</div>
+    <div class="section" style="line-height:18px">
+    {%
+        sort(hlist, (a, b) => a.hostname == b.hostname ? 0 : a.hostname < b.hostname ? -1 : 1);
+        for (let i = 0; i < length(hlist); i++) {
+            const hostname = nlist[i].hostname;
+            print(`<div style='flex:0.75'><a onclick="event.stopPropagation()" title='Link status: hidden' href='http://${hostname}.local.mesh'>${hostname}</a></div>`);
+        }
+    %}
+    </div>
+</div>
+{% } %}
