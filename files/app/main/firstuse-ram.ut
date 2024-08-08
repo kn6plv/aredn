@@ -60,8 +60,8 @@ if (request.env.REQUEST_METHOD === "POST") {
             <div>
                 <div>Welcome</div>
                 <div>
-                    <div>Congratulations on booting AREDN&trade;</div>
-                    <div>AREDN&trade; is currently running in RAM. The next step is to install AREDN&trade; into Flash.</div>
+                    <div>Congratulations on booting AREDN&reg;</div>
+                    <div>AREDN&reg; is currently running in RAM. The next step is to install AREDN&reg; into Flash.</div>
                     <div>Download the <b>sysupgrade.bin</b> file for this device (it should be at the same place your found this
                     <b>kernel.bin</b> file) and upload it using the file selector below</div>
                 </div>

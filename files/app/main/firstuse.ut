@@ -61,7 +61,7 @@ if (request.env.REQUEST_METHOD === "PUT") {
             <div>
                 <div>Welcome</div>
                 <div>
-                    <div>Congratulations on installing AREDN&trade;</div>
+                    <div>Congratulations on installing AREDN&reg;</div>
                     <div>There's a few pieces of basic information we need to start setting up your node.</div>
                 </div>
                 <div>
