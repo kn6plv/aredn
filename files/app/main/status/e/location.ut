@@ -40,7 +40,7 @@ if (request.env.REQUEST_METHOD === "PUT") {
             uciMesh.set("aredn", "@location[0]", "gridsquare", request.args.gridsquare);
         }
         else if (request.args.gridsquare === "") {
-            uciMesh.delete("aredn", "@location[0]", "gridsquare");
+            uciMesh.set("aredn", "@location[0]", "gridsquare", "");
         }
     }
     if ("lat" in request.args) {
@@ -48,18 +48,18 @@ if (request.env.REQUEST_METHOD === "PUT") {
             uciMesh.set("aredn", "@location[0]", "lat", request.args.lat);
         }
         else if (request.args.lat === "") {
-            uciMesh.delete("aredn", "@location[0]", "lat");
+            uciMesh.set("aredn", "@location[0]", "lat", "");
         }
-        uciMesh.delete("aredn", "@location[0]", "source");
+        uciMesh.set("aredn", "@location[0]", "source", "");
     }
     if ("lon" in request.args) {
         if (request.args.lon > -180 && request.args.lon < 180) {
             uciMesh.set("aredn", "@location[0]", "lon", request.args.lon);
         }
         else if (request.args.lon === "") {
-            uciMesh.delete("aredn", "@location[0]", "lon");
+            uciMesh.set("aredn", "@location[0]", "lon", "");
         }
-        uciMesh.delete("aredn", "@location[0]", "source");
+        uciMesh.set("aredn", "@location[0]", "source", "");
     }
     if ("mapurl" in request.args) {
         if (match(request.args.mapurl, constants.reUrl)) {
