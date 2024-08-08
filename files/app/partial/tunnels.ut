@@ -74,9 +74,9 @@
         const w = fs.popen("/usr/bin/wg show all latest-handshakes");
         if (w) {
             for (let l = w.read("line"); length(l); l = w.read("line")) {
-                const v = split(l, /\t/);
+                const v = split(trim(l), /\t/);
                 if (v && int(v[2]) + 300 > time()) {
-                    if (index(v[1], "wgc") === 0) {
+                    if (index(v[0], "wgc") === 0) {
                         wac++;
                     }
                     else {
