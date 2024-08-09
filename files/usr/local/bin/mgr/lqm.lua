@@ -529,6 +529,7 @@ function lqm()
                     lat = nil,
                     lon = nil,
                     distance = nil,
+                    localarea = nil,
                     blocks = {
                         dtd = false,
                         signal = false,
@@ -652,6 +653,11 @@ function lqm()
                             track.lon = tonumber(info.lon) or track.lon
                             if track.lat and track.lon and lat and lon then
                                 track.distance = calc_distance(lat, lon, track.lat, track.lon)
+                                if track.type == "DtD" and track.distance < dtd_distance then
+                                    track.localarea = true
+                                else
+                                    track.localarea = false
+                                end
                             end
 
                             -- Keep some useful info
