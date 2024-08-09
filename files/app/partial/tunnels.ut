@@ -77,10 +77,10 @@
                 const v = split(trim(l), /\t/);
                 if (v && int(v[2]) + 300 > time()) {
                     if (index(v[0], "wgc") === 0) {
-                        wac++;
+                        was++;
                     }
                     else {
-                        was++;
+                        wac++;
                     }
                 }
             }
