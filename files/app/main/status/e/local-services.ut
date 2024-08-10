@@ -84,6 +84,7 @@ const types = {
     solar: true,
     battery: true,
     power: true,
+    weather: true,
     wiki: true,
 };
 const templates = [
@@ -101,6 +102,7 @@ const templates = [
     { name: "Phone info", type: "phone", link: false, text: "xYOUR-PHONE-EXTENSION" },
     { name: "Map", type: "map", protocol: "http", port: 80 },
     { name: "MeshChat", type: "chat", protocol: "http", port: 80, path: "meshchat" },
+    { name: "WeeWx Weather Station", type: "weather", protocol: "http", port: 80, path: "weewx" },
     { name: "Proxmox Server", type: "server", protocol: "https", port: 8006 },
     { name: "Generic HTTP", protocol: "http", port: 80 },
     { name: "Generic HTTPS", protocol: "https", port: 443 },
