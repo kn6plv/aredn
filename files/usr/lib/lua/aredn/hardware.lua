@@ -513,7 +513,7 @@ function hardware.gps_find(local_only)
             l:close()
             for _, tracker in pairs(lqm.trackers)
             do
-                if tracker.localarea and tracker.ip then
+                if tracker.type == "DtD" and tracker.ip then
                     local s = nixio.socket("inet", "stream")
                     s:setopt("socket", "sndtimeo", 1)
                     local r = s:connect(tracker.ip, 2947)
