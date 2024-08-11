@@ -1371,7 +1371,7 @@ label.switch
 #wifi-bar .bars
 {
     position: relative;
-    height: calc(100% - 30px);
+    height: calc(100% - 42px);
 }
 #wifi-bar .bars > div
 {

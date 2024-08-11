@@ -35,7 +35,7 @@
 {%
 if (request.env.REQUEST_METHOD === "PUT") {
     const wifiiface = uci.get("network", "wifi", "device");
-    const f = fs.popen(`iw ${wifiiface} station dump`);
+    let f = fs.popen(`iw ${wifiiface} station dump`);
     if (f) {
         const signals = {};
         let mac = null;
@@ -54,7 +54,26 @@ if (request.env.REQUEST_METHOD === "PUT") {
             }
         }
         f.close();
-        printf("%J", signals);
+        let noise = -95;
+        f = fs.popen(`iw ${wifiiface} survey dump`);
+        if (f) {
+            const reN = /noise:[ \t]+([0-9\-]+) dBm/;
+            let ff = false;
+            for (let l = f.read("line"); length(l); l = f.read("line")) {
+                if (index(l, "[in use]") !== -1) {
+                    ff = true;
+                }
+                else if (ff) {
+                    const m = match(l, reN);
+                    if (m) {
+                        noise = int(m[1]);
+                        break;
+                    }
+                }
+            }
+            f.close();
+        }
+        printf("%J", { s: signals, n: noise });
     }
     return;
 }
@@ -95,7 +114,7 @@ for (let i = 0; i < length(stations); i++) {
         <div class="cols"  style="padding:10px 0 30px 0">
             <div style="flex:0">
                 <div id="wifi-bar">
-                    <div>dBm</div>
+                    <div>- dBm<br><small>snr: -</small></div>
                     <div class="bars">
                         <div><div></div><div style="background-color:var(--conn-fg-color-idle)"></div></div>
                         <div><div></div><div style="background-color:var(--conn-fg-color-good)"></div></div>
@@ -216,10 +235,10 @@ for (let i = 0; i < length(stations); i++) {
             if (last !== device.value) {
                 reset();
             }
-            let s = j[last];
+            let s = j.s[last];
             if (!s) {
                 if (last === "average") {
-                    s = Math.round(Object.values(j).reduce((t, v, _, a) => t + v / a.length, 0));
+                    s = Math.round(Object.values(j.s).reduce((t, v, _, a) => t + v / a.length, 0));
                 }
                 if (!s) {
                     s = -120;
@@ -232,7 +251,8 @@ for (let i = 0; i < length(stations); i++) {
                 if (s < smin) {
                     smin = s;
                 }
-                bart.innerText = `${s} dBm`;
+                const snr = s - j.n;
+                bart.innerHTML = `${s} dBm<br><small>snr: ${snr}</small>`;
                 bar1.style.height = p(smax);
                 bar2.style.height = p(s);
                 bar3.style.height = p(smin);
@@ -241,7 +261,7 @@ for (let i = 0; i < length(stations); i++) {
                 bar3.firstElementChild.innerText = smin;
             }
             else {
-                bart.innerText = `- dBm`;
+                bart.innerHTML = `- dBm<br><small>snr: -</small>`;
                 bar2.style.height = p(sf);
                 bar2.firstElementChild.innerText = "";
             }
