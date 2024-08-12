@@ -94,7 +94,7 @@ export function haveToDos()
             return true;
         }
         if (ant || length(ants) === 1) {
-            if (!cursor.get("aredn", "@location[0]", "heading")) {
+            if (!cursor.get("aredn", "@location[0]", "azimuth")) {
                 const ainfo = hardware.getAntennaInfo(wlan, ant || ants[0]);
                 if (ainfo.beamwidth !== 360) {
                     return true;
@@ -107,6 +107,7 @@ export function haveToDos()
 
 export function getToDos()
 {
+    const cursor = uci.cursor();
     const todos = [];
     if (!cursor.get("aredn", "@location[0]", "lat") || !cursor.get("aredn", "@location[0]", "lon")) {
         push(todos, "Set the latitude and longitude");
@@ -122,7 +123,7 @@ export function getToDos()
             push(todos, "Select an antenna");
         }
         else if (ant || length(ants) === 1) {
-            if (!cursor.get("aredn", "@location[0]", "heading")) {
+            if (!cursor.get("aredn", "@location[0]", "azimuth")) {
                 const ainfo = hardware.getAntennaInfo(wlan, ant || ants[0]);
                 if (ainfo.beamwidth !== 360) {
                     push(todos, "Set antenna azimuth");
