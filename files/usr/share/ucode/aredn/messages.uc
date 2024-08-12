@@ -32,9 +32,10 @@
  */
 
 import * as fs from "fs";
+import * as uci from "uci";
 import * as configuration from "aredn.configuration";
-
-let nodename;
+import * as hardware from "aredn.hardware";
+import * as radios from "aredn.radios";
 
 export function haveMessages()
 {
@@ -47,7 +48,7 @@ export function haveMessages()
     return false;
 };
 
-function parseMessages(msgs, text)
+function parseMessages(nodename, msgs, text)
 {
     if (text) {
         const t = split(text, "<strong>");
@@ -66,12 +67,68 @@ function parseMessages(msgs, text)
 
 export function getMessages()
 {
-    nodename = lc(configuration.getName());
+    const nodename = lc(configuration.getName());
     const msgs = {};
     if (fs.access("/etc/cron.boot/reinstall-packages") && fs.access("/etc/package_store/catalog.json")) {
         msgs.system = [ "Packages are being reinstalled in the background. This can take a few minutes." ];
     }
-    parseMessages(msgs, fs.readfile("/tmp/aredn_message"));
-    parseMessages(msgs, fs.readfile("/tmp/local_message"));
+    parseMessages(nodename, msgs, fs.readfile("/tmp/aredn_message"));
+    parseMessages(nodename, msgs, fs.readfile("/tmp/local_message"));
     return msgs;
+};
+
+export function haveToDos()
+{
+    const cursor = uci.cursor();
+    if (!cursor.get("aredn", "@location[0]", "lat") ||
+        !cursor.get("aredn", "@location[0]", "lon") ||
+        configuration.getSettingAsString("time_zone_name", "Not Set") === "Not Set"
+    ) {
+        return true;
+    }
+    if (hardware.getRadioCount() > 0) {
+        const wlan = cursor.get("network", "wifi", "device");
+        const ants = hardware.getAntennas(wlan);
+        const ant = cursor.get("aredn", "@location[0]", "antenna");
+        if (length(ants) > 1 && !ant) {
+            return true;
+        }
+        if (ant || length(ants) === 1) {
+            if (!cursor.get("aredn", "@location[0]", "heading")) {
+                const ainfo = hardware.getAntennaInfo(wlan, ant || ants[0]);
+                if (ainfo.beamwidth !== 360) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+};
+
+export function getToDos()
+{
+    const todos = [];
+    if (!cursor.get("aredn", "@location[0]", "lat") || !cursor.get("aredn", "@location[0]", "lon")) {
+        push(todos, "Set the latitude and longitude");
+    }
+    if (configuration.getSettingAsString("time_zone_name", "Not Set") === "Not Set") {
+        push(todos, "Set the timzeone");
+    }
+    if (hardware.getRadioCount() > 0) {
+        const wlan = cursor.get("network", "wifi", "device");
+        const ants = hardware.getAntennas(wlan);
+        const ant = cursor.get("aredn", "@location[0]", "antenna");
+        if (length(ants) > 1 && !ant) {
+            push(todos, "Select an antenna");
+        }
+        else if (ant || length(ants) === 1) {
+            if (!cursor.get("aredn", "@location[0]", "heading")) {
+                const ainfo = hardware.getAntennaInfo(wlan, ant || ants[0]);
+                if (ainfo.beamwidth !== 360) {
+                    push(todos, "Set antenna azimuth");
+                }
+            }
+        }
+    }
+    return todos;
 };

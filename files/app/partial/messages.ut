@@ -34,6 +34,7 @@
 %}
 {%
     const allmsgs = messages.getMessages();
+    const todos = messages.getToDos();
 %}
 <div class="noctrl">
     {% if (allmsgs.system) { %}
@@ -84,5 +85,15 @@
         %}</div>{%
         break;
     }
+    if (length(todos) > 0) { %}
+    <div class="section-title">To Do</div>
+    <div class="section">
+    {%
+        for (let i = 0; i < length(todos); i++) {
+            print(`<div>${todos[i]}</div>`);
+        }
+    %}
+    </div>
+    {% }
     %}
 </div>

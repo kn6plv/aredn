@@ -32,7 +32,7 @@
  * version
  */
 %}
-{% if (messages.haveMessages()) { %}
+{% if (messages.haveMessages() || (auth.isAdmin && messages.haveToDos())) { %}
 <div id="messages">
     {{_R("messages")}}
     </div>
