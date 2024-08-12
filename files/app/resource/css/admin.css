@@ -433,6 +433,21 @@ label.switch
     display: block;
 }
 
+#location-edit-map
+{
+    position: relative;
+}
+#location-edit-map .icon.plus
+{
+    position: absolute;
+    top: 60px;
+    left: calc(50% - 40px);
+    width: 80px;
+    height: 80px;
+    pointer-events: none;
+    filter: var(--icon-filter);
+    z-index: 1;
+}
 #location-edit-map iframe
 {
     width: 100%;
