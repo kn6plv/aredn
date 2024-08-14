@@ -1232,6 +1232,12 @@ if nixio.fs.access("/etc/config.mesh/olsrd", "r") then
             )
         end
 
+        -- OLSRD user extras
+        if nixio.fs.stat("/etc/aredn_include/olsrd.user") then
+            of:write("\n")
+            of:write(expand_vars(read_all("/etc/aredn_include/olsrd.user")))
+        end
+
         of:close()
     end
 end
