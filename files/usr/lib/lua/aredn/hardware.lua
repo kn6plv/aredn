@@ -494,33 +494,34 @@ function hardware.get_interface_mac(intf)
     return mac
 end
 
+local gpsd = "/usr/sbin/gpsd";
 local gps_ttys = {
     "/dev/ttyACM0",
     "/dev/ttyUSB0"
 }
 
-function hardware.gps_find(local_only)
-    for _, tty in ipairs(gps_ttys)
-    do
-        if nixio.fs.stat(tty) then
-            return tty
+function hardware.gps_find()
+    if nixio.fs.stat(gpsd) then
+        for _, tty in ipairs(gps_ttys)
+        do
+            if nixio.fs.stat(tty) then
+                return tty
+            end
         end
     end
-    if not local_only then
-        local l = io.open("/tmp/lqm.info")
-        if l then
-            local lqm = luci.jsonc.parse(l:read("*a"))
-            l:close()
-            for _, tracker in pairs(lqm.trackers)
-            do
-                if tracker.type == "DtD" and tracker.ip then
-                    local s = nixio.socket("inet", "stream")
-                    s:setopt("socket", "sndtimeo", 1)
-                    local r = s:connect(tracker.ip, 2947)
-                    s:close()
-                    if r then
-                        return tracker.ip
-                    end
+    local l = io.open("/tmp/lqm.info")
+    if l then
+        local lqm = luci.jsonc.parse(l:read("*a"))
+        l:close()
+        for _, tracker in pairs(lqm.trackers)
+        do
+            if tracker.type == "DtD" and tracker.ip then
+                local s = nixio.socket("inet", "stream")
+                s:setopt("socket", "sndtimeo", 1)
+                local r = s:connect(tracker.ip, 2947)
+                s:close()
+                if r then
+                    return tracker.ip
                 end
             end
         end
