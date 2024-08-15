@@ -58,6 +58,7 @@
 </head>
 <body class="{{auth.isAdmin ? "authenticated" : ""}}" hx-indicator="body">
     <dialog id="ctrl-modal" onclose="event.target.innerHTML = ''"></dialog>
+    {{_R("oldui")}}
     <div id="all">
         <div id="nav">
             {{_R("nav")}}
