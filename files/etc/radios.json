@@ -19,7 +19,7 @@
     }
   },
   "gl.inet gl-ar300m (nand)": {
-    "maxpower": "23",
+    "maxpower": 23,
     "antenna": {
       "description": "2.5 dBi Omni",
       "gain": 2.5,
