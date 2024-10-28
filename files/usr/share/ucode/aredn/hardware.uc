@@ -87,15 +87,18 @@ export function getBoardId()
 export function getRadio()
 {
     if (!radioJson) {
+        const id = getBoardId();
         const f = fs.open("/etc/radios.json");
         if (!f) {
-            return {};
+            return { name: id };
         }
         const radios = json(f.read("all"));
         f.close();
-        const id = getBoardId();
         radioJson = radios[lc(id)];
-        if (radioJson && !radioJson.name) {
+        if (!radioJson) {
+            return { name: id };
+        }
+        if (!radioJson.name) {
             radioJson.name = id;
         }
     }
