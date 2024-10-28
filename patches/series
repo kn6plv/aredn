@@ -44,6 +44,7 @@
 751-x86.patch
 752-mikrotik-nand-revert.patch
 753-ubiquiti-2ac.patch
+754-raspberrypi.patch
 760-uhttp-ucode.patch
 761-ucode-zlib.patch
 800-upgrade-compatibility.patch

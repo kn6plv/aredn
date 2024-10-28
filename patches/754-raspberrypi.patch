@@ -1,0 +1,12 @@
+--- a/target/linux/bcm27xx/base-files/etc/board.d/02_network
++++ b/target/linux/bcm27xx/base-files/etc/board.d/02_network
+@@ -20,7 +20,8 @@
+ raspberrypi,model-b |\
+ raspberrypi,model-b-plus |\
+ raspberrypi,model-b-rev2)
+-	ucidef_set_interface_lan "eth0"
++	ucidef_set_interfaces_lan_wan "eth0" "eth0.1"
++	ucidef_set_interface "dtdlink" device "eth0.2" protocol "static"
+ 	;;
+ 
+ raspberrypi,model-zero-2 |\
