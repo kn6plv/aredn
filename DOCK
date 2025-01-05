@@ -1,0 +1,18 @@
+#! /bin/sh
+
+IMG=/tmp/img.img
+NAME=aredn-test
+DEV=sda2
+
+if [ "${1}" = "" ]; then
+  echo "Usage: DOCK <image file>"
+  exit 1
+fi
+
+rm -f ${IMG}
+zcat ${1} > ${IMG}
+guestfish --ro -a ${IMG} -m /dev/${DEV}:/ tar-out / - | docker import --change "ENTRYPOINT /etc/preinit" - ${NAME} 
+rm -f ${IMG}
+docker save ${NAME} > ${NAME}.tar
+
+# docker run --privileged --restart always aredn-test
