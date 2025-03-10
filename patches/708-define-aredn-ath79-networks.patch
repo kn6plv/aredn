@@ -355,3 +355,17 @@
  		;;
  	hiwifi,hc6361|\
  	xiaomi,mi-router-4q|\
+--- a/target/linux/ath79/nand/base-files/etc/board.d/02_network
++++ b/target/linux/ath79/nand/base-files/etc/board.d/02_network
+@@ -22,6 +22,11 @@
+ 		ucidef_add_switch "switch0" \
+ 			"0@eth0" "2:lan:4" "3:lan:3" "4:lan:2" "5:lan:1" "1:wan"
+ 		;;
++	glinet,gl-ar300m-nor|\
++		ucidef_set_interfaces_lan_wan "eth0" "eth1"
++		ucidef_set_interface "dtdlink" device "eth0.2" protocol "static"
++		ucidef_set_interface "wifi" device "wlan0" protocol "static"
++		;;
+ 	glinet,gl-ar750s-nor|\
+ 	glinet,gl-ar750s-nor-nand)
+ 		ucidef_add_switch "switch0" \
