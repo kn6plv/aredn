@@ -37,7 +37,7 @@ commands:
           command:  |
             export MY_WORKING_DIRECTORY=`pwd`
             printf -v BUILD_DATE '%(%Y%m%d)T' -1
-            sed -i "s/NoCall/${BUILD_DATE}-babel/g" ${MY_WORKING_DIRECTORY}/config.mk
+            sed -i "s/NoCall/babel-${BUILD_DATE}/g" ${MY_WORKING_DIRECTORY}/config.mk
             sed -i "s/snapshots/snapshots_babel/g" ${MY_WORKING_DIRECTORY}/config.mk
             sed -i "s/MAKE_ARGS=-j3/MAKE_ARGS=-j9/g" ${MY_WORKING_DIRECTORY}/config.mk
             sed -i "s/develop/babel-only/g" ${MY_WORKING_DIRECTORY}/feeds.conf
