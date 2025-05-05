@@ -40,7 +40,7 @@ commands:
             sed -i "s/NoCall/babel-${BUILD_DATE}/g" ${MY_WORKING_DIRECTORY}/config.mk
             sed -i "s/snapshots/snapshots_babel/g" ${MY_WORKING_DIRECTORY}/config.mk
             sed -i "s/MAKE_ARGS=-j3/MAKE_ARGS=-j9/g" ${MY_WORKING_DIRECTORY}/config.mk
-            sed -i "s/develop/babel-only/g" ${MY_WORKING_DIRECTORY}/feeds.conf
+            sed -i "s/develop/babel/g" ${MY_WORKING_DIRECTORY}/feeds.conf
             cat ${MY_WORKING_DIRECTORY}/config.mk
   
   update_config_mk_release:
@@ -110,6 +110,10 @@ jobs:
           command: make MAINTARGET=ramips SUBTARGET=mt7621
           no_output_timeout: 2h
       - run:
+          name: Build ramips/mt7621/morse
+          command: make MAINTARGET=ramips SUBTARGET=mt7621 ALTARGET=morse
+          no_output_timeout: 2h
+      - run:
           name: Build mediatek/filogic
           command: make MAINTARGET=mediatek SUBTARGET=filogic
           no_output_timeout: 2h
@@ -169,6 +173,10 @@ jobs:
           command: make MAINTARGET=ramips SUBTARGET=mt7621
           no_output_timeout: 2h
       - run:
+          name: Build ramips/mt7621/morse
+          command: make MAINTARGET=ramips SUBTARGET=mt7621 ALTARGET=morse
+          no_output_timeout: 2h
+      - run:
           name: Build mediatek/filogic
           command: make MAINTARGET=mediatek SUBTARGET=filogic
           no_output_timeout: 2h
@@ -226,6 +234,10 @@ jobs:
       - run:
           name: Build ramips/mt7621
           command: make MAINTARGET=ramips SUBTARGET=mt7621
+          no_output_timeout: 2h
+      - run:
+          name: Build ramips/mt7621/morse
+          command: make MAINTARGET=ramips SUBTARGET=mt7621 ALTARGET=morse
           no_output_timeout: 2h
       - run:
           name: Build mediatek/filogic
