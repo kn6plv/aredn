@@ -350,7 +350,7 @@ if (request.env.REQUEST_METHOD === "DELETE") {
             htmx.find("dialog #ssh_change").innerHTML = "Upload or Remove Key";
         });
         {% } %}
-        fetch("http://localnode.local.mesh/a/whoami").then(r => {
+        fetch("localnode.{{constants.domain}}/a/whoami").then(r => {
             if (r.ok) {
                 r.json().then(j => {
                     if (j.name === "{{configuration.getName()}}") {

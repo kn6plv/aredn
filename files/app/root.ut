@@ -436,9 +436,13 @@ global.handle_request = function(env)
 {
     const path = match(env.PATH_INFO, rePath);
     const page = path[1] || "status";
-    const secured = index(path[2], "/e/") === 0;
+    const adminonly = index(path[2], "/e/") === 0;
 
-    if (path[2] == "" || secured) {
+    if (env.SERVER_PORT == 443) {
+        constants.domain = "aredn.io";
+    }
+
+    if (path[2] == "" || adminonly) {
         let tpath;
         if (!configuration.isConfigured()) {
             tpath = `${config.application}/main/firstuse-ram.ut`;
@@ -457,11 +461,11 @@ global.handle_request = function(env)
                 f.close();
             }
         }
-        else if (secured) {
+        else if (adminonly) {
             tpath = `${config.application}/main${env.PATH_INFO}.ut`;
         }
-        else if ((env.HTTP_HOST === "localnode" || env.HTTP_HOST === "localnode.local.mesh") && !env.headers["hx-boosted"]) {
-            uhttpd.send(`Status: 302 Found\r\nAccess-Control-Allow-Origin: *\r\nLocation: http://${configuration.getName()}.local.mesh${env.REQUEST_URI}\r\n\r\n`);
+        else if ((env.HTTP_HOST === "localnode" || env.HTTP_HOST === "localnode.local.mesh" || env.HTTP_HOST === "localnode.aredn.io") && !env.headers["hx-boosted"]) {
+            uhttpd.send(`Status: 302 Found\r\nAccess-Control-Allow-Origin: *\r\nLocation: ${configuration.getName()}.{{constants.domain}}${env.REQUEST_URI}\r\n\r\n`);
             return;
         }
         else {
@@ -474,7 +478,7 @@ global.handle_request = function(env)
         if (pageCache[tpath] || fs.access(tpath)) {
             auth.runAuthentication(env);
             if (config.authenable && !auth.isAdmin) {
-                if (secured) {
+                if (adminonly) {
                     uhttpd.send("Status: 401 Unauthorized\r\n\r\n");
                     return;
                 }
@@ -648,7 +652,7 @@ global.handle_request = function(env)
     const rpath = `${config.application}/resource/${env.PATH_INFO}`;
     const gzrpath = `${rpath}.gz`;
 
-    const localnode = env.HTTP_HOST === "localnode" || env.HTTP_HOST === "localnode.local.mesh";
+    const localnode = env.HTTP_HOST === "localnode" || env.HTTP_HOST === "localnode.local.mesh" || env.HTTP_HOST === "localnode.aredn.io";
     if (localnode && config.resourcehash && index(env.PATH_INFO, "/css/theme.") === 0 && fs.access(gzrpath) && uciMethods.get("aredn", "@theme[0]", "portable") === "1") {
         const themecss = `/css/theme.${fs.readlink(`${config.application}/resource/css/theme.version`)}.css`;
         if (env.PATH_INFO !== themecss && fs.access(`${config.application}/resource${themecss}.gz`)) {

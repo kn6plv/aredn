@@ -33,7 +33,7 @@
  */
 %}
 {{_R("changes")}}
-<a class="browser-mode" href="http://localnode.local.mesh"><div id="icon-logo"></div><div>AREDN<span style="font-size:4px">TM</span></div></a>
+<a class="browser-mode" href="localnode.{{constants.domain}}"><div id="icon-logo"></div><div>AREDN<span style="font-size:4px">TM</span></div></a>
 <div class="app-mode" id="icon-logo"></div><div>AREDN<span style="font-size:4px">TM</span></div>
 <div class="nav-node-name">{{configuration.getName()}}</div>
 {{_R("nav-status")}}

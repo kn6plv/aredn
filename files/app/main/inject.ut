@@ -46,7 +46,7 @@
         {% } %}
         document.head.appendChild(lk);
     };
-    lk.href = "http://localnode.local.mesh/a/css/admin.{{versions.admincss}}.css";
+    lk.href = "localnode.{{constants.domain}}/a/css/admin.{{versions.admincss}}.css";
     {% } else { %}
     lk.href = "/a/css/admin.css";
     {% } %}
@@ -71,7 +71,7 @@
         {% } %}
         document.head.appendChild(hx);
     }
-    hx.src = "http://localnode.local.mesh/a/js/htmx.min.{{versions.htmx}}.js";
+    hx.src = "localnode.{{constants.domain}}/a/js/htmx.min.{{versions.htmx}}.js";
     {% } else { %}
     hx.src = "/a/js/htmx.min.js";
     {% } %}
