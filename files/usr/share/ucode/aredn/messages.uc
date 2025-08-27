@@ -78,9 +78,6 @@ export function getToDos()
 {
     const cursor = uci.cursor();
     const todos = [];
-    if (hardware.isLowMemNode()) {
-        push(todos, "This is a sunsetted node and may not be supported in the future. We recommend you upgrade the hardware.");
-    }
     if (!cursor.get("aredn", "@location[0]", "lat") || !cursor.get("aredn", "@location[0]", "lon")) {
         push(todos, "Set the latitude and longitude");
     }

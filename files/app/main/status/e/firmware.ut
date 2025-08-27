@@ -420,17 +420,6 @@
             uhttpd.send(`event: error\r\ndata: sha256 check for firmware download failed\r\n\r\n`);
             return;
         }
-        f = fs.popen("/usr/bin/sha256sum /tmp/firmwarefile");
-        let digest;
-        if (f) {
-            digest = match(f.read("all"), /^(\S+)/);
-            f.close();
-        }
-        if (!digest || digest[1] != fwimage.sha) {
-            uhttpd.send(`event: error\r\ndata: sha256 check for firmware download failed\r\n\r\n`);
-            restoreServices();
-            return;
-        }
         const upgrade = prepareUpgrade("/tmp/firmwarefile");
         if (upgrade.error) {
             fs.unlink("/tmp/firmwarefile");
