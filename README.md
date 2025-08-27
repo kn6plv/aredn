@@ -1,4 +1,4 @@
-# Amateur Radio Emergency Data Network AREDN® Firmware 
+# Amateur Radio Emergency Data Network AREDN® Firmware
 
 https://www.arednmesh.org
 
@@ -50,7 +50,7 @@ The Ubiquiti AirRouter and AirRouter HP are pre-configured with the following VL
 * Port 4: DtDLink Port Mesh Routing -- Connect to another mesh node or 8021.q switch. Packets in/out of this port must be vlan 2 tagged, other packets are ignored.
 * Ports 1-3: LAN devices -- Packets in/out of this port are expected to be untagged. The mesh node will (default) DHCP assign an IP address to your computer, ipCam, voip phone, etc. connected to these ports.
 
-The GL.iNet GL-AR150 and GL-AR300M16 are pre-configured with the following VLANS:
+The GL.iNet GL-AR150, GL-AR300M16, and the OpenWRT One are pre-configured with the following VLANS:
 
 * Port labeled "WAN": untagged = AREDN® WAN
 * Port labeled "LAN": untagged = AREDN® LAN, vlan 2 = DtDLink (device to device)
@@ -147,6 +147,18 @@ You need approximately 10GB of space for the build.
 
 Prior AREDN® images can be rebuilt.  Replace one of the following after
 the "cd aredn" command above:
+
+AREDN® release 3.25.5.0
+
+```
+git checkout 3.25.5.0
+```
+
+AREDN® release 3.25.2.0
+
+```
+git checkout 3.25.2.0
+```
 
 AREDN® release 3.24.10.0
 

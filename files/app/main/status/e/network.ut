@@ -72,6 +72,7 @@ if (request.env.REQUEST_METHOD === "PUT") {
                         }
                     }
                     uciMesh.set("setup", "aliases", "alias", aliases);
+                    uciMesh.commit("setup");
                 }
             }
         }
@@ -147,15 +148,26 @@ if (request.env.REQUEST_METHOD === "PUT") {
     if ("wan_vlan" in request.args) {
         const wan_iface = keys(hardware.getDefaultNetworkConfiguration().wan.ports)[0];
         const wan_vlan = int(request.args.wan_vlan || 0);
-        if (wan_vlan === 0) {
-            configuration.setSetting("wan_intf", wan_iface);
-        }
-        else if (wan_vlan >= 3 && wan_vlan <= 4095) {
-            configuration.setSetting("wan_intf", `${wan_iface}.${wan_vlan}`);
+        const new_wan_iface = `${wan_iface}${wan_vlan === 0 ? '' : '.' + wan_vlan}`;
+        const lan_iface = configuration.getSettingAsString("lan_intf", "");
+        if ((wan_vlan === 0 || wan_vlan === 1 || (wan_vlan >= 5 && wan_vlan <= 4095)) && lan_iface != new_wan_iface) {
+            configuration.setSetting("wan_intf", new_wan_iface);
         }
     }
-    if ("olsrd_gw" in request.args) {
-        uciMesh.set("aredn", "@wan[0]", "olsrd_gw", request.args.olsrd_gw === "on" ? 1 : 0);
+    if ("lan_vlan" in request.args) {
+        const lan_iface = keys(hardware.getDefaultNetworkConfiguration().lan.ports)[0];
+        const lan_vlan = int(request.args.lan_vlan || 0);
+        const new_lan_iface = `${lan_iface}${lan_vlan === 0 ? '' : '.' + lan_vlan}`;
+        const wan_iface = configuration.getSettingAsString("wan_intf", "");
+        if ((lan_vlan === 0 || (lan_vlan >= 5 && lan_vlan <= 4095)) && wan_iface != new_lan_iface) {
+            configuration.setSetting("lan_intf", new_lan_iface);
+        }
+    }
+    if ("mesh_to_local_wan" in request.args) {
+        uciMesh.set("aredn", "@wan[0]", "mesh_to_local_wan", request.args.mesh_to_local_wan === "on" ? 1 : 0);
+    }
+    if ("lan_to_remote_wan" in request.args) {
+        uciMesh.set("aredn", "@wan[0]", "lan_to_remote_wan", request.args.lan_to_remote_wan === "on" ? 1 : 0);
     }
     if ("lan_dhcp_route" in request.args) {
         uciMesh.set("aredn", "@wan[0]", "lan_dhcp_route", request.args.lan_dhcp_route === "on" ? 1 : 0);
@@ -184,8 +196,10 @@ const de = iptoarr(dhcp.end);
 const dhcp_start = (ds[2] - db[2]) * 256 + (ds[3] - db[3]);
 const dhcp_end = (de[2] - db[2]) * 256 + (de[3] - db[3]);
 const wan_proto = configuration.getSettingAsString("wan_proto", "disabled");
-const wan_iface = split(configuration.getSettingAsString("wan_intf", ""), ".");
+const wan_iface = split(configuration.getSettingAsString("wan_intf") || hardware.getBoardNetworkInterfaceName("wan"), ".");
 const wan_vlan = wan_iface[1] ? wan_iface[1] : "";
+const lan_iface = split(configuration.getSettingAsString("lan_intf") || hardware.getBoardNetworkInterfaceName("lan"), ".");
+const lan_vlan = lan_iface[1] ? lan_iface[1] : "";
 const gateway_nat = dmz_mode !== 1 ? dhcp.gateway : "172.27.0.1";
 const gateway_altnet = dmz_mode === 1 ? dhcp.gateway : "";
 %}
@@ -211,13 +225,13 @@ const gateway_altnet = dmz_mode === 1 ? dhcp.gateway : "";
                     <div class="m">Type and size of LAN subnet</div>
                 </div>
                 <div style="flex:0">
-                    <select hx-put="{{request.env.REQUEST_URI}}" hx-swap="none" name="dhcp_mode" {{_R("hideable-onselect")}}>
-                        <option value="0" {dmz_mode == 0 ? "selected" : ""}}>NAT</option>
+                    <select style="direction:ltr;text-align-last:right" hx-put="{{request.env.REQUEST_URI}}" hx-swap="none" name="dhcp_mode" {{_R("hideable-onselect")}}>
+                        <option value="0" {{dmz_mode == 0 ? "selected" : ""}}>NAT</option>
                         <option value="1" {{dmz_mode == 1 ? "selected" : ""}}>44Net</option>
-                        <option value="2" {{dmz_mode == 2 ? "selected" : ""}}>1 host</option>
-                        <option value="3" {{dmz_mode == 3 ? "selected" : ""}}>5 hosts</option>
-                        <option value="4" {{dmz_mode == 4 ? "selected" : ""}}>13 hosts</option>
-                        <option value="5" {{dmz_mode == 5 ? "selected" : ""}}>29 hosts</option>
+                        <option value="2" {{dmz_mode == 2 ? "selected" : ""}}>/30 (1 host)</option>
+                        <option value="3" {{dmz_mode == 3 ? "selected" : ""}}>/29 (5 hosts)</option>
+                        <option value="4" {{dmz_mode == 4 ? "selected" : ""}}>/28 (13 hosts)</option>
+                        <option value="5" {{dmz_mode == 5 ? "selected" : ""}}>/27 (29 hosts)</option>
                     </select>
                 </div>
             </div>
@@ -376,11 +390,22 @@ const gateway_altnet = dmz_mode === 1 ? dhcp.gateway : "";
                     <div class="m">Vlan used for Internet access</div>
                 </div>
                 <div style="flex:0">
-                    <input hx-put="{{request.env.REQUEST_URI}}" name="wan_vlan" type="text" size="8" placeholder="Untagged" pattern="\d+" hx-validate="true" value="{{wan_vlan}}">
+                    <input hx-put="{{request.env.REQUEST_URI}}" name="wan_vlan" type="text" size="8" placeholder="Untagged" pattern="([15-9]|[1-9][0-9]{1,2}|[1-3][0-9]{3}|40[0-8][0-9]|409[0-5])" hx-validate="true" value="{{wan_vlan}}" hx-include="input[name='lan_vlan']">
                 </div>
             </div>
             {{_H("By default, the WAN uses an untagged VLAN on multi-port devices, and VLAN 1 on single port devices. This can be changed here if your setup requires something different.
-            Enter the VLAN number required, or leave blank for untagged.")}}
+            Enter the VLAN number required which must be 1, 5 or greater, or leave blank for untagged.")}}
+             <div class="cols">
+                <div>
+                    <div class="o">LAN VLAN</div>
+                    <div class="m">Vlan used for LAN access</div>
+                </div>
+                <div style="flex:0">
+                    <input hx-put="{{request.env.REQUEST_URI}}" name="lan_vlan" type="text" size="8" placeholder="Untagged" pattern="([5-9]|[1-9][0-9]{1,2}|[1-3][0-9]{3}|40[0-8][0-9]|409[0-5])" hx-validate="true" value="{{lan_vlan}}" hx-include="input[name='wan_vlan']">
+                </div>
+            </div>
+            {{_H("By default, the LAN uses an untagged VLAN on multi-port devices, and Untagged on single port devices. This can be changed here if your setup requires something different.
+            Enter the VLAN number required which must be 5 or greater, or leave blank for untagged.")}}
             {% } %}
             <div class="cols">
                 <div>
@@ -388,7 +413,7 @@ const gateway_altnet = dmz_mode === 1 ? dhcp.gateway : "";
                     <div class="m">Allow any mesh device to use local WAN.</div>
                 </div>
                 <div style="flex:0">
-                    {{_R("switch", { name: "olsrd_gw", value: uciMesh.get("aredn", "@wan[0]", "olsrd_gw") !== "0" })}}
+                    {{_R("switch", { name: "mesh_to_local_wan", value: uciMesh.get("aredn", "@wan[0]", "mesh_to_local_wan") !== "0" })}}
                 </div>
             </div>
             {{_H("Allow any node or device on the mesh to use our local Internet connection. This is disabled by default.")}}
@@ -404,8 +429,18 @@ const gateway_altnet = dmz_mode === 1 ? dhcp.gateway : "";
             {{_H("Allow LAN devices connected to this node to use our Internet connection. This is enabled by default.")}}
             <div class="cols">
                 <div>
+                    <div class="o">LAN to Mesh WAN</div>
+                    <div class="m">Allow any LAN device to use remote WAN.</div>
+                </div>
+                <div style="flex:0">
+                    {{_R("switch", { name: "lan_to_remote_wan", value: uciMesh.get("aredn", "@wan[0]", "lan_to_remote_wan") !== "0" })}}
+                </div>
+            </div>
+            {{_H("Allow LAN devices connected to this node to use an Internet connection made available somewhere on the Mesh.")}}
+            <div class="cols">
+                <div>
                     <div class="o">LAN to 44Net</div>
-                    <div class="m">Allow any LAN device to access 44Net addresses.</div>
+                    <div class="m">Allow any LAN device to access AREDN specific 44Net addresses.</div>
                 </div>
                 <div style="flex:0">
                     {{_R("switch", { name: "lan_dhcp_44route", value: uciMesh.get("aredn", "@wan[0]", "lan_dhcp_44route") !== "0" })}}
@@ -468,7 +503,7 @@ const gateway_altnet = dmz_mode === 1 ? dhcp.gateway : "";
                         size = 255;
                         break;
                     case "255.255.254.0":
-                        size = 512;
+                        size = 511;
                         break;
                     case "255.255.252.0":
                         size = 1023;
@@ -532,17 +567,30 @@ const gateway_altnet = dmz_mode === 1 ? dhcp.gateway : "";
             const end = htmx.find("input[name=lan_dhcp_end]");
             const startm = htmx.find("#lan_dhcp_start_m");
             const endm = htmx.find("#lan_dhcp_end_m");
-            validateRange(ip, netmask, start, end, startm, endm);
-            if (ip.validity.valid && netmask.validity.valid && start.validity.valid && end.validity.valid) {
-                htmx.ajax("PUT", "{{request.env.REQUEST_URI}}", {
-                    values: {
-                        lan_dhcp_ip: ip.value,
-                        lan_dhcp_netmask: netmask.value,
-                        lan_dhcp_start: start.value,
-                        lan_dhcp_end: end.value
-                    },
-                    swap: "none"
-                });
+            if (start) {
+                validateRange(ip, netmask, start, end, startm, endm);
+                if (ip.validity.valid && netmask.validity.valid && start.validity.valid && end.validity.valid) {
+                    htmx.ajax("PUT", "{{request.env.REQUEST_URI}}", {
+                        values: {
+                            lan_dhcp_ip: ip.value,
+                            lan_dhcp_netmask: netmask.value,
+                            lan_dhcp_start: start.value,
+                            lan_dhcp_end: end.value
+                        },
+                        swap: "none"
+                    });
+                }
+            }
+            else {
+                if (ip.validity.valid && netmask.validity.valid) {
+                    htmx.ajax("PUT", "{{request.env.REQUEST_URI}}", {
+                        values: {
+                            lan_dhcp_ip: ip.value,
+                            lan_dhcp_netmask: netmask.value,
+                        },
+                        swap: "none"
+                    });
+                }
             }
         }
         function validateLAN44Range()

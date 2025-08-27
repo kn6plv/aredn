@@ -49,14 +49,18 @@ export function hasInternet()
 
 export function getIPAddressFromHostname(hostname)
 {
-    const p = fs.popen(`exec /usr/bin/nslookup ${hostname}`);
-    if (p) {
-        const d = p.read("all");
-        p.close();
-        const i = match(d, /Address: ([0-9.]+)/);
-        if (i) {
-            return i[1];
-        }
+    const q = values(resolv.query(hostname, { type: "A" }))[0];
+    if (q?.A) {
+        return q.A[0];
+    }
+    return null;
+};
+
+export function getHostnameFromIPAddress(ip)
+{
+    const q = values(resolv.query(ip, { type: "PTR" }))[0];
+    if (q?.PTR) {
+        return q.PTR[0];
     }
     return null;
 };
@@ -109,19 +113,43 @@ export function CIDRToNetmask(cidr)
     }
 };
 
-export function nslookup(aorh)
+export function mac2ipv6ll(macaddr)
 {
-    const r = resolv.query([aorh]);
-    if (r) {
-        for (let k in r) {
-            const v = r[k];
-            if (v.PTR) {
-                return v.PTR[0];
-            }
-            if (v.A) {
-                return v.A[0];
-            }
-        }
+    const mac = split(macaddr, ":");
+    return arrtoip([ 0xFE, 0x80, 0, 0,  0, 0, 0, 0,  hex(mac[0]) ^ 2, hex(mac[1]), hex(mac[2]), 0xFF,  0xFE, hex(mac[3]), hex(mac[4]), hex(mac[5]) ]);
+};
+
+export function ipv6ll2mac(ipv6)
+{
+    const v = iptoarr(ipv6);
+    return sprintf("%02x:%02x:%02x:%02x:%02x:%02x", v[8] ^ 2, v[9], v[10], v[13], v[14], v[15]);
+};
+
+const urlPattern = regexp(
+    '^([a-z0-9]+:\\/\\/)' + // protocol
+    '((.+):(.+)@)?' + // username:password
+    '((([a-z0-9]([a-z0-9-]*[a-z0-9])*)\\.)+[a-z]{2,}|' + // domain name
+    '(([0-9]{1,3}\\.){3}[0-9]{1,3}))' + // OR IP (v4) address
+    '(\\:[0-9]+)?(\\/[-a-z0-9%_.~+]*)*' + // port and path
+    '(\\?[;&a-z0-9%_.~+=-]*)?' + // query string
+    '(\\#[-a-z0-9_]*)?$', // fragment locator
+    'i'
+);
+
+export function parseURL(urlstring)
+{
+    const p = match(urlstring, urlPattern);
+    if (!p) {
+        return false;
     }
-    return null;
+    return {
+        href: p[0],
+        protocol: replace(p[1], /:\/\/$/, ""),
+        hostname: p[5],
+        port: replace(p[11], /^:/, ""),
+        path: p[12],
+        hash: replace(p[14], /^#/, ""),
+        username: p[3],
+        password: p[4],
+    };
 };

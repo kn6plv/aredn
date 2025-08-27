@@ -269,7 +269,8 @@ const dhcpOptionTypes = {
                         </div>
                     </div>
                     {{_H("Creates a permenant mapping between a device MAC address and an IP address on the LAN network.
-                    The given hostname is available to everyone on the mesh unless the entry is marked as <b>do not propagate</b>")}}
+                    The given hostname is available to everyone on the mesh unless the entry is marked as <b>do not propagate</b>.
+                    MAC addresses use colons : as their seperator.")}}
                     <form>
                         <div id="dhcp-reservations">
                             <div class="reservation-label adr">
@@ -710,13 +711,6 @@ const dhcpOptionTypes = {
                         value.placeholder = "";
                     }
                 }
-                if (name.value === "") {
-                    always.checked = false;
-                    always.disabled = true;
-                }
-                else {
-                    always.disabled = false;
-                }
             }
         }
         function updateOptions()
@@ -795,7 +789,7 @@ const dhcpOptionTypes = {
                             function addNewOption()
                             {
                                 const item = document.createElement("div");
-                                item.innerHTML = `<div class="option adr"><div class="row"><select name="option_name"><option value="">[all]</option></select> <input name="option_type" type="text" required list="dhcp-option-type-list" pattern="([1-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(: .+)?"> <input name="option_value" type="text" required value=""> <label><input name="option_always" type="checkbox" disabled></label></div><button>-</button></div>`;
+                                item.innerHTML = `<div class="option adr"><div class="row"><select name="option_name"><option value="">[all]</option></select> <input name="option_type" type="text" required list="dhcp-option-type-list" pattern="([1-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(: .+)?"> <input name="option_value" type="text" required value=""> <label><input name="option_always" type="checkbox"></label></div><button>-</button></div>`;
                                 const fc = item.firstChild;
                                 htmx.find("#ctrl-modal .dialog .dhcp-options .list").appendChild(fc);
                                 refreshAdvOptions();

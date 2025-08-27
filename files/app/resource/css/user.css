@@ -380,20 +380,22 @@ body.authenticated .ctrl:hover
     color: var(--subtitle-fg-color);
     font-size: calc(var(--font-base-size) - 4px);
 }
-#location .location-image
+.location-image
 {
     position: relative;
     width: 300px;
     height: 150px;
     margin: 0 0 15px 10px;
 }
-#location .location-image iframe
+.location-image iframe
 {
     position: absolute;
+    width: 100%;
+    height: 100%;
     border: 1px solid var(--hr-color);
     filter: var(--map-filter);
 }
-#location .location-image .overlay
+.location-image .overlay
 {
     position: absolute;
     top: 0;
@@ -435,6 +437,11 @@ body.authenticated .ctrl:hover
 #local-and-neighbor-devices .status .h
 {
     flex: 0.75;
+}
+#local-and-neighbor-devices .status .h .icon
+{
+    margin-left: -22px;
+    transform: translate(16px);
 }
 #local-and-neighbor-devices .status.ctrl:hover
 {
@@ -618,8 +625,8 @@ body.authenticated .ctrl:hover
 {
     filter: var(--nav-icon-filter-select);
 }
-#nav:has(#changes:not(:empty)) #logout-icon .menu div:nth-child(1),
-#nav:has(#changes:not(:empty)) #logout-icon .menu div:nth-child(2)
+#nav:has(#changes div) #logout-icon .menu div:nth-child(1),
+#nav:has(#changes div) #logout-icon .menu div:nth-child(2)
 {
     display: none;
 }
@@ -765,6 +772,10 @@ body.authenticated .ctrl:hover
     color: var(--message-fg-color);
     padding: 0 0 4px 2px;
 }
+#messages .section-title .up
+{
+    text-transform: capitalize;
+}
 
 /* messages end */
 
@@ -776,6 +787,32 @@ body.authenticated .ctrl:hover
 }
 
 /* tools end */
+
+/* app start */
+
+@media (display-mode: standalone)
+{
+    .browser-mode {
+        display: none !important;
+    }
+}
+@media not (display-mode: standalone)
+{
+    .app-mode {
+        display: none !important;
+    }
+}
+
+.app-map
+{
+    position: absolute;
+    width: calc(100% - 85px);
+    height: calc(100% - 85px);
+    border: 0px solid black;
+    border-radius: 10px;
+}
+
+/* app end */
 
 /* meshpage start */
 
@@ -921,51 +958,51 @@ body.authenticated .ctrl:hover
     color: var(--ctrl-modal-fg-help-color);
     font-size: calc(var(--font-base-size) - 4px);
 }
-.block1
+.block-excellent
 {
     border-color: var(--meshpage-block1-border-color);
 }
-.block2
+.block-good
 {
     border-color: var(--meshpage-block2-border-color);
 }
-.block3
+.block-fair
 {
     border-color: var(--meshpage-block3-border-color);
 }
-.block5
+.block-slow
 {
     border-color: var(--meshpage-block5-border-color);
 }
-.block10
+.block-poor
 {
     border-color: var(--meshpage-block10-border-color);
 }
-.block1000
+.block-improbable
 {
     border-color: var(--meshpage-block1000-border-color);
 }
-.block1 .label
+.block-excellent .label
 {
     background-color: var(--meshpage-block1-border-color);
 }
-.block2 .label
+.block-good .label
 {
     background-color: var(--meshpage-block2-border-color);
 }
-.block3 .label
+.block-fair .label
 {
     background-color: var(--meshpage-block3-border-color);
 }
-.block5 .label
+.block-slow .label
 {
     background-color: var(--meshpage-block5-border-color);
 }
-.block10 .label
+.block-poor .label
 {
     background-color: var(--meshpage-block10-border-color);
 }
-.block1000 .label
+.block-improbable .label
 {
     background-color: var(--meshpage-block1000-border-color);
 }
@@ -1169,6 +1206,14 @@ body.authenticated .ctrl:hover
 .icon.syslog
 {
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg>') !important;
+}
+.icon.internet
+{
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>') !important;
+}
+.icon.chart
+{
+    background-image: url('<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" /></svg>') !important;
 }
 
 /* end icons */

@@ -1,6 +1,7 @@
+#!/bin/sh
 true <<'LICENSE'
   Part of AREDN® -- Used for creating Amateur Radio Emergency Data Networks
-  Copyright (C) 2022 Tim Wilkinson
+  Copyright (C) 2025 Tim Wilkinson
   See Contributors file for additional contributors
 
   This program is free software: you can redistribute it and/or modify
@@ -32,29 +33,107 @@ true <<'LICENSE'
 
 LICENSE
 
+. /lib/functions.sh
+include /lib/upgrade/
+
+if [ $# -eq 0 -o $# -gt 3 ]; then
+  echo "Usage: aredn_sysupgrade [--firstuse] [--force] <firmwarefile>" 1>&2
+  exit 1
+fi
+
 #
-# Pre-upgrade special cases
+# Allow firstuse upgrade
 #
-case "$(/usr/local/bin/get_boardid)" in
-    MikroTik\ hAP\ ac3)
-        # If we're running from RAM we must now format the flash otherwise
-        # the install will fail
-        if [ "$(cat /proc/mounts | grep overlay)" = "" ]; then
-            ubidetach -m 1
-            ubiformat /dev/mtd1 -y
-            ubiattach -m 1
-        fi
-        ;;
-    *)
-        ;;
-esac
+backup=""
+if [ "$1" = "--firstuse" ]; then
+  backup="-n"
+  shift
+fi
 
 #
 # Let users force upgrade a node
 #
 force=""
-if [ -f /tmp/force-upgrade-this-is-dangerous ]; then
+if [ "$1" = "--force" ]; then
   force="--force"
+  shift
 fi
 
-/sbin/sysupgrade ${force} $*
+#
+# Validate the firmware
+#
+if [ ! -f "$1" ]; then
+  echo "ERROR: Missing firmware file: $1" 1>&2
+  exit 1
+fi
+error="Unknown error"
+if $(platform_check_image "$1" > /dev/null 2>&1); then
+	json=$(/usr/libexec/validate_firmware_image "$*" 2> /dev/null)
+	if [ "$(echo "$json" | jsonfilter -e '@.valid')" = "true" ]; then
+    error=""
+	elif [ "$(echo "$json" | jsonfilter -e '@.tests.fwtool_signature')" = "false" ]; then
+		error="Firmware signature failed"
+	elif [ "$(echo "$json" | jsonfilter -e '@.tests.fwtool_device_match')" = "false" ]; then
+		if [ "${force}" = "--force" ]; then
+			error=""
+		else
+			error="Firmware device match failed";
+		fi
+	fi
+else
+  error="Image check failed"
+fi
+if [ "${error}" != "" ]; then
+  echo "ERROR: ${error}: $1" 1>&2
+  exit 1
+fi
+
+#
+# Generate the backup unless first use
+#
+if [ "${backup}" != "-n" ]; then
+  # Stop babel.
+  # We need to do this here so we get the state information into the backup file.
+  /etc/init.d/babel stop
+  cp /dev/null /tmp/sysupgradefilelist
+  cat /etc/arednsysupgrade.conf | while read f
+  do
+    if [ -e "${f}" ]; then
+      echo "${f}" >> /tmp/sysupgradefilelist
+    fi
+  done
+  rm -f /tmp/arednsysupgradebackup.tgz
+  tar -czf /tmp/arednsysupgradebackup.tgz -T /tmp/sysupgradefilelist > /dev/null 2>&1
+  if [ -f /tmp/arednsysupgradebackup.tgz ]; then
+    backup="-f /tmp/arednsysupgradebackup.tgz"
+  else
+    /etc/init.d/babel start
+    echo "ERROR: Failed to create backup - aborting firmware upgrade" 1>&2
+    exit 1
+  fi
+fi
+
+#
+# Shutdown the manager
+# We want to allow tasks to shutdown gracefully, especially any watchdogs
+#
+/etc/init.d/manager stop
+
+#
+# Pre-upgrade special cases
+#
+case "$(/usr/local/bin/get_boardid)" in
+  MikroTik\ hAP\ ac3)
+    # If we're running from RAM we must now format the flash otherwise
+    # the install will fail
+    if [ "$(cat /proc/mounts | grep overlay)" = "" ]; then
+        ubidetach -m 1
+        ubiformat /dev/mtd1 -y
+        ubiattach -m 1
+    fi
+    ;;
+  *)
+    ;;
+esac
+
+/sbin/sysupgrade ${force} ${backup} -q "$1"

@@ -1,7 +1,7 @@
 {%
 /*
  * Part of AREDN® -- Used for creating Amateur Radio Emergency Data Networks
- * Copyright (C) 2024 Tim Wilkinson
+ * Copyright (C) 2024-2025 Tim Wilkinson
  * See Contributors file for additional contributors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -33,33 +33,14 @@
  */
 %}
 {%
-    let links = {};
-    const o = olsr.getLinks();
-    for (let i = 0; i < length(o); i++) {
-        links[o[i].remoteIP] = o[i];
-    }
+    const lqmNow = lqm.get().now;
     function calcColor(tracker)
     {
         if (!tracker) {
             return "unknown";
         }
-        if (tracker.blocked) {
-            if (tracker.blocks.user) {
-                return "blocked by user";
-            }
-            if (tracker.blocks.signal) {
-                return "blocked low signal";
-            }
-            if (tracker.blocks.signal) {
-                return "blocked too far";
-            }
-            if (tracker.blocks.quality) {
-                return "blocked by errors or latency";
-            }
-            if (tracker.blocks.dup || tracker.blocks.dtd) {
-                return "blocked as duplicate";
-            }
-            return "blocked";
+        if (tracker.lastseen < lqmNow) {
+            return "disconnected";
         }
         if (!tracker.routable) {
             return "idle";
@@ -98,42 +79,54 @@
         }
         return "-";
     }
+    function canonicalLookupIP(ip)
+    {
+        const hostname = network.getHostnameFromIPAddress(ip);
+        if (!hostname) {
+            return null;
+        }
+        return replace(replace(replace(replace(replace(lc(hostname), /^dtdlink\./, ""), /^mid\d+\./, ""), /^xlink\d+\./, ""), /^lan\./, ""), /\.local\.mesh$/, "");
+    }
+    const macs = {};
     const llist = [];
     const nlist = [];
     const hlist = lqm.getHidden();
-    const t = lqm.getTrackers();
-    const trackers = {};
-    for (mac in t) {
-        const tmac = t[mac];
-        if (tmac.ip) {
-            trackers[tmac.ip] = tmac;
-        }
-    }
-    const links = olsr.getLinks();
-    for (let i = 0; i < length(links); i++) {
-        const link = links[i];
-        const tracker = trackers[link.remoteIP];
-        if (link.ifName === "br-dtdlink") {
-            if (tracker && tracker.distance >= 100) {
-                push(nlist, { name: tracker.hostname || `|${link.remoteIP}`, tracker: tracker, link: link });
+    const trackers = lqm.getTrackers();
+    for (let mac in trackers)
+    {
+        const tracker = trackers[mac];
+        let name = tracker && tracker.hostname;
+        if (!name) {
+            if (tracker.ip) {
+                name = canonicalLookupIP(tracker.ip);
+                if (!name) {
+                    name = `|${tracker.ip}`;
+                }
             }
             else {
-                push(llist, { name: (tracker && tracker.hostname) || `|${link.remoteIP}`, tracker: tracker, link: link });
+                name = `~${tracker.mac}`;
             }
         }
-        else {
-            push(nlist, { name: (tracker && tracker.hostname) || `|${link.remoteIP}`, tracker: tracker, link: link });
-        }
-        delete trackers[link.remoteIP];
-    }
-    for (let remoteIP in trackers)
-    {
-        const tracker = trackers[remoteIP];
+        const l = { name: name, tracker: tracker };
         if (tracker.type == "DtD" && tracker.distance < 100) {
-            push(llist, { name: tracker.hostname || `|${remoteIP}`, tracker: tracker, link: null });
+            push(llist, l);
         }
         else {
-            push(nlist, { name: tracker.hostname || `|${remoteIP}`, tracker: tracker, link: null });
+            push(nlist, l);
+        }
+        macs[tracker.mac] = l;
+    }
+    const bneigh = babel.getNeighbors();
+    for (let i = 0; i < length(bneigh); i++) {
+        const n = bneigh[i];
+        const a = iptoarr(n.ipv6address);
+        const m = sprintf("%02x:%02x:%02x:%02x:%02x:%02x", a[8] ^ 2, a[9], a[10], a[13], a[14], a[15]);
+        const l = macs[m];
+        if (l) {
+            l.lq = n.lq;
+        }
+        else {
+            push(nlist, { name: `~${m}`, lq: n.lq });
         }
     }
 %}
@@ -144,9 +137,9 @@
             <div class="heading"></div>
             <div class="heading ts cols stats">
                 {% if (!request.mobile) { %}
-                <div>lq</div><div>nlq</div><div>snr</div><div>n snr</div><div>errors</div><div>mbps</div><div>{{units.distanceUnit()}}</div>
+                <div>rx</div><div>rtt</div><div>snr</div><div>n snr</div><div>errors</div><div>mbps</div><div>{{units.distanceUnit()}}</div>
                 {% } else { %}
-                <div>lq</div><div>nlq</div>
+                <div>rx</div><div>errors</div>
                 {% } %}
             </div>
         </div>
@@ -156,29 +149,36 @@
                 for (let i = 0; i < length(llist); i++) {
                     const entry = llist[i];
                     const tracker = entry.tracker;
-                    const link = entry.link;
                     const status = calcColor(tracker);
+                    let lq = "-";
                     if (tracker) {
                         print(`<div class="ctrl cols status ${status}" hx-get="neighbor-device?m=${tracker.mac}" title="Link status: ${status}">`);
+                        if (status !== "disconnected") {
+                            if (type(tracker.lq)) {
+                                lq = `${tracker.lq}%`;
+                            }
+                        }
                     }
                     else {
                         print(`<div class="ctrl cols status unknown" title="Link status: unknown">`);
                     }
-                    const lq = link && link.lossMultiplier ? (min(100, int(100 * link.linkQuality * 65536 / link.lossMultiplier)) + "%") : "-";
-                    const nlq = link && link.lossMultiplier ? (min(100, int(100 * link.neighborLinkQuality * 65536 / link.lossMultiplier)) + "%") : "-";
-                    if (substr(entry.name, 0, 1) !== "|") {
-                        print(`<div class='h'><a onclick="event.stopPropagation()" href='http://${entry.name}.local.mesh'>${entry.name}</a></div>`);
-                    }
-                    else {
+                    if (substr(entry.name, 0, 1) === "|") {
                         const ip = substr(entry.name, 1);
                         print(`<div class='h'><a onclick="event.stopPropagation()" href='http://${ip}'>${ip}</a></div>`);
                     }
-                    print("<div class='ts cols stats'>");
-                    if (!request.mobile) {
-                        print(`<div>${lq}</div><div>${nlq}</div><div></div><div></div><div>${type(tracker && tracker.quality) ? (100 - tracker.quality) + "%" : "-"}</div><div></div><div></div>`);
+                    else if (substr(entry.name, 0, 1) === "~") {
+                        const mac = substr(entry.name, 1);
+                        print(`<div class='h'><span>${mac}</span></div>`);
                     }
                     else {
-                        print(`<div>${lq}</div><div>${nlq}</div>`);
+                        print(`<div class='h'><a onclick="event.stopPropagation()" href='http://${entry.name}.local.mesh'>${entry.name}</a></div>`);
+                    }
+                    print("<div class='ts cols stats'>");
+                    if (!request.mobile) {
+                        print(`<div>${lq}</div><div></div><div></div><div></div><div>${type(tracker && tracker.quality) ? (100 - tracker.quality) + "%" : "-"}</div><div></div><div></div>`);
+                    }
+                    else {
+                        print(`<div>${lq}</div><div>${type(tracker && tracker.quality) ? (100 - tracker.quality) + "%" : "-"}</div>`);
                     }
                     print("</div></div>");
                 }
@@ -198,16 +198,26 @@
             for (let i = 0; i < length(nlist); i++) {
                 const entry = nlist[i];
                 const tracker = entry.tracker;
-                const link = entry.link;
                 const status = calcColor(tracker);
+                let lq = "-";
+                let rtt = "-";
                 if (tracker) {
                     print(`<div class="ctrl cols status ${status}" hx-get="neighbor-device?m=${tracker.mac}" title="Link status: ${status}">`);
+                    if (status !== "disconnected") {
+                        if (type(tracker.lq)) {
+                            lq = `${tracker.lq}%`;
+                        }
+                        if (type(tracker.rtt)) {
+                            rtt = int(tracker.rtt);
+                        }
+                    }
                 }
                 else {
                     print(`<div class="ctrl cols status unknown" title="Link status: unknown">`);
+                    if (entry.lq) {
+                        lq = `${entry.lq}%`;
+                    }
                 }
-                const lq = link && link.lossMultiplier ? (min(100, int(100 * link.linkQuality * 65536 / link.lossMultiplier)) + "%") : "-";
-                const nlq = link && link.lossMultiplier ? (min(100, int(100 * link.neighborLinkQuality * 65536 / link.lossMultiplier)) + "%") : "-";
                 let icon = "";
                 let title = "";
                 switch (tracker && tracker.type || "Unknown") {
@@ -223,10 +233,6 @@
                         title = "Xlink ";
                         icon = "plane";
                         break;
-                    case "Tunnel":
-                        title = "Legacy tunnel ";
-                        icon = "globe";
-                        break;
                     case "Wireguard":
                         title = "Wireguard tunnel ";
                         icon = "globe";
@@ -234,16 +240,20 @@
                     default:
                         break;
                 }
-                if (substr(entry.name, 0, 1) !== "|") {
-                    print(`<div class='h'><a onclick="event.stopPropagation()" href='http://${entry.name}.local.mesh'>${entry.name}<div class="icon ${icon}"></div></a></div>`);
+                if (substr(entry.name, 0, 1) === "|") {
+                    const ip = substr(entry.name, 1);
+                    print(`<div class='h'><a onclick="event.stopPropagation()" href='http://${ip}'>${ip}&nbsp;&nbsp;<div class="icon ${icon}"></div></a></div>`);
+                }
+                else if (substr(entry.name, 0, 1) === "~") {
+                        const mac = substr(entry.name, 1);
+                        print(`<div class='h'><span>${mac}</span></div>`);
                 }
                 else {
-                    const ip = substr(entry.name, 1);
-                    print(`<div class='h'><a onclick="event.stopPropagation()" href='http://${ip}'>${ip}<div class="icon ${icon}"></div></a></div>`);
+                    print(`<div class='h'><a onclick="event.stopPropagation()" href='http://${entry.name}.local.mesh'>${entry.name}&nbsp;&nbsp;<div class="icon ${icon}"></div></a></div>`);
                 }
                 print("<div class='ts cols stats'>");
                 if (request.mobile) {
-                    print(`<div>${lq}</div><div>${nlq}</div>`);
+                    print(`<div>${lq}</div><div>${type(tracker.quality) ? (100 - tracker.quality) + "%" : "-"}</div>`);
                 }
                 else if (tracker) {
                     let d = "-";
@@ -256,10 +266,10 @@
                             d = sprintf("%.1f", d);
                         }
                     }
-                    print(`<div>${lq}</div><div>${nlq}</div><div>${tracker.snr || "-"}</div><div>${tracker.rev_snr || "-"}</div><div>${type(tracker.quality) ? (100 - tracker.quality) + "%" : "-"}</div><div>${calcBitrate(tracker)}</div><div>${d}</div>`);
+                    print(`<div>${lq}</div><div>${rtt}</div><div>${tracker.snr || "-"}</div><div>${tracker.rev_snr || "-"}</div><div>${type(tracker.quality) ? (100 - tracker.quality) + "%" : "-"}</div><div>${calcBitrate(tracker)}</div><div>${d}</div>`);
                 }
                 else {
-                    print(`<div>${lq}</div><div>${nlq}</div><div></div><div></div><div></div><div></div><div></div>`);
+                    print(`<div>${lq}</div><div></div><div></div><div></div><div></div><div></div><div></div>`);
                 }
                 print("</div></div>");
             }

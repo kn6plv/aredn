@@ -41,15 +41,17 @@ import * as ubus from "ubus";
 import * as log from "log";
 import * as zlib from "zlib";
 import * as lucihttp from "lucihttp";
+import * as nl80211 from "nl80211";
+import * as rtnl from "rtnl";
 import * as configuration from "aredn.configuration";
 import * as hardware from "aredn.hardware";
 import * as lqm from "aredn.lqm";
 import * as network from "aredn.network";
-import * as olsr from "aredn.olsr";
 import * as units from "aredn.units";
 import * as radios from "aredn.radios";
 import * as messages from "aredn.messages";
 import * as mesh from "aredn.mesh";
+import * as babel from "aredn.babel";
 import * as constants from "./constants.uc";
 
 const pageCache = {};
@@ -76,6 +78,7 @@ if (config.preload) {
                 pageCache[tpath] = loadfile(tpath, { raw_mode: false });
             }
         }
+        dir.close();
     }
     cp("/main/");
     cp("/partial/");
@@ -162,7 +165,7 @@ global._R = function(path, arg)
 
 global._H = function(str)
 {
-    return includeHelp ? `<div class="help">${str}</div>` : "";
+    return includeHelp ? `<div class="help" translate="yes">${str}</div>` : "";
 };
 
 const uciMethods =
@@ -408,6 +411,25 @@ const ubusMethods =
     }
 };
 
+const utilMethods =
+{
+    ceil: function(v)
+    {
+        const iv = int(v);
+        return iv == v ? iv : iv + 1;
+    },
+
+    round: function(v)
+    {
+        return int(v + 0.5);
+    },
+
+    floor: function(v)
+    {
+        return int(v);
+    }
+};
+
 const rePath = /^\/([-a-z]*)(.*)$/;
 
 global.handle_request = function(env)
@@ -438,8 +460,8 @@ global.handle_request = function(env)
         else if (secured) {
             tpath = `${config.application}/main${env.PATH_INFO}.ut`;
         }
-        else if ((env.HTTP_HOST === "localnode" || env.HTTP_HOST === "localnode.local.mesh") && env.REQUEST_URI == "/a/status" && !env.headers["hx-boosted"]) {
-            uhttpd.send(`Status: 302 Found\r\nLocation: http://${configuration.getName()}.local.mesh\r\n\r\n`);
+        else if ((env.HTTP_HOST === "localnode" || env.HTTP_HOST === "localnode.local.mesh") && !env.headers["hx-boosted"]) {
+            uhttpd.send(`Status: 302 Found\r\nAccess-Control-Allow-Origin: *\r\nLocation: http://${configuration.getName()}.local.mesh${env.REQUEST_URI}\r\n\r\n`);
             return;
         }
         else {
@@ -456,7 +478,7 @@ global.handle_request = function(env)
                     uhttpd.send("Status: 401 Unauthorized\r\n\r\n");
                     return;
                 }
-                if (env.REQUEST_METHOD !== "GET" && configuration.isConfigured()) {
+                if (!(env.REQUEST_METHOD === "GET" || env.REQUEST_METHOD === "OPTIONS") && configuration.isConfigured()) {
                     uhttpd.send("Status: 401 Unauthorized\r\n\r\n");
                     return;
                 }
@@ -549,7 +571,7 @@ global.handle_request = function(env)
                     parser.parse(v);
                 }
             }
-            const response = { statusCode: 200, headers: { "Content-Type": "text/html", "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*" } };
+            const response = { statusCode: 200, headers: { "Content-Type": "text/html", "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "*" } };
             const fn = pageCache[tpath] || loadfile(tpath, { raw_mode: false });
             const isMobile = !!(config.forcemobile || match(env.HTTP_USER_AGENT, /iphone/i) || match(env.HTTP_USER_AGENT, /android.*mobile/i));
             let res = "";
@@ -572,6 +594,8 @@ global.handle_request = function(env)
                     uciMesh: uciMeshMethods,
                     ubus: ubusMethods,
                     auth: auth,
+                    nl80211: nl80211,
+                    rtnl: rtnl,
                     includeHelp: (env.headers || {})["include-help"] === "1",
                     includeAdvanced: (env.headers || {})["include-advanced"] === "1",
                     fs: fs,
@@ -579,13 +603,14 @@ global.handle_request = function(env)
                     hardware: hardware,
                     lqm: lqm,
                     network: network,
-                    olsr: olsr,
                     units: units,
                     radios: radios,
                     math: math,
                     log: log,
                     messages: messages,
-                    mesh: mesh
+                    mesh: mesh,
+                    babel: babel,
+                    util: utilMethods
                 });
             }
             catch (e) {
@@ -665,6 +690,9 @@ global.handle_request = function(env)
         }
         else if (substr(rpath, -4) === ".css") {
             uhttpd.send("Content-Type: text/css\r\n");
+        }
+        else if (substr(rpath, -5) === ".json") {
+            uhttpd.send("Content-Type: application/json\r\n");
         }
         const res = fs.readfile(rpath);
         uhttpd.send(`Cache-Control: ${cachecontrol}\r\nContent-Length: ${length(res)}\n`);

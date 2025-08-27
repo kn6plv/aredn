@@ -70,7 +70,7 @@ function serv(ip, hostname)
                     name = nametype[1];
                     type = `<div class="icon ${nametype[2]}" title="${nametype[2]}"></div>`;
                 }
-                const r = url.match(/^(.+:\/\/)([^:]+):(\d+)(.*)$/);
+                const r = url.match(/^([^:]+:\/\/)([^:]+):(\d+)(.*)$/);
                 switch (r[3]) {
                     case "0":
                         view += `<div class="service" data-search="${lname}"><span>${name}</span>${type}</div>`;
@@ -91,12 +91,12 @@ function serv(ip, hostname)
 
 window.meshRender = function(first)
 {
-    const blocks = [ 1, 2, 3, 5, 10, 1000 ];
+    const blocks = [].concat(window.meshBlocks);
     const labels = [ "Excellent", "Good", "Fair", "Slow", "Poor", "Improbable" ];
     const etx = mesh.etx;
     const hosts = mesh.hosts;
 
-    let data = `<div class="block block1"><div class="label">${labels[0]}</div>`;
+    let data = `<div class="block block-excellent"><div class="label">${labels[0]}</div>`;
     for (let i = 0; i < etx.length; i++) {
         const item = etx[i];
         const ip = item[0];
@@ -109,7 +109,7 @@ window.meshRender = function(first)
                         blocks.shift();
                         labels.shift();
                     }
-                    data += `</div><div class="block block${blocks[0]}"><div class="label">${labels[0]}</div>`;
+                    data += `</div><div class="block block-${labels[0].toLowerCase()}"><div class="label">${labels[0]}</div>`;
                 }
                 let lanview = "";
                 for (let j = 0; j < hostlist.length; j++) {
@@ -120,7 +120,8 @@ window.meshRender = function(first)
                         }
                     }
                 }
-                data += `<div class="node"><div class="host" data-search="${hostname.toLowerCase()}"><div class="name"><a href="http://${hostname}.local.mesh">${hostname}</a><span class="etx">${item[1]}</span></div><div class="services">${serv(ip, hostname)}</div></div>${lanview ? '<div class="lanhosts">' + lanview + '</div>' : ''}</div>`;
+                const srv = serv(ip, hostname);
+                data += `<div class="node"><div class="host" data-search="${hostname.toLowerCase()}"><div class="name"><a href="http://${hostname}.local.mesh">${hostname}</a><span class="etx">${item[1]}</span></div>${srv == "" ? "" : '<div class="services">' + srv + '</div>'}</div>${lanview ? '<div class="lanhosts">' + lanview + '</div>' : ''}</div>`;
             }
         }
     }

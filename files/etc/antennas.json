@@ -37,6 +37,100 @@
             "beamwidth": 360
         }
     ],
+    "HaLow": [
+        {
+            "model": "",
+            "description": "None"
+        },
+        {
+            "model": "unknown",
+            "description": "Unknown"
+        },
+        {
+            "model": "HL-1",
+            "description": "HaLowLink 1, 2.34 dBi Omni",
+            "gain": 2.34,
+            "beamwidth": 360
+        },
+        {
+            "model": "ANTSM93003004001",
+            "description": "AsiaRF, 2.5 dBi Omni",
+            "gain": 2.5,
+            "beamwidth": 360
+        },
+        {
+            "model": "A9Y10Nf",
+            "description": "Data Alliance, 10 dBi Yagi",
+            "gain": 10,
+            "beamwidth": 36
+        },
+        {
+            "model": "ANTSM82414S01001",
+            "description": "AsiaRF, 14 dBi Yagi",
+            "gain": 14,
+            "beamwidth": 31
+        },
+        {
+            "model": "ZDADJ928-17YG",
+            "description": "ZDA Telecommunications, 17 dBi Yagi",
+            "gain": 17,
+            "beamwidth": 25
+        },
+        {
+            "model": "Heltec-Omni",
+            "description": "Heltec 4 dBi Omni",
+            "gain": 4,
+            "beamwidth": 360
+        },
+        {
+            "model": "AOA-868-5ACM",
+            "description": "Alfa Network 5 dBi Omni",
+            "gain": 5,
+            "beamwidth": 360
+        },
+        {
+            "model": "RAIGEN-OMNI-8",
+            "description": "Raigen 8 dBi Omni",
+            "gain": 8,
+            "beamwidth": 360
+        },
+        {
+            "model": "ROKLAND-OMNI-5-8",
+            "description": "Rokland 5.8 dBi Omni",
+            "gain": 5.8,
+            "beamwidth": 360
+        },
+        {
+            "model": "ROKLAND-OMNI-6",
+            "description": "Rokland 6 dBi Omni",
+            "gain": 6,
+            "beamwidth": 360
+        },
+        {
+            "model": "ROKLAND-OMNI-8",
+            "description": "Rokland 8 dBi Omni",
+            "gain": 8,
+            "beamwidth": 360
+        },
+        {
+            "model": "ROKLAND-OMNI-8-5",
+            "description": "Rokland 8.5 dBi Omni",
+            "gain": 8.5,
+            "beamwidth": 360
+        },
+        {
+            "model": "ROKLAND-OMNI-10",
+            "description": "Rokland 10 dBi Omni",
+            "gain": 10,
+            "beamwidth": 360
+        },
+        {
+            "model": "Generic-Omni",
+            "description": "Generic Omni",
+            "gain": 0,
+            "beamwidth": 360
+        }
+    ],
     "2.4GHz": [
         {
             "model": "",

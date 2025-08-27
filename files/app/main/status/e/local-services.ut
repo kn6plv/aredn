@@ -92,17 +92,24 @@ const types = {
     power: true,
     weather: true,
     wiki: true,
+    chart: true,
+    internet: true,
+    syslog: true
 };
-const templates = [
+const vp = hardware.supportsFeature("videoproxy");
+const templates = filter([
     { name: "Generic URL" },
     { name: "Simple text", link: false },
-    { name: "Ubiquiti camera", type: "camera", protocol: "http", port: 80, path: "snap.jpeg" },
+    { name: "Ubiquiti G3/G4 camera", type: "camera", protocol: "http", port: 80, path: "snap.jpeg" },
+    vp ? { name: "Ubiquiti G3/G4 video", type: "video", protocol: "http", port: 80, proxy: "videoproxy", path: "rtsp://CAMERAHOSTNAME.local.mesh:554/s2" } : null,
     { name: "Reolink camera", type: "camera", protocol: "http", port: 80, path: "cgi-bin/api.cgi?cmd=Snap&channel=0&rs=abcdef&user=USERNAME&password=PASSWORD" },
+    vp ? { name: "Reolink video", type: "video", protocol: "http", port: 80, proxy: "videoproxy", path: "rtsp://USERNAME:PASSWORD@CAMERAHOSTNAME.local.mesh:554/Preview_01_main" } : null,
     { name: "Axis camera", type: "camera", protocol: "http", port: 80, path: "jpg/image.jpg" },
     { name: "Sunba Lite camera", type: "camera", protocol: "http", port: 80, path: "webcapture.jpg?command=snap&channel=1&user=USERNAME&password=PASSWORD" },
-    { name: "Sunba Performance camera", type: "camera", protocol: "http", port: 80, path: "images/snapshot.jpg" },
-    { name: "Sunba Performance camera (redirect)", type: "camera", protocol: "http", port: 80, path: "a/redirect?http://USERNAME:PASSWORD@CAMERANAME/images/snapshot.jpg" },
+    { name: "Sunba Performance camera", type: "camera", protocol: "http", port: 80, proxy: "redirect", path: "http://USERNAME:PASSWORD@CAMERAHOSTNAME.local.mesh/images/snapshot.jpg" },
     { name: "Sunba Smart camera", type: "camera", protocol: "http", port: 80, path: "ISAPI/Custom/snapshot?authInfo=USERNAME:PASSWORD" },
+    { name: "Amcrest camera", type: "camera", protocol: "http", port: 80, proxy: "redirect", path: "http://USERNAME:PASSWORD@CAMERAHOSTNAME.local.mesh/cgi-bin/snapshot.cgi?channel=1" },
+    { name: "Amcrest video", type: "video", protocol: "http", port: 80, proxy: "redirect", path: "http://USERNAME:PASSWORD@CAMERAHOSTNAME.local.mesh/cgi-bin/mjpg/video.cgi?channel=1&subtype=1" },
     { name: "NTP Server", type: "time", protocol: "ntp", port: 123 },
     { name: "Streaming video", type: "video", protocol: "rtsp", port: 554 },
     { name: "Winlink Post Office", type: "winlink", protocol: "winlink", port: 8772 },
@@ -111,11 +118,13 @@ const templates = [
     { name: "MeshChat", type: "chat", protocol: "http", port: 80, path: "meshchat" },
     { name: "WeeWx Weather Station", type: "weather", protocol: "http", port: 80, path: "weewx" },
     { name: "Proxmox Server", type: "server", protocol: "https", port: 8006 },
+    { name: "Open Web RX", type: "radio", protocol: "http", port: 8073 },
     { name: "Generic HTTP", protocol: "http", port: 80 },
     { name: "Generic HTTPS", protocol: "https", port: 443 },
-    { name: "HTTP Proxy", protocol: "http", port: 80, path: "a/httpproxy?URL" },
-    { name: "Redirect", protocol: "http", port: 80, path: "a/redirect?URL" },
-];
+    { name: "HTTP Proxy", protocol: "http", port: 80, proxy: "httpproxy", path: "URL" },
+    { name: "Redirect", protocol: "http", port: 80, proxy: "redirect", path: "URL" },
+    vp ? { name: "Video Proxy", type: "video", protocol: "http", port: 80, proxy: "videoproxy", path: "URL" } : null
+], v => v);
 const services = [];
 const dhcp = configuration.getDHCP();
 const localnode = dhcp.gateway;
@@ -123,30 +132,43 @@ const as = iptoarr(dhcp.start);
 const ae = iptoarr(dhcp.end);
 const reService = regexp("^([^|]+)\\|1\\|([^|]+)\\|([^|]+)\\|(\\d+)\\|(.*)$");
 const reLink = regexp("^([^|]+)\\|0\\|\\|([^|]+)\\|\\|$");
+const reProxy = regexp("^([^|]+)\\|1\\|http\\|[^|]+\\|80\\|a/(httpproxy|redirect|videoproxy)\\?(.+)$");
 const reType = regexp("^(.+) \\[([a-z]+)\\]$");
 const svcs = uciMesh.get("setup", "services", "service") || [];
 for (let i = 0; i < length(svcs); i++) {
     const l = trim(svcs[i]);
-    const v = match(l, reService);
-    if (v) {
+    const p = match(l, reProxy);
+    if (p) {
         let type = null;
-        const v2 = match(v[1], reType);
-        if (v2) {
-            v[1] = v2[1];
-            type = v2[2];
+        const p2 = match(p[1], reType);
+        if (p2) {
+            p[1] = p2[1];
+            type = p2[2];
         }
-        push(services, { name: v[1], type: type, link: true, protocol: v[2], hostname: v[3], port: v[4], path: v[5] });
+        push(services, { name: p[1], type: type, proxy: p[2], path: p[3] });
     }
     else {
-        const k = match(l, reLink);
-        if (k) {
+        const v = match(l, reService);
+        if (v) {
             let type = null;
-            const k2 = match(k[1], reType);
-            if (k2) {
-                k[1] = k2[1];
-                type = k2[2];
+            const v2 = match(v[1], reType);
+            if (v2) {
+                v[1] = v2[1];
+                type = v2[2];
             }
-            push(services, { name: k[1], type: type, link: false, hostname: k[2] });
+            push(services, { name: v[1], type: type, link: true, protocol: v[2], hostname: v[3], port: v[4], path: v[5] });
+        }
+        else {
+            const k = match(l, reLink);
+            if (k) {
+                let type = null;
+                const k2 = match(k[1], reType);
+                if (k2) {
+                    k[1] = k2[1];
+                    type = k2[2];
+                }
+                push(services, { name: k[1], type: type, link: false, hostname: k[2] });
+            }
         }
     }
 }
@@ -224,7 +246,11 @@ for (let l = 0; l < length(pts); l++) {
                             </div>
                         </div>
                         <div class="cols">
-                            {% if (s.link === false) { %}
+                            {% if (s.proxy) { %}
+                                <div class="proxy">{{s.proxy}}</div>
+                                <input name="path" type="text" required placeholder="URL" pattern="[\-\/\?\&\._=#:!@a-zA-Z0-9]*" value="{{s.path}}">
+                                <input name="proxy" type="hidden" value="{{s.proxy}}">
+                            {% } else if (s.link === false) { %}
                             <div></div>
                             <div class="link">
                                 <select name="hostname">
@@ -241,7 +267,7 @@ for (let l = 0; l < length(pts); l++) {
                             {% } else { %}
                             <div style="flex:0"></div>
                             <div>
-                                <input name="protocol" type="text" placeholder="proto" required pattern="[a-z]+" value="{{s.protocol}}">
+                                <input name="protocol" type="text" placeholder="proto" required pattern="[a-zA-Z0-9+\-.]+" value="{{s.protocol}}">
                                 :// <select name="hostname">
                                 {%
                                     for (j = 0; j < length(hosts); j++) {
@@ -394,7 +420,11 @@ for (let l = 0; l < length(pts); l++) {
                 const host = htmx.find(s, "select[name=hostname]");
                 const port = htmx.find(s, "input[name=port]");
                 const path = htmx.find(s, "input[name=path]");
-                if (protocol && port && path) {
+                const proxy = htmx.find(s, "input[name=proxy]");
+                if (proxy && path) {
+                    services.push(`${name.value}${type.value ? " [" + type.value + "]" : ""}|1|http|{{configuration.getName()}}|80|a/${proxy.value}?${path.value}`);
+                }
+                else if (protocol && port && path) {
                     services.push(`${name.value}${type.value ? " [" + type.value + "]" : ""}|1|${protocol.value}|${host.value}|${port.value}|${path.value}`);
                 }
                 else {
@@ -471,7 +501,32 @@ for (let l = 0; l < length(pts); l++) {
             const t = templates[htmx.find("#service-templates select").value];
             if (t) {
                 let template;
-                if (t.link === false) {
+                if (t.proxy) {
+                    template = `<div class="service adr">
+    <div class="cols">
+        <div class="cols">
+            <input name="name" type="text" placeholder="service name" required pattern='[^"|<>]+' value="${t.name}">
+            <div style="flex:0;margin-left:2px">
+                <select name="type">
+                    <option value="">-</option>
+                    {%
+                        for (t in types) {
+                            print(`<option value="${t}">${t}</option>`);
+                        }
+                    %}
+                </select>
+            </div>
+        </div>
+        <div class="cols">
+            <div class="proxy">${t.proxy}</div>
+            <input name="path" type="text" required placeholder="URL" pattern="[\\-\\/\\?\\&\\._=#:!@a-zA-Z0-9]*" value="${t.path}">
+            <input name="proxy" type="hidden" value="${t.proxy}">
+        </div>
+    </div>
+    <button>-</button>
+</div>`;
+                }
+                else if (t.link === false) {
                     template = `<div class="service adr">
     <div class="cols">
         <div class="cols">
@@ -516,7 +571,7 @@ for (let l = 0; l < length(pts); l++) {
         <div class="cols">
             <div style="flex:0"></div>
             <div>
-                <input name="protocol" type="text" placeholder="proto" required pattern="[a-z]+" value="${t.protocol || ''}">
+                <input name="protocol" type="text" placeholder="proto" required pattern="[a-zA-Z0-9+\-.]+" value="${t.protocol || ''}">
                 :// <select name="hostname"></select>
                 : <input name="port" type="text" placeholder="port" required pattern="([1-9]|[1-9]\\d{1,3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])" value="${t.port || ''}">
                 / <input name="path" type="text" placeholder="path" pattern="[\\-\\/\\?\\&\\._=#:!@a-zA-Z0-9]*" value="${t.path || ''}">

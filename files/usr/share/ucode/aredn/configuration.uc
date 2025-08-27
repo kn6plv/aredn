@@ -45,33 +45,23 @@ const currentConfig = "/tmp/config.current";
 const modalConfig = "/tmp/config.modal";
 const configDirs = [
     "/etc",
+    "/etc/arednlink",
     "/etc/config.mesh",
     "/etc/local",
     "/etc/local/uci",
     "/etc/aredn_include",
     "/etc/dropbear",
-    "/tmp"
+    "/tmp",
+    "/var/run"
 ];
 const configFiles = [
-    "/etc/config.mesh/_setup.dhcp.dmz",
-    "/etc/config.mesh/_setup.dhcp.nat",
-    "/etc/config.mesh/_setup.dhcpoptions.dmz",
-    "/etc/config.mesh/_setup.dhcpoptions.nat",
-    "/etc/config.mesh/_setup.dhcptags.dmz",
-    "/etc/config.mesh/_setup.dhcptags.nat",
-    "/etc/config.mesh/_setup.ports.dmz",
-    "/etc/config.mesh/_setup.ports.nat",
-    "/etc/config.mesh/_setup.services.dmz",
-    "/etc/config.mesh/_setup.services.nat",
-    "/etc/config.mesh/aliases.dmz",
-    "/etc/config.mesh/aliases.nat",
     "/etc/config.mesh/aredn",
+    "/etc/config.mesh/babel",
     "/etc/config.mesh/dhcp",
     "/etc/config.mesh/dropbear",
     "/etc/config.mesh/firewall",
     "/etc/config.mesh/firewall.user",
     "/etc/config.mesh/network",
-    "/etc/config.mesh/olsrd",
     "/etc/config.mesh/setup",
     "/etc/config.mesh/snmpd",
     "/etc/config.mesh/system",
@@ -79,7 +69,12 @@ const configFiles = [
     "/etc/config.mesh/vtun",
     "/etc/config.mesh/wireguard",
     "/etc/config.mesh/xlink",
+    "/etc/arednlink/hosts",
+    "/etc/arednlink/services",
+    "/etc/arednlink/publish",
+    "/etc/arednlink/subscribe",
     "/etc/local/uci/hsmmmesh",
+    "/etc/aredn_include/babel-deny.conf",
     "/etc/aredn_include/dtdlink.network.user",
     "/etc/aredn_include/lan.network.user",
     "/etc/aredn_include/wan.network.user",
@@ -360,7 +355,7 @@ export function commitChanges()
         if (n) {
             status.setup = n.read("all");
             n.close();
-            const c = fs.popen("exec /usr/local/bin/restart-services.sh");
+            const c = fs.popen("exec /usr/local/bin/restart-services");
             if (c) {
                 status.restart = c.read("all");
                 c.close();
@@ -417,9 +412,7 @@ export function unescapeString(s)
     return s;
 };
 
-const backupFilename = "/tmp/node-backup.backup";
-
-export function backup()
+export function backup(backupFilename)
 {
     const fi = fs.open("/etc/arednsysupgrade.conf");
     if (!fi) {
@@ -428,10 +421,10 @@ export function backup()
     const fo = fs.open("/tmp/sysupgradefilelist", "w");
     if (!fo) {
         fi.close();
-        return null;
+        return false;
     }
     for (let l = fi.read("line"); length(l); l = fi.read("line")) {
-        if (!match(l, "^#") && !match(l, "^/etc/config/") && fs.access(trim(l))) {
+        if (!match(l, "^#") && fs.access(trim(l))) {
             fo.write(l);
         }
     }
@@ -441,15 +434,15 @@ export function backup()
     fs.unlink("/tmp/sysupgradefilelist");
     if (s < 0) {
         fs.unlink(backupFilename);
-        return null;
+        return false;
     }
-    return backupFilename;
+    return true;
 };
 
-export function restore(file)
+export function restore(backupFilename)
 {
     const status = {};
-    const data = fs.readfile(file);
+    const data = fs.readfile(backupFilename);
     if (!data) {
         status.error = "Failed to read configuration file";
     }
@@ -458,47 +451,73 @@ export function restore(file)
             status.error = "Failed to copy configuration file";
         }
     }
-    fs.unlink(file);
+    fs.unlink(backupFilename);
     return status;
+};
+
+export function backupTunnels(tunnelBackupFilename)
+{
+    const s = system(`cd / ; /bin/tar -czf ${tunnelBackupFilename} etc/config.mesh/wireguard > /dev/null 2>&1`);
+    if (s < 0) {
+        fs.unlink(tunnelBackupFilename);
+        return false;
+    }
+    return true;
+};
+
+export function restoreTunnels(tunnelBackupFilename)
+{
+    const s = system(`cd / ; /bin/tar -xzf ${tunnelBackupFilename} etc/config.mesh/wireguard > /dev/null 2>&1`);
+    return s < 0 ? false : true;
 };
 
 export function supportdata(supportdatafilename)
 {
-    const wifiiface = uci.cursor().get("network", "wifi", "device");
+    const c = uci.cursor();
+    const wifiiface = c.get("network", "wifi", "device");
+
+    let doscan = false;
+    c.foreach("wireless", "wifi-iface", function(s)
+    {
+        if (s.ifname == wifiiface && s.mode === "adhoc") {
+            doscan = true;
+        }
+    });
 
     const files = [
+        "/proc/cpuinfo",
+        "/proc/meminfo",
         "/etc/board.json",
-        "/etc/config/",
-        "/etc/config.mesh/",
+        "/etc/config",
+        "/etc/config.mesh",
+        "/etc/aredn_include",
         "/etc/ethers",
         "/etc/hosts",
-        "/etc/local/",
+        "/etc/local",
         "/etc/mesh-release",
         "/etc/os-release",
-        "/tmp/dnshosts.d/",
-        "/var/run/services_olsr",
-        "/tmp/etc/",
-        "/tmp/dnsmasq.d/",
+        "/etc/arednlink",
+        "/tmp/etc",
+        "/tmp/dnsmasq.d",
         "/tmp/lqm.info",
         "/tmp/wireless_monitor.info",
-        "/tmp/service-validation-state",
-        "/tmp/sysinfo/",
+        "/tmp/service-validation-state.json",
+        "/tmp/sysinfo",
         "/sys/kernel/debug/ieee80211/phy0/ath9k/ack_to",
-        "/sys/kernel/debug/ieee80211/phy1/ath9k/ack_to"
+        "/sys/kernel/debug/ieee80211/phy1/ath9k/ack_to",
+        "/proc/net/nf_conntrack",
+        "/var/run/hostapd-wlan0.maclist",
+        "/var/run/hostapd-wlan1.maclist"
     ];
     const sensitive = [
-        "/etc/config/vtun",
-        "/etc/config.mesh/vtun",
         "/etc/config/network",
         "/etc/config.mesh/wireguard",
         "/etc/config/wireless",
-        "/etc/config.mesh/_setup",
         "/etc/config.mesh/setup",
     ];
     const cmds = [
-        "cat /proc/cpuinfo",
-        "cat /proc/meminfo",
         "df -k",
+        "free",
         "dmesg",
         "ifconfig",
         "ethtool eth0",
@@ -507,23 +526,28 @@ export function supportdata(supportdatafilename)
         "ip addr",
         "ip neigh",
         "ip route list",
+        "ip route list table 20",
+        "ip route list table 21",
+        "ip route list table 22",
+        "ip route list table 28",
         "ip route list table 29",
-        "ip route list table 30",
-        "ip route list table 31",
         "ip route list table main",
         "ip route list table default",
         "ip rule list",
         "netstat -aln",
         "iwinfo",
-        `${wifiiface ? "iwinfo " + wifiiface + " assoclist" : null}`,
-        `${wifiiface ? "iw phy " + (replace(wifiiface, "wlan", "phy")) + " info" : null}`,
-        `${wifiiface ? "iw dev " + wifiiface + " info" : null}`,
-        `${wifiiface ? "iw dev " + wifiiface + " scan" : null}`,
-        `${wifiiface ? "iw dev " + wifiiface + " station dump" : null}`,
+        `${wifiiface ? "iwinfo " + wifiiface + " assoclist" : ""}`,
+        `${wifiiface ? "iw phy " + (replace(wifiiface, "wlan", "phy")) + " info" : ""}`,
+        `${wifiiface ? "iw dev " + wifiiface + " info" : ""}`,
+        `${wifiiface && doscan ? "iw dev " + wifiiface + " scan" : ""}`,
+        `${wifiiface ? "iw dev " + wifiiface + " station dump" : ""}`,
         "wg show all",
         "wg show all latest-handshakes",
         "nft list ruleset",
-        "md5sum /www/cgi-bin/*",
+        "brctl show",
+        "babel-dump",
+        "/usr/local/bin/arednlink-dump",
+        "ls -l /var/run/arednlink/*/*",
         "echo /all | nc 127.0.0.1 2006",
         "opkg list-installed",
         "ps -w",
@@ -546,11 +570,11 @@ export function supportdata(supportdatafilename)
         if (s) {
             if (s.type === "directory") {
                 system(`/bin/mkdir -p /tmp/sd${file}`);
-                system(`/bin/cp -rp ${file}/* /tmp/sd/${file}`);
+                system(`/bin/cp -rp ${file}/* /tmp/sd${file}/`);
             }
             else {
                 system(`/bin/mkdir -p /tmp/sd${fs.dirname(file)}`);
-                system(`/bin/cp -p ${file} /tmp/sd/${file}`);
+                system(`/bin/cp -p ${file} /tmp/sd${file}`);
             }
         }
     }

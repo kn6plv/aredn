@@ -1,0 +1,21 @@
+#!/bin/sh
+# When the system brings up the nomesh bridge, it sets the state to down
+# and there doesnt seem to be a way to avoid this. This breaks anything which
+# care about this. To "fix" this we destroy then recreate the bridge.
+# I'm not proud of this :-(
+BR="br-nomesh"
+if [ "$ACTION" = "ifup" -a "$DEVICE" = "${BR}" ] ; then
+  ip link set ${BR} down
+  brctl delbr ${BR}
+  brctl addbr ${BR}
+  ip addr add $(uci get network.wifi.ipaddr)/32 broadcast 255.255.255.255 dev ${BR}
+  ip link set ${BR} up
+fi
+
+# Force dtdlink to have an IPv6 address. If no cables are plugged in it will not by default
+# This incantation makes it happen
+DTD="br-dtdlink"
+if [ "$ACTION" = "ifup" -a "$DEVICE" = "${DTD}" ] ; then
+  sysctl -q -w net.ipv6.conf.$DTD.addr_gen_mode=1
+  sysctl -q -w net.ipv6.conf.$DTD.addr_gen_mode=0
+fi

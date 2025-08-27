@@ -39,6 +39,7 @@
     const wd = uci.get("aredn", "@watchdog[0]", "enable") === "1" ? "active" : "disabled";
     const wwd = uci.get("aredn", "@wireless_watchdog[0]", "enable") === "1" ? "active" : "disabled";
     const ip = uci.get("aredn", "@iperf[0]", "enable") === "0" ? "disabled" : "active";
+    const be = uci.get("aredn", "@beacon[0]", "enable") !== "1" ? "disabled" : "active";
     const s = fs.stat("/tmp/metrics-ran");
     const mt = s && time() - s.mtime < 3600000 ? "active" : "inactive";
     const ws = "active";
@@ -56,7 +57,9 @@
     <div class="section cols">
         <div class="service"><div class="status {{cm}}"></div>Cloud Mesh</div>
         <div class="service"><div class="status {{mt}}"></div>Metrics</div>
+        {% if (hardware.supportsFeature("hw-watchdog")) { %}
         <div class="service"><div class="status {{wd}}"></div>Hardware Watchdog</div>
+        {% } %}
         <div class="service"><div class="status {{rl}}"></div>Remote Logging</div>
         <div class="service"><div class="status {{ip}}"></div>IPerf3 Server</div>
         <div class="service"><div class="status {{sn}}"></div>Supernode</div>
@@ -65,11 +68,12 @@
         <div class="service"><div class="status {{ww}}"></div>WAN web</div>
         {% if (hardware.getRadioCount() > 0) { %}
         <div class="service"><div class="status {{wwd}}"></div>Wireless Watchdog</div>
+        <div class="service"><div class="status {{be}}"></div>ID Beacon</div>
         {% } %}
-        {% if (hardware.hasPOE()) { %}
+        {% if (hardware.supportsFeature("poe")) { %}
         <div class="service"><div class="status {{poe}}"></div>PoE out</div>
         {% } %}
-        {% if (hardware.hasUSBPower()) { %}
+        {% if (hardware.supportsFeature("usb-power")) { %}
         <div class="service"><div class="status {{pou}}"></div>USB power out</div>
         {% } %}
     </div>

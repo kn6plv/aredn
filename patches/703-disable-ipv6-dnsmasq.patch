@@ -3,13 +3,41 @@
 @@ -0,0 +1,12 @@
 +--- a/src/config.h
 ++++ b/src/config.h
-+@@ -170,7 +170,7 @@
++@@ -180,7 +180,9 @@
 +    has no library dependencies other than libc */
 + 
 + #define HAVE_DHCP
-+-#define HAVE_DHCP6 
-++/* #define HAVE_DHCP6 */
+++#ifndef NO_IPV6
++ #define HAVE_DHCP6 
+++#endif
 + #define HAVE_TFTP
 + #define HAVE_SCRIPT
 + #define HAVE_AUTH
-+
+--- a/package/network/services/dnsmasq/Makefile
++++ b/package/network/services/dnsmasq/Makefile
+@@ -134,8 +134,7 @@
+ Package/dnsmasq-dhcpv6/conffiles = $(Package/dnsmasq/conffiles)
+ Package/dnsmasq-full/conffiles = $(Package/dnsmasq/conffiles)
+ 
+-COPTS = -DHAVE_UBUS -DHAVE_POLL_H \
+-	$(if $(CONFIG_IPV6),,-DNO_IPV6)
++COPTS = -DHAVE_UBUS -DHAVE_POLL_H -DNO_IPV6
+ 
+ ifeq ($(BUILD_VARIANT),nodhcpv6)
+ 	COPTS += -DNO_DHCP6
+--- /dev/null
++++ b/package/network/services/dnsmasq/patches/111.disable-ipv6-forwarding.patch
+@@ -0,0 +1,13 @@
++--- a/src/forward.c
+++++ b/src/forward.c
++@@ -302,6 +302,10 @@
++ 	  !strchr(daemon->namebuff, '.') &&
++ 	  strlen(daemon->namebuff) != 0)
++ 	flags = check_for_local_domain(daemon->namebuff, now) ? F_NOERR : F_NXDOMAIN;
+++
+++      /* Never forward AAAA */
+++      if (!flags && (gotname & F_IPV6) && !(gotname &= ~F_IPV6))
+++        flags = F_NOERR;
++       
++       /* Configured answer. */
++       if (flags || ede == EDE_NOT_READY)

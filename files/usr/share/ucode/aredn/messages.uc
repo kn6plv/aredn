@@ -35,18 +35,6 @@ import * as fs from "fs";
 import * as uci from "uci";
 import * as configuration from "aredn.configuration";
 import * as hardware from "aredn.hardware";
-import * as radios from "aredn.radios";
-
-export function haveMessages()
-{
-    if (fs.access("/etc/cron.boot/reinstall-packages") && fs.access("/etc/package_store/catalog.json")) {
-        return true;
-    }
-    if (fs.stat("/tmp/aredn_message")?.size || fs.stat("/tmp/local_message")?.size) {
-        return true;
-    }
-    return false;
-};
 
 function parseMessages(nodename, msgs, text)
 {
@@ -74,38 +62,16 @@ export function getMessages()
     }
     parseMessages(nodename, msgs, fs.readfile("/tmp/aredn_message"));
     parseMessages(nodename, msgs, fs.readfile("/tmp/local_message"));
-    return msgs;
-};
-
-export function haveToDos()
-{
-    const cursor = uci.cursor();
-    if (!cursor.get("aredn", "@location[0]", "lat") ||
-        !cursor.get("aredn", "@location[0]", "lon") ||
-        configuration.getSettingAsString("time_zone_name", "Not Set") === "Not Set" ||
-        hardware.isLowMemNode()
-    ) {
-        return true;
-    }
-    if (hardware.getRadioCount() > 0) {
-        const wlan = cursor.get("network", "wifi", "device");
-        if (wlan !== "br-nomesh") {
-            const ants = hardware.getAntennas(wlan);
-            const ant = cursor.get("aredn", "@location[0]", "antenna");
-            if (length(ants) > 1 && !ant) {
-                return true;
-            }
-            if (ant || length(ants) === 1) {
-                if (!cursor.get("aredn", "@location[0]", "azimuth")) {
-                    const ainfo = hardware.getAntennaInfo(wlan, ant || ants[0]);
-                    if (ainfo?.beamwidth !== 360) {
-                        return true;
-                    }
-                }
+    const d = fs.opendir("/tmp/other_messages/");
+    if (d) {
+        for (let entry = d.read(); entry; entry = d.read()) {
+            if (entry !== "." && entry !== "..") {
+                parseMessages(nodename, msgs, fs.readfile(`/tmp/other_messages/${entry}`));
             }
         }
+        d.close();
     }
-    return false;
+    return msgs;
 };
 
 export function getToDos()
@@ -119,7 +85,7 @@ export function getToDos()
         push(todos, "Set the latitude and longitude");
     }
     if (configuration.getSettingAsString("time_zone_name", "Not Set") === "Not Set") {
-        push(todos, "Set the timzeone");
+        push(todos, "Set the timezone");
     }
     if (hardware.getRadioCount() > 0) {
         const wlan = cursor.get("network", "wifi", "device");
@@ -134,6 +100,16 @@ export function getToDos()
                 if (ainfo?.beamwidth !== 360) {
                     push(todos, "Set antenna azimuth");
                 }
+            }
+        }
+    }
+    if (hardware.supportsFeature("videoproxy") && !fs.access("/usr/bin/ffmpeg") && !(fs.access("/etc/cron.boot/reinstall-packages") && fs.access("/etc/package_store/catalog.json"))) {
+        const svcs = uci.cursor("/etc/config.mesh").get("setup", "services", "service") || [];
+        const reVidProxy = /^[^|]+\|1\|http\|[^|]+\|80\|a\/videoproxy\?.+$/;
+        for (let i = 0; i < length(svcs); i++) {
+            if (match(trim(svcs[i]), reVidProxy)) {
+                push(todos, "Install the ffmpeg package");
+                break;
             }
         }
     }

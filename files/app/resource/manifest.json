@@ -1,0 +1,39 @@
+{
+    "name": "AREDN®",
+    "icons": [
+        {
+            "src": "/a/img/favicon.svg",
+            "type": "image/svg+xml",
+            "sizes": "any",
+            "purpose": "any"
+        },
+        {
+            "src": "/a/img/favicon.ico",
+            "type": "image/x-ico",
+            "sizes": "150x150",
+            "purpose": "any"
+        }
+    ],
+    "scope": "/",
+    "start_url": "/a/status",
+    "display": "standalone",
+    "theme_color": "#e8e8e8",
+    "shortcuts": [
+        {
+            "name": "Status",
+            "url": "/a/status"
+        },
+        {
+            "name": "Mesh",
+            "url": "/a/mesh"
+        },
+        {
+            "name": "Cloud",
+            "url": "/a/cloud"
+        },
+        {
+            "name": "Map",
+            "url": "/a/map"
+        }
+    ]
+}

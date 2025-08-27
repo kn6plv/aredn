@@ -186,12 +186,10 @@ const mapurl = map ? replace(replace(map, "(lat)", lat), "(lon)", lon) : null;
                     map.contentWindow.postMessage(JSON.stringify({ type: "change-location", lat: lat.value, lon: lon.value }), "*");
                 }
                 latlon2gridsquare();
-                if (!map) {
-                    htmx.ajax("PUT", "{{request.env.REQUEST_URI}}", {
-                        swap: "none",
-                        values: { lat: lat.value, lon: lon.value, gridsquare: gridsquare.value }
-                    });
-                }
+                htmx.ajax("PUT", "{{request.env.REQUEST_URI}}", {
+                    swap: "none",
+                    values: { lat: lat.value, lon: lon.value, gridsquare: gridsquare.value }
+                });
             }
             else if (lat.value === "" && lon.value === "") {
                 gridsquare.value = "";
@@ -204,7 +202,7 @@ const mapurl = map ? replace(replace(map, "(lat)", lat), "(lon)", lon) : null;
         function llpaste() {
             const txt = event.clipboardData.getData("text/plain");
             if (!txt) {
-                return;
+                return null;
             }
             event.stopPropagation();
             event.preventDefault();
@@ -215,12 +213,28 @@ const mapurl = map ? replace(replace(map, "(lat)", lat), "(lon)", lon) : null;
                 lat.value = latv;
                 lon.value = lonv;
                 llchange();
+                return null;
+            }
+            return parseFloat(txt);
+        }
+        function latpaste() {
+            const v = llpaste();
+            if (v && !isNaN(v)) {
+                lat.value = v;
+                llchange();
+            }
+        }
+        function lonpaste() {
+            const v = llpaste();
+            if (v && !isNaN(v)) {
+                lon.value = v;
+                llchange();
             }
         }
         lat.addEventListener("change", llchange);
         lon.addEventListener("change", llchange);
-        lat.addEventListener("paste", llpaste);
-        lon.addEventListener("paste", llpaste);
+        lat.addEventListener("paste", latpaste);
+        lon.addEventListener("paste", lonpaste);
         gridsquare.addEventListener("change", function() {
             if (gridsquare.value !== "") {
                 gridsquare2latlon();
