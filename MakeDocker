@@ -1,18 +1,34 @@
 #! /bin/sh
 
-IMG=/tmp/aredn-docker-img.img
-NAME=aredn-docker
+IMG=/tmp/aredn-docker-$$.img
+NAME=aredn
 DEV=sda2
+DOCKERIMAGE=/tmp/aredn-docker-image-$$
 
 if [ "${1}" = "" ]; then
   echo "Usage: MakeDocker <image file>"
   exit 1
 fi
 
-rm -f ${IMG}
+rm -f ${IMG} ${DOCKERIMAGE}
 zcat ${1} > ${IMG}
-guestfish --ro -a ${IMG} -m /dev/${DEV}:/ tar-out / - | docker import --change "ENTRYPOINT /etc/preinit" - ${NAME}
-rm -f ${IMG}
-docker save ${NAME} > ${NAME}.tar
+cat > ${DOCKERIMAGE} <<__EOF__
+#!/bin/sh
+V=/.vol
+DIRS="/app /bin /etc /lib /root /sbin /usr /www"
+for d in ${DIRS}
+do
+  echo mkdir -p ${V}${d}/upper ${V}${d}/work
+  echo mount -t overlay -o lowerdir=${d},upperdir=${V}${d}/upper,workdir=${V}${d}/work overlay ${d}
+done
+__EOF__
+guestfish \
+  --ro \
+  --add ${IMG} \
+  --mount /dev/${DEV}:/ \
+  upload ${DOCKERIMAGE} /sbin/docker-init \
+  tar-out / - | docker import --change "ENTRYPOINT /etc/preinit" - ${NAME}
+rm -f ${IMG} ${DOCKERIMAGE}
+#docker save ${NAME} > ${NAME}.tar
 
 # docker run --privileged --restart always aredn-docker
