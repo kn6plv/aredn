@@ -43,6 +43,7 @@
             case radios.RADIO_MESHPTMP:
             case radios.RADIO_MESHPTP:
             case radios.RADIO_MESHSTA:
+            case radios.RADIO_MESHBRI:
                 midx = i;
                 break;
             case radios.RADIO_LAN:

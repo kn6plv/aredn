@@ -40,6 +40,7 @@ export const RADIO_MESH = "mesh";
 export const RADIO_MESHPTMP = "meshap";
 export const RADIO_MESHPTP = "meshptp";
 export const RADIO_MESHSTA = "meshsta";
+export const RADIO_MESHBRI = "meshbri"
 export const RADIO_LAN = "lan";
 export const RADIO_WAN = "wan";
 
@@ -165,6 +166,11 @@ export function getActiveConfiguration()
                         break;
                 }
             }
+            if (s.network === "dtdlink" && s.mode === "sta") {
+                mmode.mode = RADIO_MESHBRI;
+                mdevice = s.device;
+                mmode.ssid = s.ssid;
+            }
             if (s.network === "lan" && s.mode === "ap") {
                 ldevice = s.device;
                 lmode.ssid = s.ssid;
@@ -247,6 +253,7 @@ export function getMeshRadio()
             case RADIO_MESHPTP:
             case RADIO_MESHPTMP:
             case RADIO_MESHSTA:
+            case RADIO_MESHBRI:
                 return { mode: config[i].mode.mode, iface: config[i].iface };
             default:
                 break;

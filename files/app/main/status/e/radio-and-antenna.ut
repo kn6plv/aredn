@@ -41,6 +41,7 @@ if (request.env.REQUEST_METHOD === "PUT") {
         "4": radios.RADIO_MESHPTMP,
         "5": radios.RADIO_MESHPTP,
         "6": radios.RADIO_MESHSTA,
+        "7": radios.RADIO_MESHBRI,
         "2": radios.RADIO_LAN,
         "3": radios.RADIO_WAN
     };
@@ -60,6 +61,7 @@ if (request.env.REQUEST_METHOD === "PUT") {
         case radios.RADIO_MESHPTMP:
         case radios.RADIO_MESHPTP:
         case radios.RADIO_MESHSTA:
+        case radios.RADIO_MESHBRI:
             if (configuration.setSetting("radio0_mode", radio0_mode)) {
                 configuration.setSetting("radio0_channel", wlan[0].mode.channel || wlan[0].def.channel);
                 configuration.setSetting("radio0_bandwidth", wlan[0].mode.bandwidth || wlan[0].def.bandwidth);
@@ -131,6 +133,7 @@ if (request.env.REQUEST_METHOD === "PUT") {
         case radios.RADIO_MESHPTMP:
         case radios.RADIO_MESHPTP:
         case radios.RADIO_MESHSTA:
+        case radios.RADIO_MESHBRI:
             if (configuration.setSetting("radio1_mode", radio1_mode)) {
                 configuration.setSetting("radio1_channel", wlan[1].mode.channel || wlan[1].def.channel);
                 configuration.setSetting("radio1_bandwidth", wlan[1].mode.bandwidth || wlan[1].def.bandwidth);
@@ -282,6 +285,9 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                         {% } %}
                         {% if (hardware.supportsFeature("wifi-mode", wlan[w].iface, "meshsta")) { %}
                         <option value="6" {{mode === radios.RADIO_MESHSTA ? "selected" : ""}}>Mesh Station</option>
+                        {% } %}
+                        {% if (hardware.supportsFeature("wifi-mode", wlan[w].iface, "meshbri")) { %}
+                        <option value="7" {{mode === radios.RADIO_MESHBRI ? "selected" : ""}}>Mesh Bridge</option>
                         {% } %}
                         {% if (hardware.supportsFeature("wifi-mode", wlan[w].iface, "lan")) { %}
                         <option value="2" {{mode === radios.RADIO_LAN ? "selected" : ""}}>LAN Hotspot</option>

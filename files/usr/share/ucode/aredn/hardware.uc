@@ -801,7 +801,35 @@ export function supportsFeature(feature, arg1, arg2)
         case "wifi-mode":
         {
             const modes = getRadioIntf(arg1)?.exclude_modes;
-            return (!modes || index(modes, arg2) === -1);
+            if (modes && index(modes, arg2) !== -1) {
+                return false;
+            }
+            // Mesh Bridge is available under very specific circumstances
+            if (arg2 === "meshbri") {
+                // Only available on the primary radio
+                if (arg2 == "wlan1") {
+                    return false;
+                }
+                // WAN and LAN-DHCP must be disabled
+                if (configuration.getSettingAsString("wan_proto", "disabled") !== "disabled" || configuration.getDHCP().enabled) {
+                    return false;
+                }
+                const c = uci.cursor("/etc/config.mesh");
+                // No tunnels
+                let tc = 0;
+                c.foreach("wireguard", "client", _ => tc++);
+                c.foreach("wireguard", "server", _ => tc++);
+                if (tc !== 0) {
+                    return false;
+                }
+                // No xlinks
+                let xc = 0;
+                c.foreach("xlink", "interface", _ => xc++);
+                if (xc !== 0) {
+                    return false;
+                }
+            }
+            return true;
         }
         case "hw-watchdog":
             return !!fs.access("/dev/watchdog");
