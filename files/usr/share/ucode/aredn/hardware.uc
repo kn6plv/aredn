@@ -860,7 +860,6 @@ export function getEthernetPorts()
         case "mikrotik,hap-ac2":
         case "mikrotik,hap-ac3":
             return default5PortLayout;
-<<<<<<< HEAD
         case "cudy,wr3000-v1":
             return default4PortLayout;
         case "cudy,wr3000e-v1":
