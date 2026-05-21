@@ -935,6 +935,7 @@ for (let dev = 0; dev < ifacecount; dev++) {
         let shortgi = null;
         let bss_color = null;
         let htmode = hardware.getHTMode(wlan, wlan == mesh_wifi ? mesh_chanbw : -1, cfg[`${radio}_mode`]);
+        let multi_ap = null;
 
         switch (hardware.getDefaultChannel(wlan)?.band) {
             case "3GHz":
@@ -1034,6 +1035,7 @@ for (let dev = 0; dev < ifacecount; dev++) {
             // wan client
             ssid = h2s(cfg[`${radio}_ssid`]);
             mode = "sta";
+            multi_ap = 1;
             if (cfg[`${radio}_key`] && cfg[`${radio}_key`] != "") {
                 encryption = "psk2";
                 key = h2s(cfg[`${radio}_key`]);
@@ -1110,6 +1112,9 @@ for (let dev = 0; dev < ifacecount; dev++) {
         }
         if (mode != null) {
             config += `\toption mode '${mode}'\n`;
+        }
+        if (multi_ap != null) {
+            config += `\toption multi_ap '${multi_ap}'\n`;
         }
         if (ssid != null) {
             config += `\toption ssid '${ssid}'\n`;
