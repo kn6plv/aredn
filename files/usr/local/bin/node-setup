@@ -886,9 +886,9 @@ let config = "";
 const ifacecount = hardware.getRadioCount();
 const devpaths = {};
 for (let dev = 0; dev < ifacecount; dev++) {
-    const devname = `phy${dev}`;
-    const radio = `radio${dev}`;
     const wlan = `wlan${dev}`;
+    const devname = hardware.getPhyDevice(wlan);
+    const radio = hardware.getRadioDevice(wlan);
     let devpath = match(fs.realpath(`${ieee80211}${fs.readlink(ieee80211 + devname)}`), /^\/sys\/devices\/(.*)\/ieee802.*$/);
     if (!devpath) {
         continue;

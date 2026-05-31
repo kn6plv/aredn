@@ -6,8 +6,9 @@ if [ "$ACTION" = "ifup" -a "$INTERFACE" = "wifi" -a "${DEVICE:0:4}" = "wlan" ] ;
   # Setup the txpower for devices which dont respect the value set in /etc/config/wireless
   txpower=$(uci -q get wireless.radio${DEVICE:4}.txpower)
   if [ "${txpower}" != "" ]; then
-    iw phy${DEVICE:4} set txpower fixed 0
-    iw phy${DEVICE:4} set txpower fixed ${txpower}00
+    phy=$(cat "/sys/class/net/${DEVICE}/phy80211/name")
+    iw ${phy} set txpower fixed 0
+    iw ${phy} set txpower fixed ${txpower}00
   fi
   # Make sure it has a link local address
   sysctl -q -w net.ipv6.conf.${DEVICE}.addr_gen_mode=1

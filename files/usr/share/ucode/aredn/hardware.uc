@@ -161,19 +161,19 @@ export function getRadioIntf(wifiIface)
     }
 };
 
-export function getPhyDevice(iface)
+export function getPhyDevice(wifiiface)
 {
-    return replace(replace(iface, /^wlan/, "phy"), /^radio/, "phy");
+    const phy = trim(fs.readfile(`/sys/class/net/${wifiiface}/phy80211/name`));
+    if (phy) {
+        return phy;
+    }
+    // If the wlan device isnt active, we cannot map it via the /sys filesystem - do the default
+    return replace(wifiiface, /^wlan/, "phy");
 };
 
-export function getWlanDevice(iface)
+export function getRadioDevice(wifiiface)
 {
-    return replace(replace(iface, /^phy/, "wlan"), /^radio/, "wlan");
-};
-
-export function getRadioDevice(iface)
-{
-    return replace(replace(iface, /^phy/, "radio"), /^wlan/, "radio");
+    return replace(wifiiface, /^wlan/, "radio");
 };
 
 function isAX(dev)
