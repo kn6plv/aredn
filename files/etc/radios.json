@@ -762,6 +762,10 @@
     },
     "features": [ "supernode", "videoproxy", "xlink" ]
   },
+  "mikrotik groovea 52 ac": {
+    "maxpower": 26,
+    "antenna": "external"
+  },
   "0xe005": {
     "name": "Ubiquiti NanoStation M5",
     "maxpower": 22,
