@@ -1643,7 +1643,7 @@
   },
   "qemu": {
     "name": "QEMU PC",
-    "features": [ "supernode", "videoproxy", "xlink", "remoterf" ]
+    "features": [ "supernode", "videoproxy", "xlink" ]
   },
   "vmware": {
     "name": "VMware PC",
