@@ -31,6 +31,12 @@
  * version
  */
 
+services.resetValidation();
+
+if (uci.cursor("/etc/config.mesh").get("setup", "globals", "lan_dhcp") != "1") {
+    return exitApp();
+}
+
 let last_hosts = null;
 let last_services = null;
 

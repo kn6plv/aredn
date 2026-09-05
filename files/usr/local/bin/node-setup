@@ -542,7 +542,7 @@ fs.mkdir("/tmp/new_config");
 const md = fs.opendir("/etc/config.mesh");
 if (md) {
     for (let bfile = md.read(); bfile; bfile = md.read()) {
-        if (bfile == "setup" || bfile == "wireguard" || bfile == "xlink" || bfile == "firewall.user") {
+        if (bfile == "wireguard" || bfile == "xlink" || bfile == "firewall.user") {
             // Don't copy these
         }
         else {
@@ -1255,6 +1255,7 @@ const restarters = {
         "setup.globals.dmz_mode": "reboot",
         "setup.globals.dmz_lan_ip": "reboot",
         "setup.globals.dmz_lan_mask": "reboot",
+        "setup.globals.lan_dhcp": [ "lan_monitor", "babel" ],
         "setup.globals.lan_ip": "reboot",
         "setup.globals.lan_mask": "reboot",
         "setup.@ntp[0].period": (o, n) => {
