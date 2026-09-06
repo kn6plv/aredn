@@ -911,6 +911,9 @@ for (let dev = 0; dev < ifacecount; dev++) {
             multicasttounicast = 0;
             isolate = 1;
             wds = 1;
+            if (cfg[`${radio}_mode`] == "meshptp") {
+                disassoclowack = 0;
+            }
         }
         else if (cfg[`${radio}_mode`] == "meshsta") {
             // mesh RF station configuration
