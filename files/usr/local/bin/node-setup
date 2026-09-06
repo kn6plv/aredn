@@ -895,20 +895,21 @@ for (let dev = 0; dev < ifacecount; dev++) {
             mode = "ap";
             encryption = "none";
             network = "wifi";
-            disassoclowack = 0;
+            disassoclowack = 1;
             maxinactivity = 600;
             maxlisteninterval = 1;
             uapsd = 0;
             shortgi = 0;
             if (cfg[`${radio}_mode`] == "meshptp") {
                 macfilter = "allow";
+                disassoclowack = 0;
             }
             else {
                 macfilter = "deny";
             }
             macaddr = cfg[`${radio}_macaddr`];
             htmode = hardware.getHTMode(wlan, chanbw, cfg[`${radio}_mode`]);
-            multicasttounicast = 1;
+            multicasttounicast = 0;
             isolate = 1;
             wds = 1;
         }
