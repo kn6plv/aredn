@@ -50,9 +50,9 @@ done
 #
 for i in /sys/class/net/*/device; do
   dev=$(basename ${i%/device})
-  if [ -d /sys/class/net/${dev}/device/morse ]; then
+  if [ -d /sys/class/net/${dev}/device/morse -a "$(tc qdisc show dev ${dev} | grep pfifo_fast)" == "" ]; then
     tc qdisc replace dev ${dev} root pfifo_fast
-  elif [ "$(awk '/^MemTotal:/ {print $2}' /proc/meminfo)" -gt 65536 ]; then
+  elif [ "$(awk '/^MemTotal:/ {print $2}' /proc/meminfo)" -gt 65536 -a "$(tc qdisc show dev ${dev} | grep cake)" == "" ]; then
     tc qdisc replace dev ${dev} root cake diffserv4 nowash ack-filter nat
   fi
 done
