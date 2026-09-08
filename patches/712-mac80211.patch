@@ -83,3 +83,17 @@
  		hostapd.setup(data);
  
  	if (length(supplicant_data) > 0)
+--- a/package/network/config/wifi-scripts/files-ucode/usr/share/schema/wireless.wifi-device.json
++++ b/package/network/config/wifi-scripts/files-ucode/usr/share/schema/wireless.wifi-device.json
+@@ -95,9 +95,9 @@
+ 			"maximum": 3
+ 		},
+ 		"chanbw": {
+-			"description": "Specifies a narrow channel width in MHz, possible values are: 5, 10, 20",
++			"description": "Specifies a narrow channel width in MHz, possible values are: 5, 10, 20, 40, 80, 160",
+ 			"type": "number",
+-			"enum": [ 5,  10, 20 ]
++			"enum": [ 5, 10, 20, 40, 80, 160 ]
+ 		},
+ 		"channel": {
+ 			"description": "Specifies the wireless channel. “auto” defaults to the lowest available channel, or utilizes the ACS algorithm depending on hardware/driver support",
