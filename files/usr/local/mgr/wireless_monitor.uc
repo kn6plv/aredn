@@ -108,22 +108,28 @@ function monitorUnresponsiveStations(device)
 {
     device.unresponsive.max = 0;
     const nstations = {};
+    const blocks = {};
+
+    // Dont check the status of blocked stations
+    map(split(uci.cursor("/etc/config.mesh").get("aredn", "@lqm[0]", "user_blocks"), ","), mac => blocks[lc(mac)] = true);
 
     const stations = nl80211.request(nl80211.const.NL80211_CMD_GET_STATION, nl80211.const.NLM_F_DUMP, { dev: device.iface }) ?? [];
     for (let i = 0; i < length(stations); i++) {
-        const ipv6ll = network.mac2ipv6ll(stations[i].mac);
-        if (system(`${PING6} -c 1 -W 2 -I br-wifi ${ipv6ll} > /dev/null 2>&1`) == 0 || system(`${PING6} -c 1 -W 2 -I ${device.iface} ${ipv6ll} > /dev/null 2>&1`) == 0) {
-            nstations[ipv6ll] = 0;
-        }
-        else {
-            const val = (device.unresponsive.stations[ipv6ll] || 0) + 1;
-            nstations[ipv6ll] = val;
-            if (val < device.unresponsive.ignore) {
-                if (val > actionLimits.unresponsiveReport) {
-                    log.syslog(log.LOG_ERR, `Possible unresponsive node: ${ipv6ll} [${stations[i].mac}]`);
-                }
-                if (val > device.unresponsive.max) {
-                    device.unresponsive.max = val;
+        if (!blocks[stations[i].mac]) {
+            const ipv6ll = network.mac2ipv6ll(stations[i].mac);
+            if (system(`${PING6} -c 1 -W 2 -I br-wifi ${ipv6ll} > /dev/null 2>&1`) == 0 || system(`${PING6} -c 1 -W 2 -I ${device.iface} ${ipv6ll} > /dev/null 2>&1`) == 0) {
+                nstations[ipv6ll] = 0;
+            }
+            else {
+                const val = (device.unresponsive.stations[ipv6ll] || 0) + 1;
+                nstations[ipv6ll] = val;
+                if (val < device.unresponsive.ignore) {
+                    if (val > actionLimits.unresponsiveReport) {
+                        log.syslog(log.LOG_ERR, `Possible unresponsive node: ${ipv6ll} [${stations[i].mac}]`);
+                    }
+                    if (val > device.unresponsive.max) {
+                        device.unresponsive.max = val;
+                    }
                 }
             }
         }
