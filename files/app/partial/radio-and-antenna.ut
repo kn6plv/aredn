@@ -77,18 +77,26 @@
         <div class="s">model</div>
     </div>
     {% if (midx1 !== -1) {
-        const r = radio[midx1].mode; %}
+        const r = radio[midx1].mode;
+        const chs = r.mode === "meshsta" && configuration.getSettingAsList(`radio${midx1}_channels`); %}
     <div class="section-title">{{r.mode === "mesh" ? "Mesh" : r.mode === "meshap" ? "Mesh PTMP" : r.mode === "meshptp" ? "Mesh PTP" : "Mesh Station"}}</div>
     <div class="section">
         <div class="cols">
             <div>
-                <div class="t">{{r.channel}}{{r.mode === "meshsta" && configuration.getSettingAsList(`radio${midx1}_channels`) ? "+" : ""}}</div>
-                <div class="s">channel</div>
+                <div class="t">{{r.channel}}{{chs ? "+" : ""}}</div>
+                <div class="s">channel{{chs ? "s" : ""}}</div>
             </div>
+            {% if (chs) { %}
+            <div>
+                <div class="t">{{hardware.getDefaultChannel(radio[midx1].iface).band}}</div>
+                <div class="s">band</div>
+            </div>
+            {% } else { %}
             <div>
                 <div class="t">{{hardware.getChannelFrequencyRange(radio[midx1].iface, r.channel, r.bandwidth)}}</div>
                 <div class="s">frequencies</div>
             </div>
+            {% } %}
             <div>
                 <div class="t">{{r.bandwidth}} MHz</div>
                 <div class="s">bandwidth</div>
@@ -112,18 +120,26 @@
     </div>
     {% }
     if (midx2 !== -1) {
-        const r = radio[midx2].mode; %}
+        const r = radio[midx2].mode;
+        const chs = r.mode === "meshsta" && configuration.getSettingAsList(`radio${midx2}_channels`); %}
     <div class="section-title">{{r.mode === "mesh" ? "Mesh" : r.mode === "meshap" ? "Mesh PTMP" : r.mode === "meshptp" ? "Mesh PTP" : "Mesh Station"}}</div>
     <div class="section">
         <div class="cols">
             <div>
-                <div class="t">{{r.channel}}{{r.mode === "meshsta" && configuration.getSettingAsList(`radio${midx2}_channels`) ? "+" : ""}}</div>
-                <div class="s">channel</div>
+                <div class="t">{{r.channel}}{{chs ? "+" : ""}}</div>
+                <div class="s">channel{{chs ? "s" : ""}}</div>
             </div>
+            {% if (chs) { %}
+            <div>
+                <div class="t">{{hardware.getDefaultChannel(radio[midx2].iface).band}}</div>
+                <div class="s">band</div>
+            </div>
+            {% } else { %}
             <div>
                 <div class="t">{{hardware.getChannelFrequencyRange(radio[midx2].iface, r.channel, r.bandwidth)}}</div>
                 <div class="s">frequencies</div>
             </div>
+            {% } %}
             <div>
                 <div class="t">{{r.bandwidth}} MHz</div>
                 <div class="s">bandwidth</div>
