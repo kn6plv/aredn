@@ -82,7 +82,7 @@
     <div class="section">
         <div class="cols">
             <div>
-                <div class="t">{{r.channel}}</div>
+                <div class="t">{{r.channel}}{{r.mode === "meshsta" && configuration.getSettingAsList(`radio${midx1}_channels`) ? "+" : ""}}</div>
                 <div class="s">channel</div>
             </div>
             <div>
@@ -117,7 +117,7 @@
     <div class="section">
         <div class="cols">
             <div>
-                <div class="t">{{r.channel}}</div>
+                <div class="t">{{r.channel}}{{r.mode === "meshsta" && configuration.getSettingAsList(`radio${midx2}_channels`) ? "+" : ""}}</div>
                 <div class="s">channel</div>
             </div>
             <div>
