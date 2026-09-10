@@ -1280,7 +1280,9 @@ const restarters = {
                 default:
                     break;
             }
-        }
+        },
+        "setup.globals.radio0_channels": "wireless",
+        "setup.globals.radio1_channels": "wireless"
     },
     "system": [ "log", "system", "ntp" ],
     "wireless": {
