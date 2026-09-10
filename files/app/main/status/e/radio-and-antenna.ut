@@ -74,7 +74,7 @@ if (request.env.REQUEST_METHOD === "PUT") {
             if ("radio0_channel" in request.args) {
                 let channel = request.args.radio0_channel;
                 if (type(channel) === "array") {
-                    channel = uniq(channel);
+                    channel = sort(uniq(channel), (a, b) => int(a) - int(b));
                     configuration.setSettingAsList("radio0_channels", length(channel) > 1 ? channel : []);
                     configuration.setSettingAsString("radio0_channel", channel[0]);
 
@@ -167,7 +167,7 @@ if (request.env.REQUEST_METHOD === "PUT") {
             if ("radio1_channel" in request.args) {
                 let channel = request.args.radio1_channel;
                 if (type(channel) === "array") {
-                    channel = uniq(channel);
+                    channel = sort(uniq(channel), (a, b) => int(a) - int(b));
                     configuration.setSettingAsList("radio1_channels", length(channel) > 1 ? channel : []);
                     configuration.setSettingAsString("radio1_channel", channel[0]);
 
