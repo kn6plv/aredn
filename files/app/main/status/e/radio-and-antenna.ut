@@ -377,10 +377,13 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                         </select>
                     </div>
                 </div>
+                <div class="cols hideable1 hideable4 hideable5">
+                    {{_H("Select the central channel/frequency for the radio.")}}
+                </div>
                 <div class="cols hideable6 sta-channels" hx-include="this">
                     <div>
                         <div class="o">Channels</div>
-                        <div class="m">Channel and frequency of this connection</div>
+                        <div class="m">Channels and frequencies of this connection</div>
                     </div>
                     <div style="flex:0" class="channels">
                         <div style="white-space:nowrap">
@@ -423,7 +426,10 @@ if (request.env.REQUEST_METHOD === "DELETE") {
                         %}
                     </div>
                 </div>
-                {{_H("Select the central channel/frequency for the radio.")}}
+                <div class="cols hideable6">
+                    {{_H("Select the central channels/frequencies for the radio. When more than one is selected the node will connect
+                          to the strongest signal.")}}
+                </div>
                 <div class="cols">
                     <div>
                         <div class="o">Channel Width</div>
