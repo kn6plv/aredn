@@ -82,16 +82,24 @@
     <div class="section-title">{{r.mode === "mesh" ? "Mesh" : r.mode === "meshap" ? "Mesh PTMP" : r.mode === "meshptp" ? "Mesh PTP" : "Mesh Station"}}</div>
     <div class="section">
         <div class="cols">
+            {% if (chs) {
+                const cf = hardware.getCurrentFrequency(radio[midx1].iface);
+                const fr = cf ? (cf - r.bandwidth / 2.0) + " - " + (cf + r.bandwidth / 2.0) + " MHz" : "-";
+                const cc = cf ? hardware.getChannelFromFrequency(radio[midx1].iface, cf) : "Searching";
+            %}
             <div>
-                <div class="t">{{r.channel}}{{chs ? "+" : ""}}</div>
-                <div class="s">channel{{chs ? "s" : ""}}</div>
+                <div class="t">{{cc}}</div>
+                <div class="s">channel</div>
             </div>
-            {% if (chs) { %}
             <div>
-                <div class="t">{{hardware.getDefaultChannel(radio[midx1].iface).band}}</div>
-                <div class="s">band</div>
+                <div class="t">{{fr}}</div>
+                <div class="s">frequencies</div>
             </div>
             {% } else { %}
+            <div>
+                <div class="t">{{r.channel}}</div>
+                <div class="s">channel</div>
+            </div>
             <div>
                 <div class="t">{{hardware.getChannelFrequencyRange(radio[midx1].iface, r.channel, r.bandwidth)}}</div>
                 <div class="s">frequencies</div>
@@ -125,16 +133,24 @@
     <div class="section-title">{{r.mode === "mesh" ? "Mesh" : r.mode === "meshap" ? "Mesh PTMP" : r.mode === "meshptp" ? "Mesh PTP" : "Mesh Station"}}</div>
     <div class="section">
         <div class="cols">
+            {% if (chs) {
+                const cf = hardware.getCurrentFrequency(radio[midx2].iface);
+                const fr = cf ? (cf - r.bandwidth / 2.0) + " - " + (cf + r.bandwidth / 2.0) + " MHz" : "-";
+                const cc = cf ? hardware.getChannelFromFrequency(radio[midx2].iface, cf) : "Searching";
+            %}
             <div>
-                <div class="t">{{r.channel}}{{chs ? "+" : ""}}</div>
-                <div class="s">channel{{chs ? "s" : ""}}</div>
+                <div class="t">{{cc}}</div>
+                <div class="s">channel</div>
             </div>
-            {% if (chs) { %}
             <div>
-                <div class="t">{{hardware.getDefaultChannel(radio[midx2].iface).band}}</div>
-                <div class="s">band</div>
+                <div class="t">{{fr}}</div>
+                <div class="s">frequencies</div>
             </div>
             {% } else { %}
+            <div>
+                <div class="t">{{r.channel}}</div>
+                <div class="s">channel</div>
+            </div>
             <div>
                 <div class="t">{{hardware.getChannelFrequencyRange(radio[midx2].iface, r.channel, r.bandwidth)}}</div>
                 <div class="s">frequencies</div>

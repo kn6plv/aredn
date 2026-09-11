@@ -652,6 +652,12 @@ export function getRadioNoise(wifiIface)
     return -95;
 };
 
+export function getCurrentFrequency(wifiIface)
+{
+    const iface = nl80211.request(nl80211.const.NL80211_CMD_GET_INTERFACE, nl80211.const.NLM_F_DUMP, { dev: wifiIface });
+    return iface?.[0]?.wiphy_freq;
+};
+
 export function getMaxDistance(wifiIface)
 {
     switch (getRadioType(wifiIface)) {
