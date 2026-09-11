@@ -44,7 +44,7 @@
 </div>
 <div id="c2c3">
     <div id="c2">
-        <div hx-get="u-messages" hx-trigger="every 300s [document.visibilityState === 'visible']">
+        <div hx-get="u-messages" hx-trigger="focus from:window, every 300s [document.visibilityState === 'visible']">
         {% const args = { msgs: messages.getMessages(), todos: auth.isAdmin && messages.getToDos(), alerts: auth.isAdmin && messages.getAlerts() };
         if (length(args.msgs) || length(args.todos) || length(args.alerts)) { %}
             <div id="messages">
@@ -67,18 +67,18 @@
         {{_R("activator", { id: "local-and-neighbor-devices", activate: [ ".noctrl:first-child",  ".noctrl:nth-child(2)" ] })}}
     </div>
     <div id="c3">
-        <div id="radio-and-antenna">
+        <div id="radio-and-antenna" hx-get="u-radio-and-antenna" hx-trigger="focus from:window, every 120s [document.visibilityState === 'visible']">
             {{_R("radio-and-antenna")}}
         </div>
         <div id="mesh-summary">
             <hr>
-            <div hx-get="u-mesh-summary" hx-trigger="every 120s [document.visibilityState === 'visible']">
+            <div hx-get="u-mesh-summary" hx-trigger="focus from:window, every 120s [document.visibilityState === 'visible']">
             {{_R("mesh-summary")}}
             </div>
         </div>
         <div id="dhcp">
             <hr>
-            <div hx-get="u-dhcp" hx-trigger="every 120s [document.visibilityState === 'visible']">
+            <div hx-get="u-dhcp" hx-trigger="focus from:window, every 120s [document.visibilityState === 'visible']">
             {{_R("dhcp")}}
             </div>
         </div>
@@ -90,7 +90,7 @@
         {% } %}
         <div id="tunnels">
             <hr>
-            <div hx-get="u-tunnels" hx-trigger="every 120s [document.visibilityState === 'visible']">
+            <div hx-get="u-tunnels" hx-trigger="focus from:window, every 120s [document.visibilityState === 'visible']">
             {{_R("tunnels")}}
             </div>
         </div>
