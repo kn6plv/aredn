@@ -67,7 +67,7 @@
         {{_R("activator", { id: "local-and-neighbor-devices", activate: [ ".noctrl:first-child",  ".noctrl:nth-child(2)" ] })}}
     </div>
     <div id="c3">
-        <div id="radio-and-antenna">
+        <div id="radio-and-antenna" hx-get="u-radio-and-antenna" hx-trigger="every 120s [document.visibilityState === 'visible']">
             {{_R("radio-and-antenna")}}
         </div>
         <div id="mesh-summary">
