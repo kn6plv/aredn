@@ -99,6 +99,7 @@ const meshrf = (function () {
         const mode = cfg.mode;
         let rfmode;
         let ssid;
+        let current_channel;
         switch (mode.mode) {
             case radios.RADIO_MESH:
                 rfmode = "adhoc";
@@ -108,20 +109,25 @@ const meshrf = (function () {
             // Fall throught ...
             case radios.RADIO_MESHSTA:
                 rfmode = rfmode || "sta";
+                if (mode.channels) {
+                    const cf = hardware.getCurrentFrequency(cfg.iface);
+                    current_channel = cf ? hardware.getChannelFromFrequency(cfg.iface, cf) : 0;
+                }
             // Fall throught ...
             case radios.RADIO_MESHPTP:
                 rfmode = rfmode || "ptp";
             case radios.RADIO_MESHPTMP:
                 rfmode = rfmode || "ptmp";
-                ssid = ssid || `${mode.ssid}-${mode.channel}-${mode.bandwidth}-v3`;
+                ssid = ssid || `${mode.ssid}-${mode.channels ? current_channel : mode.channel}-${mode.bandwidth}-v3`;
                 push(meshrf, strip({
                     status: "on",
                     iface: cfg.iface,
                     mode: rfmode,
                     ssid: ssid,
-                    channel: mode.channel,
+                    channel: mode.channels ? current_channel : mode.channel,
+                    channels: mode.channels,
                     chanbw: mode.bandwidth,
-                    freq: hardware.getChannelFrequency(config[i].iface, mode.channel),
+                    freq: mode.channels ? (current_channel ? hardware.getChannelFrequency(config[i].iface, current_channel) : 0) : hardware.getChannelFrequency(config[i].iface, mode.channel),
                     polarization: hardware.getAntennaPolarization(config[i].iface),
                     azimuth: tonumber(uci.get("aredn", "@location[0]", "azimuth")),
                     elevation: tonumber(uci.get("aredn", "@location[0]", "elevation")),
