@@ -266,6 +266,7 @@ export function getConfiguration()
         radio[0].mode = {
             mode: mode,
             channel: configuration.getSettingAsInt("radio0_channel"),
+            channels: configuration.getSettingAsList("radio0_channels"),
             bandwidth: configuration.getSettingAsInt("radio0_bandwidth"),
             ssid: configuration.getSettingAsString("radio0_ssid"),
             txpower: configuration.getSettingAsInt("radio0_txpower"),
@@ -281,6 +282,7 @@ export function getConfiguration()
         radio[1].mode = {
             mode: mode,
             channel: configuration.getSettingAsInt("radio1_channel"),
+            channels: configuration.getSettingAsList("radio1_channels"),
             bandwidth: configuration.getSettingAsInt("radio1_bandwidth"),
             ssid: configuration.getSettingAsString("radio1_ssid"),
             txpower: configuration.getSettingAsInt("radio1_txpower"),

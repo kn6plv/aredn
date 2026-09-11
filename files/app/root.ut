@@ -529,7 +529,13 @@ global.handle_request = function(env)
                 for (let i = 0; i < length(v); i++) {
                     const kv = split(v[i], "=");
                     const k = uhttpd.urldecode(kv[0]);
-                    if (!(k in args)) {
+                    if (k in args) {
+                        if (type(args[k]) !== "array") {
+                            args[k] = [ args[k] ];
+                        }
+                        push(args[k], uhttpd.urldecode(kv[1]));
+                    }
+                    else {
                         args[k] = uhttpd.urldecode(kv[1]);
                     }
                 }

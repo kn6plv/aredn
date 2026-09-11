@@ -457,7 +457,15 @@ label.switch
 #ctrl-modal .hideable[data-hideable] > .hideable6,
 #ctrl-modal .hideable[data-hideable] > .hideable7,
 #ctrl-modal .hideable-g[data-hideable] .hideable0-g,
-#ctrl-modal .hideable-g[data-hideable] .hideable1-g
+#ctrl-modal .hideable-g[data-hideable] .hideable1-g,
+#ctrl-modal .hideable[data-hideable] > .hideable0 > .hideable0,
+#ctrl-modal .hideable[data-hideable] > .hideable1 > .hideable1,
+#ctrl-modal .hideable[data-hideable] > .hideable2 > .hideable2,
+#ctrl-modal .hideable[data-hideable] > .hideable3 > .hideable3,
+#ctrl-modal .hideable[data-hideable] > .hideable4 > .hideable4,
+#ctrl-modal .hideable[data-hideable] > .hideable5 > .hideable5,
+#ctrl-modal .hideable[data-hideable] > .hideable6 > .hideable6,
+#ctrl-modal .hideable[data-hideable] > .hideable7 > .hideable7
 {
     display: none;
 }
@@ -475,6 +483,19 @@ label.switch
 #ctrl-modal .hideable-g[data-hideable="on"] .hideable1-g
 {
     display: block;
+}
+#ctrl-modal .hideable[data-hideable="off"] > .hideable0 > .hideable-,
+#ctrl-modal .hideable[data-hideable="0"] > .hideable0 > .hideable0,
+#ctrl-modal .hideable[data-hideable="on"] > .hideable1 > .hideable1,
+#ctrl-modal .hideable[data-hideable="1"] > .hideable1 > .hideable1,
+#ctrl-modal .hideable[data-hideable="2"] > .hideable2 > .hideable2,
+#ctrl-modal .hideable[data-hideable="3"] > .hideable3 > .hideable3,
+#ctrl-modal .hideable[data-hideable="4"] > .hideable4 > .hideable4,
+#ctrl-modal .hideable[data-hideable="5"] > .hideable5 > .hideable5,
+#ctrl-modal .hideable[data-hideable="6"] > .hideable6 > .hideable6,
+#ctrl-modal .hideable[data-hideable="7"] > .hideable7 > .hideable7
+{
+    display: flex;
 }
 
 #location-edit-map
@@ -542,6 +563,14 @@ label.switch
     display: none;
 }
 #ctrl-modal .radio-and-antenna .hideable[data-hideable="5"] .peer.hideable5
+{
+    display: flex;
+}
+#ctrl-modal .radio-and-antenna .channel.hideable5
+{
+    display: none;
+}
+#ctrl-modal .radio-and-antenna .hideable[data-hideable="5"] .channel.hideable5
 {
     display: flex;
 }
