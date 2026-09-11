@@ -127,7 +127,7 @@ const meshrf = (function () {
                     channel: mode.channels ? current_channel : mode.channel,
                     channels: mode.channels,
                     chanbw: mode.bandwidth,
-                    freq: hardware.getChannelFrequency(config[i].iface, mode.channel),
+                    freq: mode.channels ? (current_channel ? hardware.getChannelFrequency(config[i].iface, current_channel) : 0) : hardware.getChannelFrequency(config[i].iface, mode.channel),
                     polarization: hardware.getAntennaPolarization(config[i].iface),
                     azimuth: tonumber(uci.get("aredn", "@location[0]", "azimuth")),
                     elevation: tonumber(uci.get("aredn", "@location[0]", "elevation")),
